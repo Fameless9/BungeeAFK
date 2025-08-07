@@ -12,7 +12,7 @@ adventureBungee = "4.3.4"
 adventueBukkit = "4.3.4"
 slf4j = "2.0.16"
 logback = "1.5.18"
-snakeYamlEngine = "2.10"
+snakeYaml = "2.4"
 
 [libraries]
 bungee = { module = "net.md-5:bungeecord-api", version.ref = "bungee" }
@@ -30,4 +30,4 @@ adventureBungee = { module = "net.kyori:adventure-platform-bungeecord", version.
 adventureBukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventueBukkit" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-snakeYamlEnginge = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeYamlEngine" }
+snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }

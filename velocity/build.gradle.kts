@@ -13,7 +13,7 @@ dependencies {
     implementation(project(":bungeeafk-core"))
     compileOnly(libs.velocity)
     implementation(libs.annotations)
-    implementation(libs.snakeYamlEnginge)
+    implementation(libs.snakeYaml)
     implementation(libs.adventureTextMinimessage)
     implementation(libs.bstatsVelocity)
 }

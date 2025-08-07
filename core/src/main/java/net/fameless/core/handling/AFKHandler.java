@@ -165,7 +165,7 @@ public abstract class AFKHandler {
             gameModeObject.addProperty(entry.getKey().toString(), entry.getValue().name());
         }
         for (Map.Entry<UUID, Location> entry : playerPreviousLocationMap.entrySet()) {
-            locationObject.add(entry.getKey().toString(), entry.getValue().getAsJsonObject());
+            locationObject.add(entry.getKey().toString(), entry.getValue().toJson());
         }
 
         JsonObject root = new JsonObject();

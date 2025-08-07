@@ -50,3 +50,9 @@ allow-bypass: true
 # Example: [lobby, hub]
 disabled-servers:
   []
+
+# Map of regions where AFK detection is disabled
+# Players in these regions will not be marked as AFK, and no actions will be performed
+# Regions should be added using the /bafk region add <param> command
+# Manually adding regions here is not recommended but possible, if you know what you're doing
+bypass-regions:

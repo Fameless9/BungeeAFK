@@ -43,6 +43,18 @@
   "command.server_not_found": "<prefix><red>Der Server '<server>' wurde nicht gefunden.",
   "command.disabled_server_list": "<prefix><gray>Ausgesetzte Server: <servers>",
   "command.only_proxy": "<prefix><red>Dieser Command kann nur auf dem Proxy (BungeeCord, Velocity, etc.) ausgeführt werden.",
+  "command.regions_reloaded": "<prefix><green>Bypass-Regionen erfolgreich neu geladen.",
+  "command.no_regions_found": "<prefix><red>Keine Bypass-Regionen gefunden.",
+  "command.region_list": "<prefix><gray>Bypass-Regionen: <regions>",
+  "command.region_not_found": "<prefix><red>Die Region <region> wurde nicht gefunden.",
+  "command.region_created": "<prefix><green>Bypass-Region <region> erfolgreich erstellt.",
+  "command.region_deleted": "<prefix><green>Bypass-Region <region> erfolgreich gelöscht.",
+  "command.region_already_exists": "<prefix><red>Die Region <region> existiert bereits.",
+  "command.invalid_region_format": "<prefix><red>Ungültiges Regionsformat. Benutze '/bafk region add <region-name> <world-name> <x1> <y1> <z1> <x2> <y2> <z2>'.",
+  "command.config_saved": "<prefix><green>Konfiguration erfolgreich gespeichert.",
+  "command.region_details": "<prefix><gold><br>Details der Region <region>:<gray><br>Welt: <world><br>Ecke 1: <corner1><br>Ecke 2: <corner2><br>AFK-Detection: <afk-detection>",
+  "command.region_detection_toggled": "<prefix><green>AFK-Detection wurde auf '<afk-detection>' für region '<region>' gesetzt.",
+  "command.afk_location_in_region": "<prefix><red>Der AFK-Standort befindet sich in einer Bypass-Region. Das kann zu unerwartetem Verhalten führen. Um trotzdem fortzufahren, führe den command erneut aus.",
   "error.no_caller_type": "<prefix><red>Falscher CallerType.",
   "actionbar.afk": "<blue>Du bist AFK"
 }

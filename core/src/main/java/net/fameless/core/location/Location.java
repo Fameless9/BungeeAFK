@@ -9,12 +9,11 @@ import java.util.Map;
 public class Location {
 
     public static @NotNull Location getConfiguredAfkZone() {
+        if (!PluginConfig.get().contains("afk-location")) {
+            throw new IllegalStateException("AFK location is not configured in the plugin config.");
+        }
         Map<String, Object> afkZone = PluginConfig.get().getSection("afk-location");
-        String worldName = afkZone.get("world").toString();
-        double x = Double.parseDouble(afkZone.get("x").toString());
-        double y = Double.parseDouble(afkZone.get("y").toString());
-        double z = Double.parseDouble(afkZone.get("z").toString());
-        return new Location(worldName, x, y, z);
+        return fromMap(afkZone);
     }
 
     private String worldName;
@@ -88,7 +87,7 @@ public class Location {
         this.yaw = yaw;
     }
 
-    public JsonObject getAsJsonObject() {
+    public JsonObject toJson() {
         JsonObject obj = new JsonObject();
         obj.addProperty("worldName", worldName);
         obj.addProperty("x", x);
@@ -99,7 +98,17 @@ public class Location {
         return obj;
     }
 
-    public Map<String, Object> getAsMap() {
+    public static @NotNull Location fromJson(@NotNull JsonObject json) {
+        String worldName = json.get("worldName").getAsString();
+        double x = json.get("x").getAsDouble();
+        double y = json.get("y").getAsDouble();
+        double z = json.get("z").getAsDouble();
+        float pitch = json.has("pitch") ? json.get("pitch").getAsFloat() : 0.0f;
+        float yaw = json.has("yaw") ? json.get("yaw").getAsFloat() : 0.0f;
+        return new Location(worldName, x, y, z, pitch, yaw);
+    }
+
+    public Map<String, Object> toMap() {
         return Map.of(
                 "world", worldName,
                 "x", x,
@@ -110,8 +119,23 @@ public class Location {
         );
     }
 
+    public static @NotNull Location fromMap(@NotNull Map<String, Object> map) {
+        String worldName = map.get("world").toString();
+        double x = Double.parseDouble(map.get("x").toString());
+        double y = Double.parseDouble(map.get("y").toString());
+        double z = Double.parseDouble(map.get("z").toString());
+        float pitch = map.containsKey("pitch") ? Float.parseFloat(map.get("pitch").toString()) : 0.0f;
+        float yaw = map.containsKey("yaw") ? Float.parseFloat(map.get("yaw").toString()) : 0.0f;
+        return new Location(worldName, x, y, z, pitch, yaw);
+    }
+
+    public String getCoordinates() {
+        return String.format("X: %.2f, Y: %.2f, Z: %.2f",
+                x, y, z);
+    }
+
     @Override
     public String toString() {
-        return getAsJsonObject().toString();
+        return toJson().toString();
     }
 }

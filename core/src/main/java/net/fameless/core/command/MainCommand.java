@@ -10,16 +10,17 @@ import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.PluginConfig;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
+import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
+import net.fameless.core.region.MockRegion;
+import net.fameless.core.region.Region;
 import net.fameless.core.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class MainCommand extends Command {
 
@@ -32,6 +33,8 @@ public class MainCommand extends Command {
                 "bungeeafk.command"
         );
     }
+
+    private final Set<CommandCaller> warnedLocationInRegion = new HashSet<>();
 
     @Override
     protected void executeCommand(CommandCaller caller, String @NotNull [] args) {
@@ -182,13 +185,26 @@ public class MainCommand extends Command {
                         return;
                     }
                     BAFKPlayer<?> player = (BAFKPlayer<?>) caller;
-                    PluginConfig.get().set("afk-location", player.getLocation().getAsMap());
+                    Location newLocation = player.getLocation();
+
+                    if (Region.isLocationInAnyRegion(newLocation) && !warnedLocationInRegion.contains(player)) {
+                        caller.sendMessage(Caption.of("command.afk_location_in_region"));
+                        warnedLocationInRegion.add(player);
+                        return;
+                    }
+
+                    PluginConfig.get().set("afk-location", player.getLocation().toMap());
+                    warnedLocationInRegion.remove(player);
                     player.sendMessage(Caption.of("command.afk_location_set"));
                 }
                 case "reloadconfig" -> {
                     PluginConfig.reload();
                     afkHandler.fetchConfigValues();
                     caller.sendMessage(Caption.of("command.config_reloaded"));
+                }
+                case "saveconfig" -> {
+                    PluginConfig.saveNow();
+                    caller.sendMessage(Caption.of("command.config_saved"));
                 }
                 case "disable-server" -> {
                     if (!BungeeAFK.isProxy()) {
@@ -273,6 +289,123 @@ public class MainCommand extends Command {
                     "command.language_changed",
                     TagResolver.resolver("language", Tag.inserting(Component.text(newLanguage.getFriendlyName())))
             ));
+        } else if (args[0].equalsIgnoreCase("region")) {
+            switch (args[1]) {
+                case "reload" -> {
+                    PluginConfig.loadBypassRegions();
+                    caller.sendMessage(Caption.of("command.regions_reloaded"));
+                }
+                case "list" -> {
+                    List<String> regions = Region.getAllRegions().stream().map(Region::getRegionName).toList();
+                    if (regions.isEmpty()) {
+                        caller.sendMessage(Caption.of("command.no_regions_found"));
+                    } else {
+                        caller.sendMessage(Caption.of("command.region_list",
+                                TagResolver.resolver("regions", Tag.inserting(Component.text(String.join(", ", regions))))
+                        ));
+                    }
+                }
+                case "details" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String regionName = args[2];
+                    Region region = Region.getRegionByName(regionName).orElse(null);
+                    if (region == null) {
+                        caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
+                        return;
+                    }
+                    caller.sendMessage(Caption.of("command.region_details",
+                            TagResolver.resolver("region", Tag.inserting(Component.text(region.getRegionName()))),
+                            TagResolver.resolver("world", Tag.inserting(Component.text(region.getWorldName()))),
+                            TagResolver.resolver("corner1", Tag.inserting(Component.text(region.getCorner1().getCoordinates()))),
+                            TagResolver.resolver("corner2", Tag.inserting(Component.text(region.getCorner2().getCoordinates()))),
+                            TagResolver.resolver("afk-detection", Tag.inserting(Component.text(region.isAfkDetectionEnabled() ? "enabled" : "disabled")))
+                    ));
+                }
+                case "toggle-detection" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String regionName = args[2];
+                    Region region = Region.getRegionByName(regionName).orElse(null);
+                    if (region == null) {
+                        caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
+                        return;
+                    }
+                    region.toggleAfkDetection();
+                    caller.sendMessage(Caption.of("command.region_detection_toggled",
+                            TagResolver.resolver("region", Tag.inserting(Component.text(region.getRegionName()))),
+                            TagResolver.resolver("afk-detection", Tag.inserting(Component.text(region.isAfkDetectionEnabled() ? "enabled" : "disabled")))
+                    ));
+                }
+                case "remove" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String regionName = args[2];
+                    Region region = Region.getAllRegions().stream()
+                            .filter(r -> r.getRegionName().equalsIgnoreCase(regionName))
+                            .findFirst()
+                            .orElse(null);
+                    if (region == null) {
+                        caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
+                        return;
+                    }
+                    Region.removeRegion(region);
+                    caller.sendMessage(Caption.of("command.region_deleted", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
+                }
+                case "add" -> {
+                    if (args.length < 10) {
+                        caller.sendMessage(Caption.of("command.invalid_region_format"));
+                        return;
+                    }
+                    String regionName = args[2];
+                    String worldName = args[3];
+
+                    double x1, y1, z1, x2, y2, z2;
+                    try {
+                        x1 = Double.parseDouble(args[4]);
+                        y1 = Double.parseDouble(args[5]);
+                        z1 = Double.parseDouble(args[6]);
+                        x2 = Double.parseDouble(args[7]);
+                        y2 = Double.parseDouble(args[8]);
+                        z2 = Double.parseDouble(args[9]);
+                    } catch (NumberFormatException e) {
+                        caller.sendMessage(Caption.of("command.invalid_number"));
+                        return;
+                    }
+
+                    if (Region.getRegionByName(regionName).isPresent()) {
+                        caller.sendMessage(Caption.of("command.region_already_exists", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
+                        return;
+                    }
+
+                    MockRegion mockRegion = new MockRegion(
+                            new Location(worldName, x1, y1, z1),
+                            new Location(worldName, x2, y2, z2)
+                    );
+
+                    if (mockRegion.isLocationInRegion(Location.getConfiguredAfkZone()) && !warnedLocationInRegion.contains(caller)) {
+                        caller.sendMessage(Caption.of("command.afk_location_in_region"));
+                        warnedLocationInRegion.add(caller);
+                        return;
+                    }
+                    warnedLocationInRegion.remove(caller);
+
+                    try {
+                        Region region = new Region(regionName, new Location(worldName, x1, y1, z1),
+                                new Location(worldName, x2, y2, z2), false);
+                        caller.sendMessage(Caption.of("command.region_created", TagResolver.resolver("region", Tag.inserting(Component.text(region.getRegionName())))));
+                    } catch (IllegalArgumentException e) {
+                        caller.sendMessage(Caption.of("command.invalid_region_format"));
+                    }
+                }
+                default -> sendUsage(caller);
+            }
         } else {
             sendUsage(caller);
         }
@@ -281,68 +414,103 @@ public class MainCommand extends Command {
     @Override
     protected List<String> tabComplete(CommandCaller caller, String @NotNull [] args) {
         List<String> completions = new ArrayList<>();
-        if (args.length == 1) {
-            completions.addAll(Arrays.asList("configure", "lang"));
-        } else if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("configure")) {
-                completions.addAll(Arrays.asList(
-                        "afk-delay",
-                        "action-delay",
-                        "action",
-                        "caption",
-                        "warning-delay",
-                        "allow-bypass",
-                        "reloadconfig",
-                        "afk-location"
-                ));
-                if (BungeeAFK.isProxy()) {
-                    completions.add("disable-server");
-                    completions.add("enable-server");
-                    completions.add("disabled-servers");
-                }
-            } else if (args[0].equalsIgnoreCase("lang")) {
-                completions.add("reload");
-                for (Language language : Language.values()) {
-                    completions.add(language.getIdentifier());
-                }
-            }
-        } else if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("configure")) {
-                if (args[1].equalsIgnoreCase("action")) {
-                    for (Action action : Action.getAvailableActions()) {
-                        completions.add(action.getIdentifier());
+        switch (args.length) {
+            case 1 -> completions.addAll(Arrays.asList("configure", "lang", "region"));
+            case 2 -> {
+                if (args[0].equalsIgnoreCase("configure")) {
+                    completions.addAll(Arrays.asList(
+                            "afk-delay", "action-delay", "action", "caption", "warning-delay",
+                            "allow-bypass", "reloadconfig", "afk-location", "saveconfig"
+                    ));
+                    if (BungeeAFK.isProxy()) {
+                        completions.addAll(Arrays.asList("disable-server", "enable-server", "disabled-servers"));
                     }
-                } else if (args[1].equalsIgnoreCase("afk-delay")
-                        || args[1].equalsIgnoreCase("action-delay")
-                        || args[1].equalsIgnoreCase("warning-delay")) {
-                    completions.add("<seconds>");
-                } else if (args[1].equalsIgnoreCase("caption")) {
+                } else if (args[0].equalsIgnoreCase("lang")) {
+                    completions.add("reload");
                     for (Language language : Language.values()) {
                         completions.add(language.getIdentifier());
                     }
-                } else if (args[1].equalsIgnoreCase("allow-bypass")) {
-                    completions.addAll(Arrays.asList("true", "false"));
-                } else if (args[1].equalsIgnoreCase("disable-server") && BungeeAFK.isProxy()) {
-                    List<String> serverNames = new ArrayList<>(BungeeAFK.getPlatform().getServers());
-                    serverNames.removeAll(PluginConfig.get().getStringList("disabled-servers"));
-                    completions.addAll(serverNames);
-                } else if (args[1].equalsIgnoreCase("enable-server") && BungeeAFK.isProxy()) {
-                    completions.addAll(PluginConfig.get().getStringList("disabled-servers"));
+                } else if (args[0].equalsIgnoreCase("region")) {
+                    completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
                 }
             }
-        } else if (args.length == 4) {
-            if (args[0].equalsIgnoreCase("configure") && args[1].equalsIgnoreCase("caption")) {
-                Language language = Language.ofIdentifier(args[2]);
-                if (language != null) {
-                    JsonObject languageObj = Caption.getLanguageJsonObject(language);
-                    if (languageObj != null) {
-                        completions.addAll(languageObj.keySet());
+            case 3 -> {
+                if (args[0].equalsIgnoreCase("configure")) {
+                    if (args[1].equalsIgnoreCase("action")) {
+                        for (Action action : Action.getAvailableActions()) {
+                            completions.add(action.getIdentifier());
+                        }
+                    } else if (args[1].equalsIgnoreCase("afk-delay")
+                            || args[1].equalsIgnoreCase("action-delay")
+                            || args[1].equalsIgnoreCase("warning-delay")) {
+                        completions.add("<seconds>");
+                    } else if (args[1].equalsIgnoreCase("caption")) {
+                        for (Language language : Language.values()) {
+                            completions.add(language.getIdentifier());
+                        }
+                    } else if (args[1].equalsIgnoreCase("allow-bypass")) {
+                        completions.addAll(Arrays.asList("true", "false"));
+                    } else if (args[1].equalsIgnoreCase("disable-server") && BungeeAFK.isProxy()) {
+                        List<String> serverNames = new ArrayList<>(BungeeAFK.getPlatform().getServers());
+                        serverNames.removeAll(PluginConfig.get().getStringList("disabled-servers"));
+                        completions.addAll(serverNames);
+                    } else if (args[1].equalsIgnoreCase("enable-server") && BungeeAFK.isProxy()) {
+                        completions.addAll(PluginConfig.get().getStringList("disabled-servers"));
+                    }
+                } else if (args[0].equalsIgnoreCase("region")) {
+                    if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("details") || args[1].equalsIgnoreCase("toggle-detection")) {
+                        completions.addAll(Region.getAllRegions().stream()
+                                .map(Region::getRegionName)
+                                .toList());
+                    } else if (args[1].equalsIgnoreCase("add")) {
+                        completions.add("<regionName>");
                     }
                 }
             }
-        } else if (args.length == 5) {
-            if (args[0].equalsIgnoreCase("configure") && args[1].equalsIgnoreCase("caption")) {
-                completions.add("<new-caption>");
+            case 4 -> {
+                if (args[0].equalsIgnoreCase("configure") && args[1].equalsIgnoreCase("caption")) {
+                    Language language = Language.ofIdentifier(args[2]);
+                    if (language != null) {
+                        JsonObject languageObj = Caption.getLanguageJsonObject(language);
+                        if (languageObj != null) {
+                            completions.addAll(languageObj.keySet());
+                        }
+                    }
+                } else if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
+                    completions.add("<worldName>");
+                }
+            }
+            case 5 -> {
+                if (args[0].equalsIgnoreCase("configure") && args[1].equalsIgnoreCase("caption")) {
+                    completions.add("<new-caption>");
+                } else if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
+                    completions.add("<x1>");
+                }
+            }
+            case 6 -> {
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
+                    completions.add("<y1>");
+                }
+            }
+            case 7 -> {
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
+                    completions.add("<z1>");
+                }
+            }
+            case 8 -> {
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
+                    completions.add("<x2>");
+                }
+            }
+            case 9 -> {
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
+                    completions.add("<y2>");
+                }
+            }
+            case 10 -> {
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
+                    completions.add("<z2>");
+                }
             }
         }
         return StringUtil.copyPartialMatches(args[args.length - 1], completions, new ArrayList<>());

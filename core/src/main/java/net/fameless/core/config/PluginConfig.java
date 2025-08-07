@@ -1,23 +1,25 @@
 package net.fameless.core.config;
 
+import net.fameless.core.region.Region;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
 import net.fameless.core.util.YamlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snakeyaml.engine.v2.api.Load;
-import org.snakeyaml.engine.v2.api.LoadSettings;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PluginConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + PluginConfig.class.getSimpleName());
+    public static Yaml YAML;
     private static YamlConfig config;
 
     @SuppressWarnings("unchecked")
@@ -36,13 +38,10 @@ public class PluginConfig {
             throw new RuntimeException(e);
         }
 
-        LoadSettings loadSettings = LoadSettings.builder()
-                .setParseComments(true)
-                .build();
+        YAML = new Yaml();
+        config = new YamlConfig(YAML.load(yamlContent));
 
-        Load load = new Load(loadSettings);
-
-        config = new YamlConfig((Map<String, Object>) load.loadFromString(yamlContent));
+        loadBypassRegions();
 
         LOGGER.info("\nYour BungeeAFK configuration: \n  * lang: {} \n  * warning-delay: {} \n  * afk-delay: {} \n  * action-delay: {} \n  * action: {} \n  * afk-server-name: {} \n  * allow-bypass: {}",
                 config.getString("lang", "en"),
@@ -54,11 +53,38 @@ public class PluginConfig {
                 config.getBoolean("allow-bypass", true));
     }
 
+    public static void loadBypassRegions() {
+        Region.clearRegions();
+        if (config.contains("bypass-regions")) {
+            Map<String, Object> bypassRegions = config.getSection("bypass-regions");
+            for (Map.Entry<String, Object> entry : bypassRegions.entrySet()) {
+                Map<String, Object> regionData = (Map<String, Object>) entry.getValue();
+                Region.fromMap(regionData);
+            }
+        } else {
+            LOGGER.info("No bypass regions found in the configuration.");
+        }
+    }
+
+    public static void saveRegions() {
+        Map<String, Object> bypassRegions = new HashMap<>();
+        for (int i = 0; i < Region.getAllRegions().size(); i++) {
+            Region region = Region.getAllRegions().get(i);
+            bypassRegions.put(region.getRegionName(), region.toMap());
+        }
+        config.set("bypass-regions", bypassRegions);
+    }
+
     public static void reload() {
         init();
     }
 
     public static void shutdown() {
+        saveNow();
+    }
+
+    public static void saveNow() {
+        saveRegions();
         File configFile = PluginPaths.getConfigFile();
 
         String fileContent = YamlUtil.generateConfig();

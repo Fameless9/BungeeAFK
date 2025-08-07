@@ -3,6 +3,7 @@ package net.fameless.core.config;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public record YamlConfig(Map<String, Object> data) {
         if (val instanceof Map) {
             return (Map<String, Object>) val;
         }
-        throw new IllegalArgumentException("Value for key '" + key + "' is not a Map");
+        return Collections.emptyMap();
     }
 
     public @NotNull List<String> getStringList(String key) {

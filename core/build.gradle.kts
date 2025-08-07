@@ -17,7 +17,7 @@ dependencies {
     implementation(libs.guice)
     implementation(libs.adventureTextMinimessage)
     implementation(libs.adventureTextSerializerLegacy)
-    implementation(libs.snakeYamlEnginge)
+    implementation(libs.snakeYaml)
     api(libs.slf4j)
     api(libs.logback)
 }
