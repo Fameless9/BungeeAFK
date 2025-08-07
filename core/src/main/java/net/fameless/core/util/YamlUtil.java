@@ -54,7 +54,7 @@ public class YamlUtil {
               y: %s
               z: %s
 
-            # Whether to allow bypass of AFK detection for players with the "afk.bypass" permission
+            # Whether to allow bypass of AFK detection for players with the "afk.bypass" permission (global)
             allow-bypass: %b
 
             # List of servers where AFK detection is disabled
@@ -63,10 +63,10 @@ public class YamlUtil {
             disabled-servers:
               %s
 
-            # Map of regions where AFK detection is disabled
-            # Players in these regions will not be marked as AFK, and no actions will be performed
+            # Map of regions where AFK detection can be toggled on or off independently
+            # Players in regions where AFK detection is false will not be marked as AFK, and no actions will be performed
             # Regions should be added using the /bafk region add <param> command
-            # Manually adding regions here is not recommended but possible, if you know what you're doing
+            # Manually adding regions here is possible, but not recommended, unless you know what you're doing
             %s
             """.formatted(
                 Caption.getCurrentLanguage().getIdentifier(),
