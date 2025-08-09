@@ -202,6 +202,7 @@ public class MainCommand extends Command {
                 case "reloadconfig" -> {
                     PluginConfig.reload();
                     afkHandler.fetchConfigValues();
+                    BungeeAFK.getAutoClickerDetector().reloadConfigValues();
                     caller.sendMessage(Caption.of("command.config_reloaded"));
                 }
                 case "saveconfig" -> {
