@@ -1,5 +1,6 @@
 package net.fameless.spigot;
 
+import net.fameless.core.BungeeAFK;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.AFKState;
 import org.bukkit.Bukkit;
@@ -43,6 +44,8 @@ public class SpigotAFKHandler extends AFKHandler implements Listener {
 
     @EventHandler
     public void onInteract(@NotNull PlayerInteractEvent event) {
-        actionCaught(SpigotPlayer.adapt(event.getPlayer()));
+        SpigotPlayer player = SpigotPlayer.adapt(event.getPlayer());
+        actionCaught(player);
+        BungeeAFK.getAutoClickerDetector().registerClick(player);
     }
 }

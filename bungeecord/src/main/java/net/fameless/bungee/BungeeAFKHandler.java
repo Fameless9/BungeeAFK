@@ -51,19 +51,24 @@ public class BungeeAFKHandler extends AFKHandler implements Listener {
 
         try {
             switch (type) {
-                case ACTION_CAUGHT:
-                    handleActionCaught(parts);
-                    break;
-                case GAMEMODE_CHANGE:
-                    handleGameModeChange(parts);
-                    break;
-                case LOCATION_CHANGE:
-                    handleLocationChange(parts);
-                    break;
+                case ACTION_CAUGHT -> handleActionCaught(parts);
+                case GAMEMODE_CHANGE -> handleGameModeChange(parts);
+                case LOCATION_CHANGE -> handleLocationChange(parts);
+                case CLICK -> handleClick(parts);
             }
         } catch (Exception e) {
             LOGGER.error("Invalid data received: {} stacktrace: {}", Arrays.toString(parts), e.getMessage());
         }
+    }
+
+    private void handleClick(String @NotNull [] parts) {
+        if (parts.length != 2) return;
+        String uuidStr = parts[1];
+        BungeePlayer bungeePlayer = BungeePlayer.adapt(UUID.fromString(uuidStr)).orElse(null);
+        if (bungeePlayer == null) return;
+        bungeePlayer.setTimeSinceLastAction(0);
+        bungeePlayer.setAfkState(AFKState.ACTIVE);
+        BungeeAFK.getAutoClickerDetector().registerClick(bungeePlayer);
     }
 
     private void handleActionCaught(String @NotNull [] parts) {

@@ -1,5 +1,6 @@
 package net.fameless.core;
 
+
 import java.util.List;
 
 public interface BungeeAFKPlatform {

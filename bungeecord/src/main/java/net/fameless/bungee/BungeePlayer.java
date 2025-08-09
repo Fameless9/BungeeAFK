@@ -147,4 +147,17 @@ public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
         ).getBytes();
         player.getServer().getInfo().sendData("bungee:bungeeafk", data);
     }
+
+    @Override
+    public void openEmptyInventory() {
+        ProxiedPlayer player = getPlatformPlayer().orElse(null);
+        if (player == null) {
+            LOGGER.info("player is null, cannot set gamemode.");
+            return;
+        }
+        byte[] data = (RequestType.OPEN_EMPTY_INVENTORY.getName() + ";" +
+                this.getUniqueId() + ";").getBytes();
+
+        player.getServer().getInfo().sendData("bungee:bungeeafk", data);
+    }
 }

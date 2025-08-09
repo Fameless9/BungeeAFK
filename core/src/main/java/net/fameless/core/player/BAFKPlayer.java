@@ -100,7 +100,7 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
             MessageBroadcaster.broadcastMessageToFiltered(
                     Caption.of("notification.afk_return_broadcast",
                     TagResolver.resolver("player", Tag.inserting(Component.text(getName())))),
-                    PlayerFilters.matches(this).negate()
+                    PlayerFilters.notMatching(this)
             );
         }
         this.afkState = event.getNewState();
@@ -153,4 +153,6 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     public abstract void updateGameMode(GameMode gameMode);
 
     public abstract void teleport(Location location);
+
+    public abstract void openEmptyInventory();
 }

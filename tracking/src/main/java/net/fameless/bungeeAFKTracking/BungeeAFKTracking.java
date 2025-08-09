@@ -7,6 +7,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -55,11 +56,24 @@ public class BungeeAFKTracking extends JavaPlugin implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction().equals(Action.PHYSICAL)) return;
+        sendClickDetectedMessage(event.getPlayer());
+    }
+
+
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskLater(this, () -> {
             sendGamemodeChangeMessage(event.getPlayer(), event.getPlayer().getGameMode());
             sendLocationChangeMessage(event.getPlayer(), event.getPlayer().getLocation());
         }, 5L); // Delay to ensure player is fully initialized on proxy platform
+    }
+
+    private void sendClickDetectedMessage(@NotNull Player player) {
+        String message = "click;" + player.getUniqueId();
+        byte[] data = message.getBytes();
+        player.sendPluginMessage(this, "bungee:bungeeafk", data);
     }
 
     private void sendLocationChangeMessage(@NotNull Player player, @NotNull Location location) {
@@ -122,6 +136,19 @@ public class BungeeAFKTracking extends JavaPlugin implements Listener {
                 } catch (NumberFormatException e) {
                     getLogger().severe("Invalid gamemode value received: " + parts[2]);
                 }
+            }
+            case "open_empty_inventory" -> {
+                if (parts.length < 2) {
+                    getLogger().severe("Invalid open_empty_inventory data received: " + messageString);
+                    return;
+                }
+                Player targetPlayer = Bukkit.getPlayer(UUID.fromString(parts[1]));
+                if (targetPlayer == null) {
+                    getLogger().severe("Invalid player UUID received for open_empty_inventory: " + parts[1]);
+                    return;
+                }
+
+                targetPlayer.openInventory(Bukkit.createInventory(null, 27, ""));
             }
         }
     }

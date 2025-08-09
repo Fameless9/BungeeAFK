@@ -23,4 +23,8 @@ public class PluginPaths {
         return new File(BASE_FOLDER + File.separator + "storage", "persisted_states.json");
     }
 
+    public static @NotNull File getAutoClickerDetectionHistoryFile() {
+        return new File(BASE_FOLDER + File.separator + "storage", "detection_history.json");
+    }
+
 }

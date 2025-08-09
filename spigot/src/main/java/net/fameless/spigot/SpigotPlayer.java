@@ -146,6 +146,11 @@ public class SpigotPlayer extends BAFKPlayer<Player> {
     }
 
     @Override
+    public void openEmptyInventory() {
+        getPlatformPlayer().ifPresent(player -> player.openInventory(Bukkit.createInventory(null, 27, "")));
+    }
+
+    @Override
     public GameMode getGameMode() {
         Player player = getPlatformPlayer().orElse(null);
         if (player == null) {

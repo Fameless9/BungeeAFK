@@ -154,4 +154,20 @@ public class VelocityPlayer extends BAFKPlayer<Player> {
                         location.getPitch()
                 ).getBytes());
     }
+
+    @Override
+    public void openEmptyInventory() {
+        Player player = getPlatformPlayer().orElse(null);
+        if (player == null) {
+            LOGGER.info("player is null, cannot teleport.");
+            return;
+        }
+        ServerConnection connection = player.getCurrentServer().orElse(null);
+        if (connection == null) {
+            LOGGER.info("player is not connected to a server, cannot teleport.");
+            return;
+        }
+        ChannelIdentifier identifier = MinecraftChannelIdentifier.create("bungee", "bungeeafk");
+        connection.sendPluginMessage(identifier, (RequestType.OPEN_EMPTY_INVENTORY.getName() + ";" + this.getUniqueId()).getBytes());
+    }
 }

@@ -56,3 +56,47 @@ disabled-servers:
 # Regions should be added using the /bafk region add <param> command
 # Manually adding regions here is possible, but not recommended, unless you know what you're doing
 bypass-regions:
+
+# Auto-Clicker Detection Settings
+# Warning: May detect players who interact by holding down a mouse button for 600 detections straight
+# It is programmed to be resilient against false positives, but it is still possible to get false positives
+# If you experience false positives, consider increasing the sample-size or stddev-threshold values or decreasing the min-click-interval
+auto-clicker:
+  enabled: false
+
+  # Whether to allow bypass of auto-clicker detection for players with the "bungeeafk.autoclicker.bypass" permission
+  allow-bypass: true
+
+  # Players with this permission will receive a notification that an autoclicker has been detected
+  notify-permission: "bungeeafk.autoclicker.notify"
+
+  # Whether to notify the player when an auto clicker is detected for them
+  notify-player: true
+
+  # Action to be performed when auto clicker has been detected
+  # "kick" - player is kicked from the server (default value)
+  # "open-inv" - open an empty inventory to prevent clicks from impacting anything
+  # "nothing" - nothing will happen
+  action: "kick"
+
+  # How many detections to keep in history for each player
+  # /bafk auto-clicker detection-history <player> command will show the last detections
+  detection-history-size: 10
+
+  # List of servers where auto clicker detection is disabled
+  disabled-servers: []
+
+  # These values are fine-tuned to balance false positives and detection accuracy
+  # sample-size: 200 - Number of clicks analyzed in a rolling window
+  # consecutive-detections: 3 - Number of consecutive suspicious windows required to trigger detection
+  # stddev-threshold: 10 - Standard deviation threshold (in milliseconds) for click interval timing consistency;
+  #    lower stddev indicates more machine-like consistent clicking
+  # min-click-interval: 30 - Minimum interval between clicks (in milliseconds) to be considered valid;
+  #    30ms = 33.33 clicks per second, 1000ms = 1 click per second
+  # With these settings, a player must click about 600 times in a row with very consistent intervals
+  # (stddev of inter-click timings below 50 ms) or with 30cps+ to be detected as an auto clicker, which is very unlikely
+  #
+  sample-size: 200
+  consecutive-detections: 3
+  stddev-threshold: 10
+  min-click-interval: 30

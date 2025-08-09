@@ -8,6 +8,8 @@ import net.fameless.core.command.framework.CallerType;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.PluginConfig;
+import net.fameless.core.detection.autoclicker.ActionOnDetection;
+import net.fameless.core.detection.autoclicker.history.Detection;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
 import net.fameless.core.location.Location;
@@ -29,7 +31,7 @@ public class MainCommand extends Command {
                 "bungeeafk",
                 List.of("bafk"),
                 CallerType.NONE,
-                "/bungeeafk <lang|configure> <reload|<land>|allow-bypass|warning-delay|afk-delay|action-delay|action|caption|afk-location|reloadconfig|disable-server|enable-server|disabled-servers> <param>",
+                "/bungeeafk <lang|configure|region|auto-clicker> <reload|<land>|allow-bypass|warning-delay|afk-delay|action-delay|action|caption|afk-location|reloadconfig|disable-server|enable-server|disabled-servers|enable|disable|max-cps|tolerance|toggle-bypass|bypass-permission|action> <param>",
                 "bungeeafk.command"
         );
     }
@@ -406,6 +408,106 @@ public class MainCommand extends Command {
                 }
                 default -> sendUsage(caller);
             }
+        } else if (args[0].equalsIgnoreCase("auto-clicker")) {
+            switch (args[1]) {
+                case "enable" -> {
+                    PluginConfig.get().set("auto-clicker.enabled", true);
+                    caller.sendMessage(Caption.of("command.auto_clicker_detection_enabled"));
+                }
+                case "disable" -> {
+                    PluginConfig.get().set("auto-clicker.enabled", false);
+                    caller.sendMessage(Caption.of("command.auto_clicker_detection_disabled"));
+                }
+                case "toggle-bypass" -> {
+                    boolean allowBypass = PluginConfig.get().getBoolean("auto-clicker.allow-bypass", true);
+                    PluginConfig.get().set("auto-clicker.allow-bypass", !allowBypass);
+
+                    caller.sendMessage(Caption.of("command.auto_clicker_bypass_toggled",
+                            TagResolver.resolver("bypass", Tag.inserting(Component.text(!allowBypass)))
+                    ));
+                }
+                case "toggle-on-server" -> {
+                    if (!BungeeAFK.isProxy()) {
+                        caller.sendMessage(Caption.of("command.only_proxy"));
+                        return;
+                    }
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String serverName = args[2];
+                    if (!BungeeAFK.getPlatform().doesServerExist(serverName)) {
+                        caller.sendMessage(Caption.of("command.server_not_found", TagResolver.resolver("server", Tag.inserting(Component.text(serverName)))));
+                        return;
+                    }
+
+                    List<String> disabledServers = PluginConfig.get().getStringList("disabled-servers");
+                    boolean enabled = disabledServers.contains(serverName);
+                    if (enabled) {
+                        disabledServers.remove(serverName);
+                        PluginConfig.get().set("disabled-servers", disabledServers);
+                    } else {
+                        disabledServers.add(serverName);
+                        PluginConfig.get().set("disabled-servers", disabledServers);
+                    }
+                    caller.sendMessage(Caption.of("command.auto_clicker_detection_toggled_on_server",
+                            TagResolver.resolver("server", Tag.inserting(Component.text(serverName))),
+                            TagResolver.resolver("status", Tag.inserting(Component.text(!enabled)))
+                    ));
+                }
+                case "action" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String actionIdentifier = args[2];
+                    ActionOnDetection action;
+                    try {
+                        action = ActionOnDetection.fromIdentifier(actionIdentifier);
+                    } catch (IllegalArgumentException e) {
+                        caller.sendMessage(Caption.of("command.auto_clicker_invalid_action"));
+                        return;
+                    }
+
+                    PluginConfig.get().set("auto-clicker.action", action.getIdentifier());
+                    caller.sendMessage(Caption.of("command.auto_clicker_action_set",
+                            TagResolver.resolver("action", Tag.inserting(Component.text(action.getIdentifier())))));
+                }
+                case "toggle-notify-player" -> {
+                    boolean notifyPlayer = PluginConfig.get().getBoolean("auto-clicker.notify-player", true);
+                    PluginConfig.get().set("auto-clicker.notify-player", !notifyPlayer);
+                    caller.sendMessage(Caption.of("command.auto_clicker_notify_player_toggled",
+                            TagResolver.resolver("notify", Tag.inserting(Component.text(!notifyPlayer)))
+                    ));
+                }
+                case "detection-history" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String playerName = args[2];
+                    BAFKPlayer<?> player = BAFKPlayer.of(playerName).orElse(null);
+                    if (player == null) {
+                        caller.sendMessage(Caption.of("command.player_not_found", TagResolver.resolver("player", Tag.inserting(Component.text(playerName)))));
+                        return;
+                    }
+
+                    List<Detection> detections = Detection.getDetectionsByPlayer(player.getName());
+                    if (detections.isEmpty()) {
+                        caller.sendMessage(Caption.of("command.no_detections_found", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))));
+                    } else {
+                        List<String> detectionStrings = detections.stream()
+                                .map(detection ->  "- " + detection.getFriendlyString())
+                                .toList();
+
+                        caller.sendMessage(Caption.of("command.detection_history",
+                                TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))),
+                                TagResolver.resolver("detection-count", Tag.inserting(Component.text(detections.size()))),
+                                TagResolver.resolver("detections", Tag.inserting(Component.text(String.join(",\n", detectionStrings))))
+                        ));
+                    }
+                }
+            }
         } else {
             sendUsage(caller);
         }
@@ -415,7 +517,7 @@ public class MainCommand extends Command {
     protected List<String> tabComplete(CommandCaller caller, String @NotNull [] args) {
         List<String> completions = new ArrayList<>();
         switch (args.length) {
-            case 1 -> completions.addAll(Arrays.asList("configure", "lang", "region"));
+            case 1 -> completions.addAll(Arrays.asList("configure", "lang", "region", "auto-clicker"));
             case 2 -> {
                 if (args[0].equalsIgnoreCase("configure")) {
                     completions.addAll(Arrays.asList(
@@ -432,6 +534,14 @@ public class MainCommand extends Command {
                     }
                 } else if (args[0].equalsIgnoreCase("region")) {
                     completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
+                } else if (args[0].equalsIgnoreCase("auto-clicker")) {
+                    completions.addAll(Arrays.asList(
+                            "enable", "disable", "toggle-notify-player",
+                            "toggle-bypass", "action", "detection-history"
+                    ));
+                    if (BungeeAFK.isProxy()) {
+                        completions.add("toggle-on-server");
+                    }
                 }
             }
             case 3 -> {
@@ -464,6 +574,26 @@ public class MainCommand extends Command {
                                 .toList());
                     } else if (args[1].equalsIgnoreCase("add")) {
                         completions.add("<regionName>");
+                    }
+                } else if (args[0].equalsIgnoreCase("auto-clicker")) {
+                    switch (args[1].toLowerCase()) {
+                        case "action" -> {
+                            for (ActionOnDetection action : ActionOnDetection.values()) {
+                                completions.add(action.getIdentifier());
+                            }
+                        }
+                        case "detection-history" -> {
+                            List<String> players = Detection.getDetections()
+                                    .stream().map(Detection::getPlayerName).toList();
+                            completions.addAll(players);
+                        }
+                        case "toggle-on-server" -> {
+                            if (BungeeAFK.isProxy()) {
+                                completions.addAll(BungeeAFK.getPlatform().getServers());
+                            } else {
+                                completions.add("-- Only available on proxy --");
+                            }
+                        }
                     }
                 }
             }

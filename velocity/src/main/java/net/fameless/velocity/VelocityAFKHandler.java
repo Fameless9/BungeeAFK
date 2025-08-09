@@ -38,22 +38,34 @@ public class VelocityAFKHandler extends AFKHandler {
 
         try {
             switch (type) {
-                case ACTION_CAUGHT:
+                case ACTION_CAUGHT -> {
                     if (parts.length < 2) return;
                     handleActionCaught(parts[1]);
-                    break;
-                case GAMEMODE_CHANGE:
+                }
+                case GAMEMODE_CHANGE -> {
                     if (parts.length < 3) return;
                     handleGameModeChange(parts[1], parts[2]);
-                    break;
-                case LOCATION_CHANGE:
+                }
+                case LOCATION_CHANGE -> {
                     if (parts.length < 8) return;
                     handleLocationChange(parts);
-                    break;
+                }
+                case CLICK -> {
+                    if (parts.length < 2) return;
+                    handleClick(parts[1]);
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Invalid data received: {} stacktrace: {}", Arrays.toString(parts), e.getMessage());
         }
+    }
+
+    private void handleClick(String uuidStr) {
+        VelocityPlayer velocityPlayer = VelocityPlayer.adapt(UUID.fromString(uuidStr)).orElse(null);
+        if (velocityPlayer == null) return;
+        velocityPlayer.setTimeSinceLastAction(0);
+        velocityPlayer.setAfkState(AFKState.ACTIVE);
+        BungeeAFK.getAutoClickerDetector().registerClick(velocityPlayer);
     }
 
     private void handleActionCaught(String uuidStr) {

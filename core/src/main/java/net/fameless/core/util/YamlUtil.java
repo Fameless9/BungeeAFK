@@ -68,6 +68,47 @@ public class YamlUtil {
             # Regions should be added using the /bafk region add <param> command
             # Manually adding regions here is possible, but not recommended, unless you know what you're doing
             %s
+
+            # Auto-Clicker Detection Settings
+            auto-clicker:
+              enabled: %b
+
+              # Whether to allow bypass of auto-clicker detection for players with the "bungeeafk.autoclicker.bypass" permission
+              allow-bypass: %b
+
+              # Players with this permission will receive a notification that an autoclicker has been detected
+              notify-permission: %s
+
+              # Whether to notify the player when an auto clicker is detected for them
+              notify-player: %b
+
+              # Action to be performed when auto clicker has been detected
+              # "kick" - player is kicked from the server (default value)
+              # "open-inv" - open an empty inventory to prevent clicks from impacting anything
+              # "nothing" - nothing will happen
+              action: %s
+
+              # How many detections to keep in history for each player
+              # /bafk auto-clicker detection-history <player> command will show the last detections
+              detection-history-size: %d
+            
+              # List of servers where auto clicker detection is disabled
+              disabled-servers:
+                %s
+
+              # These values are fine-tuned to balance false positives and detection accuracy
+              # sample-size: 150 - Number of clicks analyzed in a rolling window
+              # consecutive-detections: 3 - Number of consecutive suspicious windows required to trigger detection
+              # stddev-threshold: 50 - Standard deviation threshold (in milliseconds) for click interval timing consistency;
+              #    lower stddev indicates more machine-like consistent clicking
+              # min-click-interval: 50 - Minimum interval between clicks (in milliseconds) to be considered valid;
+              #    50ms = 20 clicks per second, 1000ms = 1 click per second
+              # With these settings, a player must click about 450 times in a row with very consistent intervals
+              # (stddev of inter-click timings below 50 ms) or with 20cps+ to be detected as an auto clicker, which is very unlikely
+              sample-size: %d
+              consecutive-detections: %d
+              stddev-threshold: %d
+              min-click-interval: %d
             """.formatted(
                 Caption.getCurrentLanguage().getIdentifier(),
                 PluginConfig.get().getInt("warning-delay", 60),
@@ -81,7 +122,18 @@ public class YamlUtil {
                 PluginConfig.get().getSection("afk-location").get("z"),
                 PluginConfig.get().getBoolean("allow-bypass", true),
                 PluginConfig.get().getStringList("disabled-servers"),
-                PluginConfig.YAML.dumpAsMap(Map.of("bypass-regions", PluginConfig.get().getSection("bypass-regions")))
+                PluginConfig.YAML.dumpAsMap(Map.of("bypass-regions", PluginConfig.get().getSection("bypass-regions"))),
+                PluginConfig.get().getBoolean("auto-clicker.enabled", true),
+                PluginConfig.get().getBoolean("auto-clicker.allow-bypass", true),
+                PluginConfig.get().getString("auto-clicker.notify-permission", "bungeeafk.autoclicker.notify"),
+                PluginConfig.get().getBoolean("auto-clicker.notify-player", true),
+                PluginConfig.get().getString("auto-clicker.action", "open-inv"),
+                PluginConfig.get().getInt("auto-clicker.detection-history-size", 10),
+                PluginConfig.get().getStringList("auto-clicker.disabled-servers"),
+                PluginConfig.get().getInt("auto-clicker.sample-size", 200),
+                PluginConfig.get().getInt("auto-clicker.consecutive-detections", 3),
+                PluginConfig.get().getInt("auto-clicker.stddev-threshold", 10),
+                PluginConfig.get().getInt("auto-clicker.min-click-interval", 30)
         );
     }
 

@@ -10,7 +10,9 @@ public enum RequestType {
     DISABLE_COLLISION,
     SET_GAMEMODE,
     GAMEMODE_CHANGE,
-    LOCATION_CHANGE;
+    LOCATION_CHANGE,
+    CLICK,
+    OPEN_EMPTY_INVENTORY;
 
     public boolean matches(String name) {
         return this.name().equalsIgnoreCase(name);

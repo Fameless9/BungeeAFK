@@ -12,8 +12,8 @@ public class PlayerFilters {
         return p -> !p.isOffline();
     }
 
-    public static @NotNull PlayerFilter matches(final @NotNull BAFKPlayer<?> player) {
-        return p -> p.equals(player);
+    public static @NotNull PlayerFilter notMatching(final @NotNull BAFKPlayer<?> player) {
+        return p -> !p.equals(player);
     }
 
     public static @NotNull PlayerFilter onServer(final String serverName) {

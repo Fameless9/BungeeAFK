@@ -221,7 +221,7 @@ public abstract class AFKHandler {
             MessageBroadcaster.broadcastMessageToFiltered(
                     Caption.of("notification.afk_broadcast",
                             TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                    PlayerFilters.matches(player).negate()
+                    PlayerFilters.notMatching(player)
             );
             LOGGER.info("{} is now AFK.", player.getName());
         }
@@ -243,7 +243,7 @@ public abstract class AFKHandler {
                     MessageBroadcaster.broadcastMessageToFiltered(
                             Caption.of("notification.afk_kick_broadcast",
                                     TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                            PlayerFilters.matches(player).negate()
+                            PlayerFilters.notMatching(player)
                     );
                     LOGGER.info("Kicked {} for being AFK.", player.getName());
                     return;
@@ -256,7 +256,7 @@ public abstract class AFKHandler {
                 MessageBroadcaster.broadcastMessageToFiltered(
                         Caption.of("notification.afk_disconnect_broadcast",
                                 TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                        PlayerFilters.matches(player).negate()
+                        PlayerFilters.notMatching(player)
                 );
                 LOGGER.info("Moved {} to AFK server.", player.getName());
             }
