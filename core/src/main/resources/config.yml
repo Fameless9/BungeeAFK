@@ -64,7 +64,7 @@ bypass-regions:
 auto-clicker:
   enabled: false
 
-  # Whether to allow bypass of auto-clicker detection for players with the "bungeeafk.autoclicker.bypass" permission
+  # Whether to allow bypass of auto-clicker detection for players with the "bungeeafk.auto-clicker.bypass" permission
   allow-bypass: true
 
   # Players with this permission will receive a notification that an autoclicker has been detected
@@ -100,3 +100,30 @@ auto-clicker:
   consecutive-detections: 3
   stddev-threshold: 10
   min-click-interval: 30
+
+# Movement Pattern Detection Settings
+# Detection history is shared with auto-clicker detection, same settings apply
+movement-pattern:
+  enabled: true
+
+  # Whether to allow bypass of movement pattern detection for players with the "bungeeafk.movement-pattern.bypass" permission
+  allow-bypass: true
+
+  # Players with this permission will receive a notification that a movement pattern has been detected
+  notify-permission: "bungeeafk.movement-pattern.notify"
+
+  # Whether to notify the player when a movement pattern is detected for them
+  notify-player: true
+
+  # Action to be performed when movement pattern has been detected
+  # "kick" - player is kicked from the server (default value)
+  # "connect" - player is connected to the server specified in the "afk-server-name" option
+  # "teleport" - player is teleported to the afk-location as configured above
+  # "nothing" - nothing will happen
+  action: "kick"
+
+  # List of servers where movement pattern detection is disabled
+  disabled-servers: []
+
+  certainty-threshold: 0.9  # Minimum certainty required to trigger detection (0.0 - 1.0)
+  sample-size: 5            # Number of movement samples on the same location to analyze in a rolling window

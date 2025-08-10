@@ -9,7 +9,8 @@ import net.fameless.core.command.framework.Command;
 import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.PluginConfig;
 import net.fameless.core.detection.autoclicker.ActionOnDetection;
-import net.fameless.core.detection.autoclicker.history.Detection;
+import net.fameless.core.detection.history.Detection;
+import net.fameless.core.detection.history.DetectionType;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
 import net.fameless.core.location.Location;
@@ -442,14 +443,14 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    List<String> disabledServers = PluginConfig.get().getStringList("disabled-servers");
+                    List<String> disabledServers = PluginConfig.get().getStringList("auto-clicker.disabled-servers");
                     boolean enabled = disabledServers.contains(serverName);
                     if (enabled) {
                         disabledServers.remove(serverName);
-                        PluginConfig.get().set("disabled-servers", disabledServers);
+                        PluginConfig.get().set("auto-clicker.disabled-servers", disabledServers);
                     } else {
                         disabledServers.add(serverName);
-                        PluginConfig.get().set("disabled-servers", disabledServers);
+                        PluginConfig.get().set("auto-clicker.disabled-servers", disabledServers);
                     }
                     caller.sendMessage(Caption.of("command.auto_clicker_detection_toggled_on_server",
                             TagResolver.resolver("server", Tag.inserting(Component.text(serverName))),
@@ -493,15 +494,15 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    List<Detection> detections = Detection.getDetectionsByPlayer(player.getName());
+                    List<Detection> detections = Detection.getDetectionsByPlayer(player.getName(), DetectionType.AUTO_CLICKER);
                     if (detections.isEmpty()) {
-                        caller.sendMessage(Caption.of("command.no_detections_found", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))));
+                        caller.sendMessage(Caption.of("command.auto_clicker_no_detections_found", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))));
                     } else {
                         List<String> detectionStrings = detections.stream()
                                 .map(detection ->  "- " + detection.getFriendlyString())
                                 .toList();
 
-                        caller.sendMessage(Caption.of("command.detection_history",
+                        caller.sendMessage(Caption.of("command.auto_clicker_detection_history",
                                 TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))),
                                 TagResolver.resolver("detection-count", Tag.inserting(Component.text(detections.size()))),
                                 TagResolver.resolver("detections", Tag.inserting(Component.text(String.join(",\n", detectionStrings))))
@@ -509,6 +510,109 @@ public class MainCommand extends Command {
                     }
                 }
             }
+            BungeeAFK.getAutoClickerDetector().reloadConfigValues();
+        } else if (args[0].equalsIgnoreCase("movement-pattern")) {
+            switch (args[1]) {
+                case "enable" -> {
+                    PluginConfig.get().set("movement-pattern.enabled", true);
+                    caller.sendMessage(Caption.of("command.movement_pattern_detection_enabled"));
+                }
+                case "disable" -> {
+                    PluginConfig.get().set("movement-pattern.enabled", false);
+                    caller.sendMessage(Caption.of("command.movement_pattern_detection_disabled"));
+                }
+                case "toggle-bypass" -> {
+                    boolean allowBypass = PluginConfig.get().getBoolean("movement-pattern.allow-bypass", true);
+                    PluginConfig.get().set("movement-pattern.allow-bypass", !allowBypass);
+
+                    caller.sendMessage(Caption.of("command.movement_pattern_bypass_toggled",
+                            TagResolver.resolver("bypass", Tag.inserting(Component.text(!allowBypass)))
+                    ));
+                }
+                case "toggle-on-server" -> {
+                    if (!BungeeAFK.isProxy()) {
+                        caller.sendMessage(Caption.of("command.only_proxy"));
+                        return;
+                    }
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String serverName = args[2];
+                    if (!BungeeAFK.getPlatform().doesServerExist(serverName)) {
+                        caller.sendMessage(Caption.of("command.server_not_found", TagResolver.resolver("server", Tag.inserting(Component.text(serverName)))));
+                        return;
+                    }
+
+                    List<String> disabledServers = PluginConfig.get().getStringList("movement-pattern.disabled-servers");
+                    boolean enabled = disabledServers.contains(serverName);
+                    if (enabled) {
+                        disabledServers.remove(serverName);
+                        PluginConfig.get().set("movement-pattern.disabled-servers", disabledServers);
+                    } else {
+                        disabledServers.add(serverName);
+                        PluginConfig.get().set("movement-pattern.disabled-servers", disabledServers);
+                    }
+                    caller.sendMessage(Caption.of("command.movement_pattern_detection_toggled_on_server",
+                            TagResolver.resolver("server", Tag.inserting(Component.text(serverName))),
+                            TagResolver.resolver("status", Tag.inserting(Component.text(!enabled)))
+                    ));
+                }
+                case "action" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String actionIdentifier = args[2];
+                    ActionOnDetection action;
+                    try {
+                        action = ActionOnDetection.fromIdentifier(actionIdentifier);
+                    } catch (IllegalArgumentException e) {
+                        caller.sendMessage(Caption.of("command.movement_pattern_invalid_action"));
+                        return;
+                    }
+
+                    PluginConfig.get().set("movement-pattern.action", action.getIdentifier());
+                    caller.sendMessage(Caption.of("command.movement_pattern_action_set",
+                            TagResolver.resolver("action", Tag.inserting(Component.text(action.getIdentifier())))));
+                }
+                case "toggle-notify-player" -> {
+                    boolean notifyPlayer = PluginConfig.get().getBoolean("movement-pattern.notify-player", true);
+                    PluginConfig.get().set("movement-pattern.notify-player", !notifyPlayer);
+                    caller.sendMessage(Caption.of("command.movement_pattern_notify_player_toggled",
+                            TagResolver.resolver("notify", Tag.inserting(Component.text(!notifyPlayer)))
+                    ));
+                }
+                case "detection-history" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+                    String playerName = args[2];
+                    BAFKPlayer<?> player = BAFKPlayer.of(playerName).orElse(null);
+                    if (player == null) {
+                        caller.sendMessage(Caption.of("command.player_not_found", TagResolver.resolver("player", Tag.inserting(Component.text(playerName)))));
+                        return;
+                    }
+
+                    List<Detection> detections = Detection.getDetectionsByPlayer(player.getName(), DetectionType.MOVEMENT_PATTERN);
+                    if (detections.isEmpty()) {
+                        caller.sendMessage(Caption.of("command.movement_pattern_no_detections_found", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))));
+                    } else {
+                        List<String> detectionStrings = detections.stream()
+                                .map(detection ->  "- " + detection.getFriendlyString())
+                                .toList();
+
+                        caller.sendMessage(Caption.of("command.movement_pattern_detection_history",
+                                TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))),
+                                TagResolver.resolver("detection-count", Tag.inserting(Component.text(detections.size()))),
+                                TagResolver.resolver("detections", Tag.inserting(Component.text(String.join(",\n", detectionStrings))))
+                        ));
+                    }
+                }
+                default -> sendUsage(caller);
+            }
+            BungeeAFK.getMovementPatternDetection().reloadConfigValues();
         } else {
             sendUsage(caller);
         }
@@ -518,7 +622,7 @@ public class MainCommand extends Command {
     protected List<String> tabComplete(CommandCaller caller, String @NotNull [] args) {
         List<String> completions = new ArrayList<>();
         switch (args.length) {
-            case 1 -> completions.addAll(Arrays.asList("configure", "lang", "region", "auto-clicker"));
+            case 1 -> completions.addAll(Arrays.asList("configure", "lang", "region", "auto-clicker", "movement-pattern"));
             case 2 -> {
                 if (args[0].equalsIgnoreCase("configure")) {
                     completions.addAll(Arrays.asList(
@@ -535,7 +639,7 @@ public class MainCommand extends Command {
                     }
                 } else if (args[0].equalsIgnoreCase("region")) {
                     completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
-                } else if (args[0].equalsIgnoreCase("auto-clicker")) {
+                } else if (args[0].equalsIgnoreCase("auto-clicker") || args[0].equalsIgnoreCase("movement-pattern")) {
                     completions.addAll(Arrays.asList(
                             "enable", "disable", "toggle-notify-player",
                             "toggle-bypass", "action", "detection-history"
@@ -585,7 +689,35 @@ public class MainCommand extends Command {
                         }
                         case "detection-history" -> {
                             List<String> players = Detection.getDetections()
-                                    .stream().map(Detection::getPlayerName).toList();
+                                    .stream()
+                                    .filter(d -> d.getType() == DetectionType.AUTO_CLICKER)
+                                    .map(Detection::getPlayerName)
+                                    .distinct()
+                                    .toList();
+                            completions.addAll(players);
+                        }
+                        case "toggle-on-server" -> {
+                            if (BungeeAFK.isProxy()) {
+                                completions.addAll(BungeeAFK.getPlatform().getServers());
+                            } else {
+                                completions.add("-- Only available on proxy --");
+                            }
+                        }
+                    }
+                } else if (args[0].equalsIgnoreCase("movement-pattern")) {
+                    switch (args[1].toLowerCase()) {
+                        case "action" -> {
+                            for (net.fameless.core.detection.movementpattern.ActionOnDetection action : net.fameless.core.detection.movementpattern.ActionOnDetection.values()) {
+                                completions.add(action.getIdentifier());
+                            }
+                        }
+                        case "detection-history" -> {
+                            List<String> players = Detection.getDetections()
+                                    .stream()
+                                    .filter(d -> d.getType() == DetectionType.MOVEMENT_PATTERN)
+                                    .map(Detection::getPlayerName)
+                                    .distinct()
+                                    .toList();
                             completions.addAll(players);
                         }
                         case "toggle-on-server" -> {

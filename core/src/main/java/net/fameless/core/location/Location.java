@@ -5,6 +5,7 @@ import net.fameless.core.config.PluginConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class Location {
 
@@ -132,6 +133,57 @@ public class Location {
     public String getCoordinates() {
         return String.format("X: %.2f, Y: %.2f, Z: %.2f",
                 x, y, z);
+    }
+
+    public boolean equalsIgnorePitchAndYaw(@NotNull Location other) {
+        return this.worldName.equals(other.worldName) &&
+               this.x == other.x &&
+               this.y == other.y &&
+               this.z == other.z;
+    }
+
+    public Location getBlockLocation() {
+        return new Location(
+                this.worldName,
+                Math.floor(this.x),
+                Math.floor(this.y),
+                Math.floor(this.z)
+        );
+    }
+
+    public boolean equalsBlock(@NotNull Location other) {
+        return getBlockLocation().equals(other.getBlockLocation());
+    }
+
+    public Location floor() {
+        return new Location(
+                this.worldName,
+                Math.floor(this.x),
+                Math.floor(this.y),
+                Math.floor(this.z),
+                this.pitch,
+                this.yaw
+        );
+    }
+
+    public Location withoutPitchAndYaw() {
+        return new Location(this.worldName, this.x, this.y, this.z);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Location other &&
+               this.worldName.equals(other.worldName) &&
+               this.x == other.x &&
+               this.y == other.y &&
+               this.z == other.z &&
+               this.pitch == other.pitch &&
+               this.yaw == other.yaw;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(worldName, x, y, z, pitch, yaw);
     }
 
     @Override

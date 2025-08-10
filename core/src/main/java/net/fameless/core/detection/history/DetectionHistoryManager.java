@@ -1,4 +1,4 @@
-package net.fameless.core.detection.autoclicker.history;
+package net.fameless.core.detection.history;
 
 import com.google.gson.*;
 import net.fameless.core.util.PluginPaths;

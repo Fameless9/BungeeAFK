@@ -235,45 +235,54 @@ public abstract class AFKHandler {
             return;
 
         switch (action) {
-            case CONNECT -> {
-                if (!Action.isAfkServerConfigured()) {
-                    LOGGER.warn("AFK server not found. Defaulting to KICK.");
-                    this.action = Action.KICK;
-                    player.kick(Caption.of("notification.afk_kick"));
-                    MessageBroadcaster.broadcastMessageToFiltered(
-                            Caption.of("notification.afk_kick_broadcast",
-                                    TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                            PlayerFilters.notMatching(player)
-                    );
-                    LOGGER.info("Kicked {} for being AFK.", player.getName());
-                    return;
-                }
-                String currentServerName = player.getCurrentServerName();
-                String afkServerName = PluginConfig.get().getString("afk-server-name", "");
-                playerPreviousServerMap.put(player.getUniqueId(), currentServerName);
-                player.connect(afkServerName);
-                player.sendMessage(Caption.of("notification.afk_disconnect"));
-                MessageBroadcaster.broadcastMessageToFiltered(
-                        Caption.of("notification.afk_disconnect_broadcast",
-                                TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                        PlayerFilters.notMatching(player)
-                );
-                LOGGER.info("Moved {} to AFK server.", player.getName());
-            }
-            case KICK -> {
-                player.kick(Caption.of("notification.afk_kick"));
-                MessageBroadcaster.broadcastMessageToFiltered(
-                        Caption.of("notification.afk_kick_broadcast",
-                                TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))));
-                LOGGER.info("Kicked {} for being AFK.", player.getName());
-            }
-            case TELEPORT -> {
-                playerPreviousLocationMap.put(player.getUniqueId(), player.getLocation());
-                playerPreviousGameModeMap.put(player.getUniqueId(), player.getGameMode());
-                player.updateGameMode(GameMode.SPECTATOR);
-                player.teleport(Location.getConfiguredAfkZone());
-            }
+            case CONNECT -> handleConnectAction(player,
+                    Caption.of("notification.afk_kick"),
+                    Caption.of("notification.afk_kick_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
+                    Caption.of("notification.afk_disconnect"),
+                    Caption.of("notification.afk_disconnect_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))))
+            );
+            case KICK -> handleKickAction(player,
+                    Caption.of("notification.afk_kick"),
+                    Caption.of("notification.afk_kick_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))))
+            );
+            case TELEPORT -> handleTeleportAction(player, Caption.of("notification.afk_teleport"));
         }
+    }
+
+    public void handleConnectAction(@NotNull BAFKPlayer<?> player, Component kickReason, Component kickBroadcastMessage, Component connectMessage, Component connectBroadcastMessage) {
+        if (!Action.isAfkServerConfigured()) {
+            LOGGER.warn("AFK server not found. Defaulting to KICK.");
+            this.action = Action.KICK;
+            handleKickAction(player, kickReason, kickBroadcastMessage);
+            return;
+        }
+        String currentServerName = player.getCurrentServerName();
+        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
+        playerPreviousServerMap.put(player.getUniqueId(), currentServerName);
+        player.connect(afkServerName);
+        player.sendMessage(connectMessage);
+        MessageBroadcaster.broadcastMessageToFiltered(
+                connectBroadcastMessage,
+                PlayerFilters.notMatching(player)
+        );
+        LOGGER.info("Moved {} to AFK server.", player.getName());
+    }
+
+    public void handleKickAction(@NotNull BAFKPlayer<?> player, Component reason, Component broadcastMessage) {
+        player.kick(reason);
+        MessageBroadcaster.broadcastMessageToFiltered(
+                broadcastMessage,
+                PlayerFilters.notMatching(player)
+        );
+        LOGGER.info("Kicked {} for being AFK.", player.getName());
+    }
+
+    public void handleTeleportAction(@NotNull BAFKPlayer<?> player, Component message) {
+        playerPreviousLocationMap.put(player.getUniqueId(), player.getLocation());
+        playerPreviousGameModeMap.put(player.getUniqueId(), player.getGameMode());
+        player.updateGameMode(GameMode.SPECTATOR);
+        player.teleport(Location.getConfiguredAfkZone());
+        player.sendMessage(message);
     }
 
     public void revertPreviousState(@NotNull BAFKPlayer<?> player) {
@@ -316,6 +325,10 @@ public abstract class AFKHandler {
         if (player.getAfkState() == AFKState.AFK || player.getAfkState() == AFKState.ACTION_TAKEN) {
             player.sendActionbar(Caption.of("actionbar.afk"));
         }
+    }
+
+    public Action getAction() {
+        return action;
     }
 
     public long getWarnDelayMillis() {

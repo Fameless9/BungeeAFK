@@ -3,10 +3,12 @@ package net.fameless.core.detection.autoclicker;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.config.PluginConfig;
-import net.fameless.core.detection.autoclicker.history.Detection;
+import net.fameless.core.detection.history.Detection;
+import net.fameless.core.detection.history.DetectionType;
 import net.fameless.core.event.EventDispatcher;
 import net.fameless.core.event.PlayerAutoClickerDetectedEvent;
 import net.fameless.core.player.BAFKPlayer;
+import net.fameless.core.util.DetectionUtil;
 import net.fameless.core.util.PlayerFilters;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -32,6 +34,8 @@ public class AutoClickerDetector {
     private int stddevThresholdMillis;
     private int minClickIntervalMillis;
     private List<String> disabledServers;
+    boolean allowBypass;
+    boolean enabled;
 
     public AutoClickerDetector() {
         if (BungeeAFK.getAutoClickerDetector() != null) {
@@ -76,21 +80,13 @@ public class AutoClickerDetector {
         stddevThresholdMillis = PluginConfig.get().getInt("auto-clicker.stddev-threshold", 50);
         minClickIntervalMillis = PluginConfig.get().getInt("auto-clicker.min-click-interval", 50);
         disabledServers = PluginConfig.get().getStringList("disabled-servers");
-    }
-
-    private static double calculateStdDev(@NotNull List<Long> intervals) {
-        double mean = intervals.stream().mapToLong(Long::longValue).average().orElse(0.0);
-        double variance = intervals.stream()
-                .mapToDouble(i -> Math.pow(i - mean, 2))
-                .average()
-                .orElse(0.0);
-        return Math.sqrt(variance);
+        allowBypass = PluginConfig.get().getBoolean("auto-clicker.allow-bypass", true);
+        enabled = PluginConfig.get().getBoolean("auto-clicker.enabled", true);
     }
 
     public synchronized void registerClick(BAFKPlayer<?> player) {
-        String bypassPermission = PluginConfig.get().getString("auto-clicker.bypass-permission", "");
-        if (!PluginConfig.get().getBoolean("auto-clicker.enabled", true)) return;
-        if (!bypassPermission.isEmpty() && player.hasPermission(bypassPermission)) return;
+        if (!enabled) return;
+        if (allowBypass && player.hasPermission("bungeeafk.autoclicker.bypass")) return;
         if (disabledServers.contains(player.getCurrentServerName())) return;
 
         long now = System.currentTimeMillis();
@@ -111,7 +107,7 @@ public class AutoClickerDetector {
                 prev = current;
             }
 
-            double stdDev = calculateStdDev(intervals);
+            double stdDev = DetectionUtil.calculateStdDev(intervals);
 
             boolean impossibleSpeed = intervals.stream().anyMatch(i -> i < minClickIntervalMillis);
             if (impossibleSpeed) {
@@ -136,7 +132,7 @@ public class AutoClickerDetector {
     }
 
     private void autoClickerDetected(@NotNull BAFKPlayer<?> player) {
-        new Detection(System.currentTimeMillis(), player.getCurrentServerName(), player.getName());
+        new Detection(DetectionType.AUTO_CLICKER, System.currentTimeMillis(), player.getCurrentServerName(), player.getName());
         playerClickTimes.remove(player);
         detectionStreaks.remove(player);
 

@@ -1,5 +1,6 @@
 package net.fameless.core.player;
 
+import net.fameless.core.BungeeAFK;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.PluginConfig;
@@ -99,7 +100,7 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
             sendMessage(Caption.of("notification.afk_return"));
             MessageBroadcaster.broadcastMessageToFiltered(
                     Caption.of("notification.afk_return_broadcast",
-                    TagResolver.resolver("player", Tag.inserting(Component.text(getName())))),
+                            TagResolver.resolver("player", Tag.inserting(Component.text(getName())))),
                     PlayerFilters.notMatching(this)
             );
         }
@@ -131,8 +132,12 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     }
 
     public void setLocation(Location location) {
+        if (!this.location.equalsBlock(location)) {
+            BungeeAFK.getMovementPatternDetection().registerMovement(this, location);
+        }
         this.location = location;
     }
+
 
     public abstract String getName();
 

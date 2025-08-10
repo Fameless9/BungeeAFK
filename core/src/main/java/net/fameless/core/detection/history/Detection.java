@@ -1,4 +1,4 @@
-package net.fameless.core.detection.autoclicker.history;
+package net.fameless.core.detection.history;
 
 import com.google.gson.JsonObject;
 import net.fameless.core.config.PluginConfig;
@@ -18,21 +18,23 @@ public class Detection {
         return Collections.unmodifiableList(DETECTIONS);
     }
 
-    public static @NotNull List<Detection> getDetectionsByPlayer(String playerName) {
+    public static @NotNull List<Detection> getDetectionsByPlayer(String playerName, DetectionType type) {
         List<Detection> playerDetections = new ArrayList<>();
         for (Detection detection : DETECTIONS) {
-            if (detection.getPlayerName().equals(playerName)) {
+            if (detection.getPlayerName().equals(playerName) && detection.getType() == type) {
                 playerDetections.add(detection);
             }
         }
         return playerDetections;
     }
 
+    private final DetectionType type;
     private final long timestamp;
     private final String serverName;
     private final String playerName;
 
-    public Detection(long timestamp, String serverName, String playerName) {
+    public Detection(DetectionType type, long timestamp, String serverName, String playerName) {
+        this.type = type;
         this.timestamp = timestamp;
         this.serverName = serverName;
         this.playerName = playerName;
@@ -51,6 +53,10 @@ public class Detection {
         }
 
         DETECTIONS.add(this);
+    }
+
+    public DetectionType getType() {
+        return type;
     }
 
     public long getTimestamp() {
@@ -75,6 +81,7 @@ public class Detection {
 
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
+        json.addProperty("type", type.name());
         json.addProperty("timestamp", timestamp);
         json.addProperty("serverName", serverName);
         json.addProperty("playerName", playerName);
@@ -82,9 +89,10 @@ public class Detection {
     }
 
     public static @NotNull Detection fromJson(@NotNull JsonObject json) {
+        DetectionType type = DetectionType.valueOf(json.get("type").getAsString());
         long timestamp = json.get("timestamp").getAsLong();
         String serverName = json.get("serverName").getAsString();
         String playerName = json.get("playerName").getAsString();
-        return new Detection(timestamp, serverName, playerName);
+        return new Detection(type, timestamp, serverName, playerName);
     }
 }

@@ -91,7 +91,7 @@ public class YamlUtil {
               # How many detections to keep in history for each player
               # /bafk auto-clicker detection-history <player> command will show the last detections
               detection-history-size: %d
-            
+
               # List of servers where auto clicker detection is disabled
               disabled-servers:
                 %s
@@ -109,6 +109,34 @@ public class YamlUtil {
               consecutive-detections: %d
               stddev-threshold: %d
               min-click-interval: %d
+
+            # Movement Pattern Detection Settings
+            # Detection history is shared with auto-clicker detection, same settings apply
+            movement-pattern:
+              enabled: %b
+
+              # Whether to allow bypass of movement pattern detection for players with the "bungeeafk.movement-pattern.bypass" permission
+              allow-bypass: %b
+
+              # Players with this permission will receive a notification that a movement pattern has been detected
+              notify-permission: %s
+
+              # Whether to notify the player when a movement pattern is detected for them
+              notify-player: %b
+
+              # Action to be performed when movement pattern has been detected
+              # "kick" - player is kicked from the server (default value)
+              # "connect" - player is connected to the server specified in the "afk-server-name" option
+              # "teleport" - player is teleported to the afk-location as configured above
+              # "nothing" - nothing will happen
+              action: %s
+
+              # List of servers where movement pattern detection is disabled
+              disabled-servers:
+                %s
+
+              certainty-threshold: %f  # Minimum certainty required to trigger detection (0.0 - 1.0)
+              sample-size: %d          # Number of movement samples on the same location to analyze in a rolling window
             """.formatted(
                 Caption.getCurrentLanguage().getIdentifier(),
                 PluginConfig.get().getInt("warning-delay", 60),
@@ -133,7 +161,15 @@ public class YamlUtil {
                 PluginConfig.get().getInt("auto-clicker.sample-size", 200),
                 PluginConfig.get().getInt("auto-clicker.consecutive-detections", 3),
                 PluginConfig.get().getInt("auto-clicker.stddev-threshold", 10),
-                PluginConfig.get().getInt("auto-clicker.min-click-interval", 30)
+                PluginConfig.get().getInt("auto-clicker.min-click-interval", 30),
+                PluginConfig.get().getBoolean("movement-pattern.enabled", true),
+                PluginConfig.get().getBoolean("movement-pattern.allow-bypass", true),
+                PluginConfig.get().getString("movement-pattern.notify-permission", "bungeeafk.movement-pattern.notify"),
+                PluginConfig.get().getBoolean("movement-pattern.notify-player", true),
+                PluginConfig.get().getString("movement-pattern.action", "kick"),
+                PluginConfig.get().getStringList("movement-pattern.disabled-servers"),
+                PluginConfig.get().getDouble("movement-pattern.certainty-threshold", 0.9),
+                PluginConfig.get().getInt("movement-pattern.sample-size", 5)
         );
     }
 

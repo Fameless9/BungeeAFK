@@ -51,8 +51,8 @@ public record YamlConfig(Map<String, Object> data) {
 
     public @NotNull String getString(String key) {
         Object val = getValue(key);
-        if (val instanceof String) {
-            return (String) val;
+        if (val instanceof String string) {
+            return string;
         }
         throw new IllegalArgumentException("Value for key '" + key + "' is not a String");
     }
@@ -60,16 +60,16 @@ public record YamlConfig(Map<String, Object> data) {
     public String getString(String key, String defaultValue) {
         Object val = getValue(key);
         if (val == null) return defaultValue;
-        if (val instanceof String) {
-            return (String) val;
+        if (val instanceof String string) {
+            return string;
         }
         throw new IllegalArgumentException("Value for key '" + key + "' is not a String");
     }
 
     public int getInt(String key) {
         Object val = getValue(key);
-        if (val instanceof Number) {
-            return ((Number) val).intValue();
+        if (val instanceof Number num) {
+            return num.intValue();
         }
         throw new IllegalArgumentException("Value for key '" + key + "' is not a Number");
     }
@@ -77,16 +77,33 @@ public record YamlConfig(Map<String, Object> data) {
     public int getInt(String key, int defaultValue) {
         Object val = getValue(key);
         if (val == null) return defaultValue;
-        if (val instanceof Number) {
-            return ((Number) val).intValue();
+        if (val instanceof Number num) {
+            return num.intValue();
+        }
+        throw new IllegalArgumentException("Value for key '" + key + "' is not a Number");
+    }
+
+    public double getDouble(String key) {
+        Object val = getValue(key);
+        if (val instanceof Number num) {
+            return num.doubleValue();
+        }
+        throw new IllegalArgumentException("Value for key '" + key + "' is not a Number");
+    }
+
+    public double getDouble(String key, double defaultValue) {
+        Object val = getValue(key);
+        if (val == null) return defaultValue;
+        if (val instanceof Number num) {
+            return num.doubleValue();
         }
         throw new IllegalArgumentException("Value for key '" + key + "' is not a Number");
     }
 
     public boolean getBoolean(String key) {
         Object val = getValue(key);
-        if (val instanceof Boolean) {
-            return (Boolean) val;
+        if (val instanceof Boolean bool) {
+            return bool;
         }
         throw new IllegalArgumentException("Value for key '" + key + "' is not a Boolean");
     }
@@ -94,8 +111,8 @@ public record YamlConfig(Map<String, Object> data) {
     public boolean getBoolean(String key, boolean defaultValue) {
         Object val = getValue(key);
         if (val == null) return defaultValue;
-        if (val instanceof Boolean) {
-            return (Boolean) val;
+        if (val instanceof Boolean bool) {
+            return bool;
         }
         throw new IllegalArgumentException("Value for key '" + key + "' is not a Boolean");
     }

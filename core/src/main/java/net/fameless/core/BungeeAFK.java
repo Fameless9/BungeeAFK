@@ -9,7 +9,8 @@ import net.fameless.core.caption.Language;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.config.PluginConfig;
 import net.fameless.core.detection.autoclicker.AutoClickerDetector;
-import net.fameless.core.detection.autoclicker.history.DetectionHistoryManager;
+import net.fameless.core.detection.history.DetectionHistoryManager;
+import net.fameless.core.detection.movementpattern.MovementPatternDetection;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
 import net.fameless.core.location.Location;
@@ -28,6 +29,7 @@ public class BungeeAFK {
     private static BungeeAFKPlatform platform;
     private static AFKHandler afkHandler;
     private static AutoClickerDetector autoClickerDetector;
+    private static MovementPatternDetection movementPatternDetection;
 
     public static synchronized void initCore(AbstractModule platformModule) {
         if (initialized) {
@@ -47,6 +49,7 @@ public class BungeeAFK {
         platform = injector.getInstance(BungeeAFKPlatform.class);
         afkHandler = injector.getInstance(AFKHandler.class);
         autoClickerDetector = new AutoClickerDetector();
+        movementPatternDetection = new MovementPatternDetection();
         DetectionHistoryManager.loadDetections();
 
         checkForMisconfiguration();
@@ -105,6 +108,10 @@ public class BungeeAFK {
 
     public static AutoClickerDetector getAutoClickerDetector() {
         return autoClickerDetector;
+    }
+
+    public static MovementPatternDetection getMovementPatternDetection() {
+        return movementPatternDetection;
     }
 
     public static ScheduledExecutorService getScheduler() {
