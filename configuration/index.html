@@ -632,15 +632,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#detection-history-auto-clickerdetection-history-size" class="md-nav__link">
-    <span class="md-ellipsis">
-      Detection History (auto-clicker.detection-history-size)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#disabled-servers-for-auto-clicker-detection-auto-clickerdisabled-servers" class="md-nav__link">
     <span class="md-ellipsis">
       Disabled Servers for Auto Clicker Detection (auto-clicker.disabled-servers)
@@ -713,6 +704,15 @@
   <a href="#disabled-servers-for-movement-pattern-detection-movement-patterndisabled-servers" class="md-nav__link">
     <span class="md-ellipsis">
       Disabled Servers for Movement Pattern Detection (movement-pattern.disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clear-after-movement-patternclear-after" class="md-nav__link">
+    <span class="md-ellipsis">
+      Clear After (movement-pattern.clear-after)
     </span>
   </a>
   
@@ -830,7 +830,7 @@
   
   
   <span class="md-ellipsis">
-    Support
+    Features
     
   </span>
   
@@ -840,6 +840,120 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../auto_clicker_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Auto Clicker Detection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bypass_regions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bypass Regions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../movement_pattern_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Movement Pattern Detection
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Support
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Support
           </label>
@@ -1134,15 +1248,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#detection-history-auto-clickerdetection-history-size" class="md-nav__link">
-    <span class="md-ellipsis">
-      Detection History (auto-clicker.detection-history-size)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#disabled-servers-for-auto-clicker-detection-auto-clickerdisabled-servers" class="md-nav__link">
     <span class="md-ellipsis">
       Disabled Servers for Auto Clicker Detection (auto-clicker.disabled-servers)
@@ -1215,6 +1320,15 @@
   <a href="#disabled-servers-for-movement-pattern-detection-movement-patterndisabled-servers" class="md-nav__link">
     <span class="md-ellipsis">
       Disabled Servers for Movement Pattern Detection (movement-pattern.disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clear-after-movement-patternclear-after" class="md-nav__link">
+    <span class="md-ellipsis">
+      Clear After (movement-pattern.clear-after)
     </span>
   </a>
   
@@ -1337,10 +1451,6 @@ You can choose from the following options:
 - <code>kick</code>: The player will be kicked from the server.
 - <code>open-inv</code>: An empty inventory will be opened for the player to prevent clicks from impacting the world.
 - <code>nothing</code>: No action will be taken.</p>
-<h4 id="detection-history-auto-clickerdetection-history-size">Detection History (<code>auto-clicker.detection-history-size</code>)</h4>
-<p>This is the number of detection events that will be stored in the history for each player.<br />
-History can be viewed using the <code>/bafk auto-clicker detection-history &lt;player&gt;</code> command.<br />
-Default is <code>10</code>.</p>
 <h4 id="disabled-servers-for-auto-clicker-detection-auto-clickerdisabled-servers">Disabled Servers for Auto Clicker Detection (<code>auto-clicker.disabled-servers</code>)</h4>
 <p>This is a list of servers where auto clicker detection is disabled.<br />
 Players on these servers will not be checked for auto clicker usage.</p>
@@ -1375,6 +1485,15 @@ Example:</p>
 <pre><code class="language-yaml">movement-pattern:  
   disabled-servers: [lobby, survival]  
 </code></pre>
+<h4 id="clear-after-movement-patternclear-after">Clear After (<code>movement-pattern.clear-after</code>)</h4>
+<p>Time after which an individual movement is cleared and therefore cannot be used for analyzing patterns.
+This is to prevent high memory usage and to ensure that only recent movements are considered.
+If set to 600, movements older than 10 minutes will not be considered for pattern detection.
+If set to 0, movements will never be cleared and will be kept in memory indefinitely.</p>
+<p>Setting the value to 0 may lead to high memory usage if many players are online.
+and they move frequently, so it is recommended to set this to a reasonable value
+depending on your server's activity and player base size.
+A value of 600 (10 minutes) is a good balance for most servers.</p>
 <h4 id="required-certainty-movement-patterncertainty-threshold">Required Certainty (<code>movement-pattern.certainty-threshold</code>)</h4>
 <p>This is the minimum certainty required for a movement pattern to be considered suspicious.<br />
 The value should be between <code>0</code> and <code>1</code>, where <code>1</code> means 100% certainty.<br />
