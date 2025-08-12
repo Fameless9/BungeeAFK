@@ -1,0 +1,1444 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for BungeeAFK, a plugin for managing AFK players in Minecraft">
+      
+      
+        <meta name="author" content="Fameless9">
+      
+      
+      
+        <link rel="prev" href="../updating/">
+      
+      
+        <link rel="next" href="../custom_messages/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Configuration Guide - BungeeAFK Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#custom-messages" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="BungeeAFK Documentation" class="md-header__button md-logo" aria-label="BungeeAFK Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            BungeeAFK Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configuration Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Fameless9/BungeeAFK" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    BungeeAFK
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="BungeeAFK Documentation" class="md-nav__button md-logo" aria-label="BungeeAFK Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    BungeeAFK Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Fameless9/BungeeAFK" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    BungeeAFK
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compatibility
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../updating/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Updating
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Configuration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Configuration Guide
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configuration Guide
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#custom-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Messages
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#language-lang" class="md-nav__link">
+    <span class="md-ellipsis">
+      Language (lang)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warning-delay-warning-delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      Warning Delay (warning-delay)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-delay-afk-delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Delay (afk-delay)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-delay-action-delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action Delay (action-delay)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action (action)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-server-afk-server-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Server (afk-server-name)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-location-afk-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Location (afk-location)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow-bypass-allow-bypass" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allow Bypass (allow-bypass)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabled-servers-disabled-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled Servers (disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bypass-regions-bypass-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bypass Regions (bypass-regions)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-clicker-detection-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auto Clicker Detection Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auto Clicker Detection Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-auto-clicker-detection-auto-clickerenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable Auto Clicker Detection (auto-clicker.enabled)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow-auto-clicker-bypass-auto-clickerallow-bypass" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allow Auto Clicker Bypass (auto-clicker.allow-bypass)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-permission-auto-clickernotify-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify Permission (auto-clicker.notify-permission)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-detected-player-auto-clickernotify-player" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify detected Player (auto-clicker.notify-player)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-on-detection-auto-clickeraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action on Detection (auto-clicker.action)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detection-history-auto-clickerdetection-history-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detection History (auto-clicker.detection-history-size)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabled-servers-for-auto-clicker-detection-auto-clickerdisabled-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled Servers for Auto Clicker Detection (auto-clicker.disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movement-pattern-detection-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Movement Pattern Detection Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Movement Pattern Detection Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-movement-pattern-detection-movement-patternenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable Movement Pattern Detection (movement-pattern.enabled)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow-movement-pattern-bypass-movement-patternallow-bypass" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allow Movement Pattern Bypass (movement-pattern.allow-bypass)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-permission-movement-patternnotify-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify Permission (movement-pattern.notify-permission)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-detected-player-movement-patternnotify-player" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify detected Player (movement-pattern.notify-player)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-on-detection-movement-patternaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action on Detection (movement-pattern.action)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabled-servers-for-movement-pattern-detection-movement-patterndisabled-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled Servers for Movement Pattern Detection (movement-pattern.disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-certainty-movement-patterncertainty-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required Certainty (movement-pattern.certainty-threshold)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-size-movement-patternsample-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sample Size (movement-pattern.sample-size)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom_messages/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom Messages
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Support
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Support
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../issue_reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Issue Reporting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../feature_requests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Feature Requests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reviewing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reviews
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#custom-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Messages
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#language-lang" class="md-nav__link">
+    <span class="md-ellipsis">
+      Language (lang)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#warning-delay-warning-delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      Warning Delay (warning-delay)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-delay-afk-delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Delay (afk-delay)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-delay-action-delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action Delay (action-delay)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action (action)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-server-afk-server-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Server (afk-server-name)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-location-afk-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Location (afk-location)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow-bypass-allow-bypass" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allow Bypass (allow-bypass)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabled-servers-disabled-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled Servers (disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bypass-regions-bypass-regions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bypass Regions (bypass-regions)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-clicker-detection-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Auto Clicker Detection Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Auto Clicker Detection Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-auto-clicker-detection-auto-clickerenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable Auto Clicker Detection (auto-clicker.enabled)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow-auto-clicker-bypass-auto-clickerallow-bypass" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allow Auto Clicker Bypass (auto-clicker.allow-bypass)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-permission-auto-clickernotify-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify Permission (auto-clicker.notify-permission)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-detected-player-auto-clickernotify-player" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify detected Player (auto-clicker.notify-player)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-on-detection-auto-clickeraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action on Detection (auto-clicker.action)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detection-history-auto-clickerdetection-history-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detection History (auto-clicker.detection-history-size)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabled-servers-for-auto-clicker-detection-auto-clickerdisabled-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled Servers for Auto Clicker Detection (auto-clicker.disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#movement-pattern-detection-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Movement Pattern Detection Settings
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Movement Pattern Detection Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-movement-pattern-detection-movement-patternenabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enable Movement Pattern Detection (movement-pattern.enabled)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#allow-movement-pattern-bypass-movement-patternallow-bypass" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allow Movement Pattern Bypass (movement-pattern.allow-bypass)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-permission-movement-patternnotify-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify Permission (movement-pattern.notify-permission)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notify-detected-player-movement-patternnotify-player" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notify detected Player (movement-pattern.notify-player)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-on-detection-movement-patternaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action on Detection (movement-pattern.action)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disabled-servers-for-movement-pattern-detection-movement-patterndisabled-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Disabled Servers for Movement Pattern Detection (movement-pattern.disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-certainty-movement-patterncertainty-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required Certainty (movement-pattern.certainty-threshold)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample-size-movement-patternsample-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sample Size (movement-pattern.sample-size)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Configuration Guide</h1>
+
+<p>BungeeAFK comes with a lot of customization options, allowing you to tailor the plugin to your server's needs.<br />
+Below is a guide on how to configure BungeeAFK effectively.</p>
+<h4 id="custom-messages">Custom Messages</h4>
+<p>To customize the messages displayed by BungeeAFK, see <a href="../custom_messages/">Custom Messages</a>.</p>
+<h4 id="configuration-file">Configuration File</h4>
+<p>The main configuration file is located at <code>plugins/BungeeAFK/config.yml</code>. Open this file to view and edit the settings.</p>
+<h2 id="configuration-options">Configuration Options</h2>
+<hr />
+<h3 id="general-settings">General Settings</h3>
+<h4 id="language-lang">Language (<code>lang</code>)</h4>
+<p>The language setting allows you to choose the language for the plugin's messages. You can set it to <code>en</code> for English or <code>de</code> for German.<br />
+The plugin will use the language file: <code>lang_xx.json</code> where <code>xx</code> is the language code you set.<br />
+Default is <code>en</code>.</p>
+<h4 id="warning-delay-warning-delay">Warning Delay (<code>warning-delay</code>)</h4>
+<p>This is the delay in seconds after which a warning message is sent to the player after their last activity. The warning message<br />
+can be customized in the language file under the key <code>notification.afk_warning</code>.<br />
+Default is <code>90</code> seconds.</p>
+<h4 id="afk-delay-afk-delay">AFK Delay (<code>afk-delay</code>)</h4>
+<p>This is the delay in seconds after which a player is considered AFK if they have not interacted with the server.<br />
+The AFK message can be customized in the language file under the key <code>notification.afk.&lt;action&gt;</code>.<br />
+Default is <code>180</code> seconds.</p>
+<h4 id="action-delay-action-delay">Action Delay (<code>action-delay</code>)</h4>
+<p>This is the delay between a player's last interaction and the Action as configured in the <code>action</code> entry.<br />
+Default is <code>420</code> seconds.</p>
+<h4 id="action-action">Action (<code>action</code>)</h4>
+<p>This setting allows you to specify the action that will be taken when Action Delay is reached.<br />
+You can choose from the following options:
+- <code>kick</code>: The player will be kicked from the server.
+- <code>connect</code>: The player will be connected to a specified afk-server.
+- <code>teleport</code>: The player will be teleported to a specified afk-location.
+- <code>nothing</code>: No action will be taken.</p>
+<p>Default is <code>kick</code>.</p>
+<h4 id="afk-server-afk-server-name">AFK Server (<code>afk-server-name</code>)</h4>
+<p>This is the name of the server to which players will be connected when the action is set to <code>connect</code>.<br />
+Make sure this server is enabled and present in your proxy's config.</p>
+<h4 id="afk-location-afk-location">AFK Location (<code>afk-location</code>)</h4>
+<p>This is the location to which players will be teleported when the action is set to <code>teleport</code>.</p>
+<h4 id="allow-bypass-allow-bypass">Allow Bypass (<code>allow-bypass</code>)</h4>
+<p>If true, players with the permission <code>afk.bypass</code> bypass the AFK system.<br />
+Default is <code>true</code>.</p>
+<h4 id="disabled-servers-disabled-servers">Disabled Servers (<code>disabled-servers</code>)</h4>
+<p>This is a list of servers where the AFK system is disabled. Players on these servers will not be marked as AFK.<br />
+You can specify multiple servers by separating them with commas.</p>
+<p>Example:</p>
+<pre><code class="language-yaml">disabled-servers: [lobby, survival]  
+</code></pre>
+<h4 id="bypass-regions-bypass-regions">Bypass Regions (<code>bypass-regions</code>)</h4>
+<p>This is a list of regions where players will not be marked as AFK.<br />
+You can, but should not specify regions manually here, but rather use the <code>/afk region add</code> command to add regions.</p>
+<h3 id="auto-clicker-detection-settings">Auto Clicker Detection Settings</h3>
+<h4 id="enable-auto-clicker-detection-auto-clickerenabled">Enable Auto Clicker Detection (<code>auto-clicker.enabled</code>)</h4>
+<p>If true, auto clicker detection is enabled.<br />
+Default is <code>false</code>.</p>
+<h4 id="allow-auto-clicker-bypass-auto-clickerallow-bypass">Allow Auto Clicker Bypass (<code>auto-clicker.allow-bypass</code>)</h4>
+<p>If true, players with the permission <code>bungeeafk.auto-clicker.bypass</code> bypass the auto clicker detection.<br />
+Default is <code>true</code>.</p>
+<h4 id="notify-permission-auto-clickernotify-permission">Notify Permission (<code>auto-clicker.notify-permission</code>)</h4>
+<p>This is the permission required to receive notifications about auto clicker detections.<br />
+Default is <code>bungeeafk.auto-clicker.notify</code>.</p>
+<h4 id="notify-detected-player-auto-clickernotify-player">Notify detected Player (<code>auto-clicker.notify-player</code>)</h4>
+<p>If true, players will receive a notification when they are detected as using an auto clicker.<br />
+Default is <code>true</code>.</p>
+<h4 id="action-on-detection-auto-clickeraction">Action on Detection (<code>auto-clicker.action</code>)</h4>
+<p>This setting allows you to specify the action that will be taken when an auto clicker is detected.<br />
+You can choose from the following options:
+- <code>kick</code>: The player will be kicked from the server.
+- <code>open-inv</code>: An empty inventory will be opened for the player to prevent clicks from impacting the world.
+- <code>nothing</code>: No action will be taken.</p>
+<h4 id="detection-history-auto-clickerdetection-history-size">Detection History (<code>auto-clicker.detection-history-size</code>)</h4>
+<p>This is the number of detection events that will be stored in the history for each player.<br />
+History can be viewed using the <code>/bafk auto-clicker detection-history &lt;player&gt;</code> command.<br />
+Default is <code>10</code>.</p>
+<h4 id="disabled-servers-for-auto-clicker-detection-auto-clickerdisabled-servers">Disabled Servers for Auto Clicker Detection (<code>auto-clicker.disabled-servers</code>)</h4>
+<p>This is a list of servers where auto clicker detection is disabled.<br />
+Players on these servers will not be checked for auto clicker usage.</p>
+<p>Example:</p>
+<pre><code class="language-yaml">auto-clicker:  
+  disabled-servers: [lobby, survival]  
+</code></pre>
+<h3 id="movement-pattern-detection-settings">Movement Pattern Detection Settings</h3>
+<h4 id="enable-movement-pattern-detection-movement-patternenabled">Enable Movement Pattern Detection (<code>movement-pattern.enabled</code>)</h4>
+<p>If true, movement pattern detection is enabled.<br />
+Default is <code>true</code>.</p>
+<h4 id="allow-movement-pattern-bypass-movement-patternallow-bypass">Allow Movement Pattern Bypass (<code>movement-pattern.allow-bypass</code>)</h4>
+<p>If true, players with the permission <code>bungeeafk.movement-pattern.bypass</code> bypass the movement pattern detection.<br />
+Default is <code>true</code>.</p>
+<h4 id="notify-permission-movement-patternnotify-permission">Notify Permission (<code>movement-pattern.notify-permission</code>)</h4>
+<p>This is the permission required to receive notifications about movement pattern detections.<br />
+Default is <code>bungeeafk.movement-pattern.notify</code>.</p>
+<h4 id="notify-detected-player-movement-patternnotify-player">Notify detected Player (<code>movement-pattern.notify-player</code>)</h4>
+<p>If true, players will receive a notification when they are detected as using a movement pattern.<br />
+Default is <code>true</code>.</p>
+<h4 id="action-on-detection-movement-patternaction">Action on Detection (<code>movement-pattern.action</code>)</h4>
+<p>This setting allows you to specify the action that will be taken when a movement pattern is detected.<br />
+You can choose from the following options:
+- <code>kick</code>: The player will be kicked from the server.
+- <code>connect</code>: The player will be connected to a specified afk-server.
+- <code>teleport</code>: The player will be teleported to a specified afk-location.
+- <code>nothing</code>: No action will be taken.</p>
+<h4 id="disabled-servers-for-movement-pattern-detection-movement-patterndisabled-servers">Disabled Servers for Movement Pattern Detection (<code>movement-pattern.disabled-servers</code>)</h4>
+<p>This is a list of servers where movement pattern detection is disabled.<br />
+Players on these servers will not be checked for movement patterns.<br />
+Example:</p>
+<pre><code class="language-yaml">movement-pattern:  
+  disabled-servers: [lobby, survival]  
+</code></pre>
+<h4 id="required-certainty-movement-patterncertainty-threshold">Required Certainty (<code>movement-pattern.certainty-threshold</code>)</h4>
+<p>This is the minimum certainty required for a movement pattern to be considered suspicious.<br />
+The value should be between <code>0</code> and <code>1</code>, where <code>1</code> means 100% certainty.<br />
+Certainty is calculated using the standard deviation of intervals between visiting the same block.</p>
+<p>The formula used is: <code>Math.max(0, 1 - (stdDev / 1000.0))</code></p>
+<p>Meaning that a value of <code>0.9</code> is reached when the standard deviation is <code>100</code> milliseconds.</p>
+<p>Default is <code>0.9</code>.</p>
+<h4 id="sample-size-movement-patternsample-size">Sample Size (<code>movement-pattern.sample-size</code>)</h4>
+<p>This is the number of required samples to detect a movement pattern.<br />
+Example: If set to <code>5</code>, the player must visit the same block at least <code>5</code> times before the movement pattern can be analyzed.<br />
+Default is <code>5</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.50899def.min.js"></script>
+      
+    
+  </body>
+</html>
