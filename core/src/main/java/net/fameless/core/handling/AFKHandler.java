@@ -19,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 public abstract class AFKHandler {
@@ -46,6 +45,7 @@ public abstract class AFKHandler {
     private long warnDelay;
     private long afkDelay;
     private long actionDelay;
+    private BroadcastStrategy broadcastStrategy;
     private final ScheduledFuture<?> scheduledTask;
 
     public AFKHandler() {
@@ -134,9 +134,16 @@ public abstract class AFKHandler {
         this.actionDelay = PluginConfig.get().getInt("action-delay", 630) * 1000L;
 
         try {
+            this.broadcastStrategy = BroadcastStrategy.valueOf(PluginConfig.get().getString("broadcast-strategy", "PER_SERVER"));
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Invalid Broadcast Strategy in config. Defaulting to 'PER_SERVER'.");
+            this.broadcastStrategy = BroadcastStrategy.PER_SERVER;
+        }
+
+        try {
             this.action = Action.fromIdentifier(PluginConfig.get().getString("action", ""));
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Invalid action identifier in config. Defaulting to KICK.");
+            LOGGER.warn("Invalid action identifier in config. Defaulting to 'KICK'.");
             this.action = Action.KICK;
         }
 
@@ -218,18 +225,13 @@ public abstract class AFKHandler {
                     action.getMessageKey(),
                     TagResolver.resolver("action-delay", Tag.inserting(Component.text(Format.formatTime((int) (timeUntilAction / 1000)))))
             ));
-            if (PluginConfig.get().getBoolean("afk-broadcast", true)) {
-                PlayerFilter filter = PlayerFilters.notMatching(player);
-                if (PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true)) {
-                    filter = filter.and(PlayerFilters.onServer(player.getCurrentServerName()));
-                }
 
-                MessageBroadcaster.broadcastMessageToFiltered(
-                        Caption.of("notification.afk_broadcast",
-                                TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                        filter
-                );
-            }
+            MessageBroadcaster.broadcastMessageToFiltered(
+                    Caption.of("notification.afk_broadcast",
+                            TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
+                    broadcastStrategy.broadcastFilter(player)
+            );
+
             LOGGER.info("{} is now AFK.", player.getName());
         }
     }
@@ -258,43 +260,42 @@ public abstract class AFKHandler {
 
     public void handleConnectAction(@NotNull BAFKPlayer<?> player, Component kickReason, Component kickBroadcastMessage, Component connectMessage, Component connectBroadcastMessage) {
         if (!Action.isAfkServerConfigured()) {
-            LOGGER.warn("AFK server not found. Defaulting to KICK.");
+            LOGGER.warn("AFK server not configured. Defaulting to KICK.");
             this.action = Action.KICK;
             handleKickAction(player, kickReason, kickBroadcastMessage);
             return;
         }
-        String currentServerName = player.getCurrentServerName();
-        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
-        playerPreviousServerMap.put(player.getUniqueId(), currentServerName);
-        player.connect(afkServerName);
-        player.sendMessage(connectMessage);
-        if (PluginConfig.get().getBoolean("afk-broadcast", true)) {
-            PlayerFilter filter = PlayerFilters.notMatching(player);
-            if (PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true)) {
-                filter = filter.and(PlayerFilters.onServer(currentServerName));
-            }
 
-            MessageBroadcaster.broadcastMessageToFiltered(
-                    connectBroadcastMessage,
-                    filter
-            );
-        }
-        LOGGER.info("Moved {} to AFK server.", player.getName());
+        String previousServer = player.getCurrentServerName();
+        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
+
+        player.connect(afkServerName)
+                .thenAccept(success -> {
+                    if (success) {
+                        playerPreviousServerMap.put(player.getUniqueId(), previousServer);
+                        player.sendMessage(connectMessage);
+
+                        MessageBroadcaster.broadcastMessageToFiltered(
+                                connectBroadcastMessage,
+                                broadcastStrategy.broadcastFilter(player)
+                        );
+
+                        LOGGER.info("Moved {} to AFK server.", player.getName());
+                    } else {
+                        LOGGER.warn("Error while trying to connect {} to the AFK-Server. Defaulting to KICK", player.getName());
+                        handleKickAction(player, kickReason, kickBroadcastMessage);
+                    }
+                });
     }
 
     public void handleKickAction(@NotNull BAFKPlayer<?> player, Component reason, Component broadcastMessage) {
         player.kick(reason);
-        if (PluginConfig.get().getBoolean("afk-broadcast", true)) {
-            PlayerFilter filter = PlayerFilters.notMatching(player);
-            if (PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true)) {
-                filter = filter.and(PlayerFilters.onServer(player.getCurrentServerName()));
-            }
 
-            MessageBroadcaster.broadcastMessageToFiltered(
-                    broadcastMessage,
-                    filter
-            );
-        }
+        MessageBroadcaster.broadcastMessageToFiltered(
+                broadcastMessage,
+                broadcastStrategy.broadcastFilter(player)
+        );
+
         LOGGER.info("Kicked {} for being AFK.", player.getName());
     }
 
@@ -349,6 +350,14 @@ public abstract class AFKHandler {
         else if (player.getAfkState() == AFKState.ACTION_TAKEN) {
             player.sendActionbar(Caption.of("actionbar.afk-action-taken"));
         }
+    }
+
+    public BroadcastStrategy getBroadcastStrategy() {
+        return broadcastStrategy;
+    }
+
+    public void setBroadcastStrategy(BroadcastStrategy broadcastStrategy) {
+        this.broadcastStrategy = broadcastStrategy;
     }
 
     public Action getAction() {

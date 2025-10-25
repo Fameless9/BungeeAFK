@@ -4,6 +4,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.fameless.api.event.EventDispatcher;
 import net.fameless.api.event.PlayerKickEvent;
 import net.fameless.core.adapter.APIAdapter;
@@ -12,11 +13,13 @@ import net.fameless.core.location.Location;
 import net.fameless.core.messaging.RequestType;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
+import net.fameless.core.util.ServerPinger;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class VelocityPlayer extends BAFKPlayer<Player> {
 
@@ -74,12 +77,25 @@ public class VelocityPlayer extends BAFKPlayer<Player> {
     }
 
     @Override
-    public void connect(String serverName) {
-        getPlatformPlayer().ifPresent(player ->
-                player.createConnectionRequest(
-                        VelocityPlatform.getProxy().getServer(serverName).orElseThrow()
-                ).fireAndForget()
-        );
+    public CompletableFuture<Boolean> connect(String serverName) {
+        RegisteredServer server = VelocityPlatform.getProxy().getServer(serverName).orElse(null);
+        if (server == null) {
+            LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is not registered", this.getName(), serverName);
+            return CompletableFuture.completedFuture(false);
+        }
+
+        return ServerPinger.isOnline(server.getServerInfo().getAddress())
+                .thenCompose(isOnline -> {
+                    if (!isOnline) {
+                        LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is offline", this.getName(), serverName);
+                        return CompletableFuture.completedFuture(false);
+                    }
+
+                    return getPlatformPlayer().map(player -> {
+                        player.createConnectionRequest(server).fireAndForget();
+                        return CompletableFuture.completedFuture(true);
+                    }).orElseGet(() -> CompletableFuture.completedFuture(false));
+                });
     }
 
     @Override
@@ -160,12 +176,12 @@ public class VelocityPlayer extends BAFKPlayer<Player> {
     public void openEmptyInventory() {
         Player player = getPlatformPlayer().orElse(null);
         if (player == null) {
-            LOGGER.info("player is null, cannot teleport.");
+                        LOGGER.info("player is null, cannot open inventory.");
             return;
         }
         ServerConnection connection = player.getCurrentServer().orElse(null);
         if (connection == null) {
-            LOGGER.info("player is not connected to a server, cannot teleport.");
+            LOGGER.info("player is not connected to a server, cannot open inventory.");
             return;
         }
         ChannelIdentifier identifier = MinecraftChannelIdentifier.create("bungee", "bungeeafk");

@@ -1,16 +1,17 @@
  package net.fameless.velocity;
 
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.command.CommandExecuteEvent;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import net.fameless.core.BungeeAFK;
-import net.fameless.core.config.PluginConfig;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.messaging.RequestType;
 import net.fameless.core.player.GameMode;
-import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -25,23 +26,28 @@ public class VelocityAFKHandler extends AFKHandler {
     }
 
     @Subscribe
-    public void onConnect(@NotNull ServerPostConnectEvent event) {
-        if (event.getPreviousServer() == null) {
-            handleJoin(VelocityPlayer.adapt(event.getPlayer()));
+    public void onCommandExecute(@NotNull CommandExecuteEvent event) {
+        if (event.getCommandSource() instanceof Player p) {
+            VelocityPlayer player = VelocityPlayer.adapt(p);
+            player.setTimeSinceLastAction(0);
+            player.setAfkState(AFKState.ACTIVE);
+            BungeeAFK.getAFKHandler().handleAction(player);
         }
-        else {
-            boolean disableAfkOnReturn = PluginConfig.get().getBoolean("afk-update-state-when-returning");
-            if (!disableAfkOnReturn)
-                return;
+    }
 
-            String afkServerName = PluginConfig.get().getString("afk-server-name", "");
-            if (afkServerName.equals(event.getPreviousServer().getServerInfo().getName())) {
-                var player = VelocityPlayer.adapt(event.getPlayer());
-                player.setTimeSinceLastAction(0);
-                player.setAfkState(AFKState.ACTIVE);
-                revertPreviousState(player);
-                player.sendActionbar(Component.text(" "));
-            }
+    @Subscribe
+    public void onPlayerChat(@NotNull PlayerChatEvent event) {
+        VelocityPlayer player = VelocityPlayer.adapt(event.getPlayer());
+        player.setTimeSinceLastAction(0);
+        player.setAfkState(AFKState.ACTIVE);
+        BungeeAFK.getAFKHandler().handleAction(player);
+    }
+
+    @Subscribe
+    public void onConnect(@NotNull ServerPostConnectEvent event) {
+        VelocityPlayer player = VelocityPlayer.adapt(event.getPlayer());
+        if (event.getPreviousServer() == null) {
+            handleJoin(player);
         }
     }
 

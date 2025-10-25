@@ -8,14 +8,20 @@ import net.fameless.core.location.Location;
 import net.fameless.core.messaging.RequestType;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
+import net.fameless.core.util.ServerPinger;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
 
@@ -84,9 +90,27 @@ public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
     }
 
     @Override
-    public void connect(String serverName) {
-        getPlatformPlayer().ifPresent(player ->
-                player.connect(BungeePlatform.get().getProxy().getServerInfo(serverName)));
+    public CompletableFuture<Boolean> connect(String serverName) {
+        ServerInfo server = BungeePlatform.proxyServer().getServerInfo(serverName);
+        if (server == null) {
+            LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is not registered", this.getName(), serverName);
+            return CompletableFuture.completedFuture(false);
+        }
+
+        return ServerPinger.isOnline(server.getSocketAddress())
+                .thenCompose(isOnline -> {
+                    if (!isOnline) {
+                        LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is offline", this.getName(), serverName);
+                        return CompletableFuture.completedFuture(false);
+                    }
+
+                    return getPlatformPlayer()
+                            .map(player -> {
+                                player.connect(server);
+                                return CompletableFuture.completedFuture(true);
+                            })
+                            .orElseGet(() -> CompletableFuture.completedFuture(false));
+                });
     }
 
     @Override
