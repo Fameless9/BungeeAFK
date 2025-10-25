@@ -10,6 +10,7 @@ import net.fameless.core.config.PluginConfig;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.location.Location;
 import net.fameless.core.region.Region;
+import net.fameless.core.util.PlayerFilter;
 import net.fameless.core.util.PlayerFilters;
 import net.fameless.core.util.MessageBroadcaster;
 import net.kyori.adventure.audience.Audience;
@@ -35,6 +36,7 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     private AFKState afkState = AFKState.ACTIVE;
     private GameMode gameMode = GameMode.SURVIVAL;
     private Location location = new Location("world", 0, 0, 0, 0, 0);
+    private long afkCommandCooldown = 0;
 
     public BAFKPlayer(UUID uuid) {
         if (of(uuid).isPresent()) {
@@ -101,10 +103,15 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
         if ((this.afkState == AFKState.AFK || this.afkState == AFKState.ACTION_TAKEN) && newState == AFKState.ACTIVE) {
             sendMessage(Caption.of("notification.afk_return"));
             if (PluginConfig.get().getBoolean("afk-broadcast", true)) {
+                PlayerFilter filter = PlayerFilters.notMatching(this);
+                if (PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true)) {
+                    filter = filter.and(PlayerFilters.onServer(this.getCurrentServerName()));
+                }
+
                 MessageBroadcaster.broadcastMessageToFiltered(
                         Caption.of("notification.afk_return_broadcast",
                                 TagResolver.resolver("player", Tag.inserting(Component.text(getName())))),
-                        PlayerFilters.notMatching(this)
+                        filter
                 );
             }
         }
@@ -142,6 +149,13 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
         this.location = location;
     }
 
+    public long getAfkCommandCooldown() {
+        return afkCommandCooldown;
+    }
+
+    public void setAfkCommandCooldown(long afkCommandCooldown) {
+        this.afkCommandCooldown = afkCommandCooldown;
+    }
 
     public abstract String getName();
 

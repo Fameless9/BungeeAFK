@@ -27,6 +27,14 @@ public class YamlUtil {
             # Lang entries: 'notification.afk_broadcast', 'notification.return_broadcast', 'notification.afk_kick_broadcast', 'notification.afk_disconnect_broadcast'
             # This option does not affect auto-clicker or movement pattern detection broadcasts to players with the notify-permission (see below)
             afk-broadcast: %b
+            
+            # Whether to send broadcast messages about AFK actions only to players on the same server as the affected player
+            # Requires afk-broadcast to be enabled
+            afk-broadcast-only-current-server: %b
+            
+            # Cooldown time between AFK toggle commands to prevent spamming
+            # Time unit is in seconds
+            afk-command-cooldown: %d
 
             # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
             # e.g., if set to 60, the player will receive a warning message after 1 minute of inactivity
@@ -50,6 +58,11 @@ public class YamlUtil {
             # If the server does not exist, the action will default to "kick"
             # !!! Only available for BungeeCord and Velocity !!!
             afk-server-name: %s
+
+            # Used for proxy platforms (BungeeCord/Velocity) to disable AFK mode, when they
+            # return from the AFK server
+            # NOTE: At the moment, this only works for Velocity proxies
+            afk-update-state-when-returning: %b
 
             # AFK zone configuration
             # If the action is set to "teleport", the player will be teleported to this location
@@ -150,11 +163,14 @@ public class YamlUtil {
             """.formatted(
                 Caption.getCurrentLanguage().getIdentifier(),
                 PluginConfig.get().getBoolean("afk-broadcast", true),
+                PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true),
+                PluginConfig.get().getInt("afk-command-cooldown", 30),
                 PluginConfig.get().getInt("warning-delay", 60),
                 PluginConfig.get().getInt("afk-delay", 600),
                 PluginConfig.get().getInt("action-delay", 630),
                 PluginConfig.get().getString("action", "kick"),
                 PluginConfig.get().getString("afk-server-name", ""),
+                PluginConfig.get().getBoolean("afk-update-state-when-returning", false),
                 PluginConfig.get().getSection("afk-location").get("world"),
                 PluginConfig.get().getSection("afk-location").get("x"),
                 PluginConfig.get().getSection("afk-location").get("y"),

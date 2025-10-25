@@ -6,7 +6,8 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal() // Build BungeeCord API locally
+    maven("https://mvnrepository.com/artifact/net.md-5/bungeecord-api")
+    mavenLocal()
 }
 
 dependencies {

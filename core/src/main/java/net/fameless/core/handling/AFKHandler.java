@@ -219,10 +219,15 @@ public abstract class AFKHandler {
                     TagResolver.resolver("action-delay", Tag.inserting(Component.text(Format.formatTime((int) (timeUntilAction / 1000)))))
             ));
             if (PluginConfig.get().getBoolean("afk-broadcast", true)) {
+                PlayerFilter filter = PlayerFilters.notMatching(player);
+                if (PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true)) {
+                    filter = filter.and(PlayerFilters.onServer(player.getCurrentServerName()));
+                }
+
                 MessageBroadcaster.broadcastMessageToFiltered(
                         Caption.of("notification.afk_broadcast",
                                 TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                        PlayerFilters.notMatching(player)
+                        filter
                 );
             }
             LOGGER.info("{} is now AFK.", player.getName());
@@ -264,9 +269,14 @@ public abstract class AFKHandler {
         player.connect(afkServerName);
         player.sendMessage(connectMessage);
         if (PluginConfig.get().getBoolean("afk-broadcast", true)) {
+            PlayerFilter filter = PlayerFilters.notMatching(player);
+            if (PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true)) {
+                filter = filter.and(PlayerFilters.onServer(currentServerName));
+            }
+
             MessageBroadcaster.broadcastMessageToFiltered(
                     connectBroadcastMessage,
-                    PlayerFilters.notMatching(player)
+                    filter
             );
         }
         LOGGER.info("Moved {} to AFK server.", player.getName());
@@ -275,9 +285,14 @@ public abstract class AFKHandler {
     public void handleKickAction(@NotNull BAFKPlayer<?> player, Component reason, Component broadcastMessage) {
         player.kick(reason);
         if (PluginConfig.get().getBoolean("afk-broadcast", true)) {
+            PlayerFilter filter = PlayerFilters.notMatching(player);
+            if (PluginConfig.get().getBoolean("afk-broadcast-only-current-server", true)) {
+                filter = filter.and(PlayerFilters.onServer(player.getCurrentServerName()));
+            }
+
             MessageBroadcaster.broadcastMessageToFiltered(
                     broadcastMessage,
-                    PlayerFilters.notMatching(player)
+                    filter
             );
         }
         LOGGER.info("Kicked {} for being AFK.", player.getName());
@@ -328,8 +343,11 @@ public abstract class AFKHandler {
     }
 
     private void sendActionBar(@NotNull BAFKPlayer<?> player) {
-        if (player.getAfkState() == AFKState.AFK || player.getAfkState() == AFKState.ACTION_TAKEN) {
+        if (player.getAfkState() == AFKState.AFK) {
             player.sendActionbar(Caption.of("actionbar.afk"));
+        }
+        else if (player.getAfkState() == AFKState.ACTION_TAKEN) {
+            player.sendActionbar(Caption.of("actionbar.afk-action-taken"));
         }
     }
 

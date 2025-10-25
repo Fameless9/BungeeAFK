@@ -312,6 +312,63 @@ public class MainCommand extends Command {
                             TagResolver.resolver("servers", Tag.inserting(Component.text(String.join(", ", PluginConfig.get().getStringList("disabled-servers")))))
                     ));
                 }
+                case "afk-broadcast-only-current-server" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    boolean onlyCurrentServer;
+                    try {
+                        onlyCurrentServer = Boolean.parseBoolean(args[2]);
+                    } catch (IllegalArgumentException e) {
+                        caller.sendMessage(Caption.of("command.invalid_boolean"));
+                        return;
+                    }
+
+                    PluginConfig.get().set("afk-broadcast-only-current-server", onlyCurrentServer);
+                    caller.sendMessage(Caption.of("command.afk_broadcast_only_current_server_set",
+                            TagResolver.resolver("value", Tag.inserting(Component.text(onlyCurrentServer)))
+                    ));
+                }
+                case "afk-command-cooldown" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    long cooldown;
+                    try {
+                        cooldown = Integer.parseInt(args[2]);
+                    } catch (NumberFormatException e) {
+                        caller.sendMessage(Caption.of("command.invalid_number"));
+                        return;
+                    }
+                    PluginConfig.get().set("afk-command-cooldown", cooldown);
+                    caller.sendMessage(Caption.of(
+                            "command.afk_command_cooldown_set",
+                            TagResolver.resolver("value", Tag.inserting(Component.text(cooldown)))
+                    ));
+                }
+                case "afk-update-state-when-returning" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    boolean disableWhenReturning;
+                    try {
+                        disableWhenReturning = Boolean.parseBoolean(args[2]);
+                    } catch (IllegalArgumentException e) {
+                        caller.sendMessage(Caption.of("command.invalid_boolean"));
+                        return;
+                    }
+
+                    PluginConfig.get().set("afk-update-state-when-returning", disableWhenReturning);
+                    caller.sendMessage(Caption.of("command.afk_update_state_when_returning_set",
+                            TagResolver.resolver("value", Tag.inserting(Component.text(disableWhenReturning)))
+                    ));
+                }
             }
         } else if (args[0].equalsIgnoreCase("lang")) {
             if (args[1].equalsIgnoreCase("reload")) {
@@ -664,7 +721,8 @@ public class MainCommand extends Command {
                 if (args[0].equalsIgnoreCase("configure")) {
                     completions.addAll(Arrays.asList(
                             "afk-delay", "action-delay", "action", "caption", "warning-delay",
-                            "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "afk-broadcasts"
+                            "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "afk-broadcasts",
+                            "afk-broadcast-only-current-server", "afk-command-cooldown", "afk-update-state-when-returning"
                     ));
                     if (BungeeAFK.isProxy()) {
                         completions.addAll(Arrays.asList("disable-server", "enable-server", "disabled-servers"));

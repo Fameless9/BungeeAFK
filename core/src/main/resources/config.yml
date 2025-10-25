@@ -16,6 +16,14 @@ lang: en
 # This option does not affect auto-clicker or movement pattern detection broadcasts to players with the notify-permission (see below)
 afk-broadcast: true
 
+# Whether to send broadcast messages about AFK actions only to players on the same server as the affected player
+# Requires afk-broadcast to be enabled
+afk-broadcast-only-current-server: true
+
+# Cooldown time between AFK toggle commands to prevent spamming
+# Time unit is in seconds
+afk-command-cooldown: 30
+
 # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
 # e.g., if set to 90, the player will receive a warning message after 1 minute and 30 seconds of inactivity
 warning-delay: 90
@@ -38,6 +46,11 @@ action: "kick"
 # Server name to which the player is connected when the action is set to "connect"
 # !!! Only available for BungeeCord and Velocity !!!
 afk-server-name: "afk"
+
+# Used for proxy platforms (BungeeCord/Velocity) to disable AFK mode, when they
+# return from the AFK server
+# NOTE: At the moment, this only works for Velocity proxies
+afk-update-state-when-returning: false
 
 # AFK Location configuration
 # If the action is set to "teleport", the player will be teleported to this location

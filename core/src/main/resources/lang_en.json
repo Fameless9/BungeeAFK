@@ -84,6 +84,11 @@
   "command.config_dump": "<prefix><green>Current configuration:<br><gray><dump>",
   "command.broadcast_afk_status_enabled": "<prefix><gray>AFK status broadcasts are now enabled.",
   "command.broadcast_afk_status_disabled": "<prefix><gray>AFK status broadcasts are now disabled.",
+  "command.afk_cooldown": "<prefix><red>Please wait <time> seconds before toggling your AFK status again.",
+  "command.afk_broadcast_only_current_server_set": "<prefix><green>AFK broadcast only for current server set to <value>.",
+  "command.afk_command_cooldown_set": "<prefix><green>AFK command cooldown set to <value> seconds.",
+  "command.afk_update_state_when_returning_set": "<prefix><green>AFK update state when returning set to <value>.",
   "error.no_caller_type": "<prefix><red>Invalid CallerType.",
-  "actionbar.afk": "<blue>You are AFK"
+  "actionbar.afk": "<blue>You are AFK",
+  "actionbar.afk-action-taken": "<red>You have been moved to the AFK server"
 }
