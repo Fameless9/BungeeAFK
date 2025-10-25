@@ -491,15 +491,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#afk-broadcasts-afk-broadcast" class="md-nav__link">
-    <span class="md-ellipsis">
-      AFK-Broadcasts (afk-broadcast)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#warning-delay-warning-delay" class="md-nav__link">
     <span class="md-ellipsis">
       Warning Delay (warning-delay)
@@ -566,6 +557,24 @@
   <a href="#disabled-servers-disabled-servers" class="md-nav__link">
     <span class="md-ellipsis">
       Disabled Servers (disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcast-strategy-broadcast-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Broadcast Strategy (broadcast-strategy)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-command-cooldown-afk-command-cooldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Command cooldown (afk-command-cooldown)
     </span>
   </a>
   
@@ -953,7 +962,7 @@
   
   
   <span class="md-ellipsis">
-    Support
+    Contributing & Support
     
   </span>
   
@@ -964,9 +973,32 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
-            Support
+            Contributing & Support
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1116,15 +1148,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#afk-broadcasts-afk-broadcast" class="md-nav__link">
-    <span class="md-ellipsis">
-      AFK-Broadcasts (afk-broadcast)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#warning-delay-warning-delay" class="md-nav__link">
     <span class="md-ellipsis">
       Warning Delay (warning-delay)
@@ -1191,6 +1214,24 @@
   <a href="#disabled-servers-disabled-servers" class="md-nav__link">
     <span class="md-ellipsis">
       Disabled Servers (disabled-servers)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcast-strategy-broadcast-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Broadcast Strategy (broadcast-strategy)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#afk-command-cooldown-afk-command-cooldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      AFK Command cooldown (afk-command-cooldown)
     </span>
   </a>
   
@@ -1412,28 +1453,19 @@ Below is a guide on how to configure BungeeAFK effectively.</p>
 <h3 id="general-settings">General Settings</h3>
 <h4 id="language-lang">Language (<code>lang</code>)</h4>
 <p>The language setting allows you to choose the language for the plugin's messages. You can set it to <code>en</code> for English or <code>de</code> for German.<br />
-The plugin will use the language file: <code>lang_xx.json</code> where <code>xx</code> is the language code you set.<br />
-Default is <code>en</code>.</p>
-<h4 id="afk-broadcasts-afk-broadcast">AFK-Broadcasts (<code>afk-broadcast</code>)</h4>
-<p>If true, a broadcast message will be sent to all players (except the AFK player) when a player goes AFK, returns from AFK or
-an AFK action is performed. This option does not affect broadcasts sent to players with specific permissions.
-Affected language keys are:
-- <code>notification.afk_broadcast</code>
-- <code>notification.return_broadcast</code>
-- <code>notification.afk_kick_broadcast</code>
-- <code>notification.afk_disconnect_broadcast</code>
-Default is <code>true</code>.</p>
+The plugin will use the language file: <code>lang_xx.json</code> where <code>xx</code> is the language code you set.  </p>
+<p>Default is <code>en</code>.</p>
 <h4 id="warning-delay-warning-delay">Warning Delay (<code>warning-delay</code>)</h4>
 <p>This is the delay in seconds after which a warning message is sent to the player after their last activity. The warning message<br />
-can be customized in the language file under the key <code>notification.afk_warning</code>.<br />
-Default is <code>90</code> seconds.</p>
+can be customized in the language file under the key <code>notification.afk_warning</code>.  </p>
+<p>Default is <code>90</code> seconds.</p>
 <h4 id="afk-delay-afk-delay">AFK Delay (<code>afk-delay</code>)</h4>
 <p>This is the delay in seconds after which a player is considered AFK if they have not interacted with the server.<br />
-The AFK message can be customized in the language file under the key <code>notification.afk.&lt;action&gt;</code>.<br />
-Default is <code>180</code> seconds.</p>
+The AFK message can be customized in the language file under the key <code>notification.afk.&lt;action&gt;</code>.  </p>
+<p>Default is <code>180</code> seconds.</p>
 <h4 id="action-delay-action-delay">Action Delay (<code>action-delay</code>)</h4>
-<p>This is the delay between a player's last interaction and the Action as configured in the <code>action</code> entry.<br />
-Default is <code>420</code> seconds.</p>
+<p>This is the delay between a player's last interaction and the Action as configured in the <code>action</code> entry.  </p>
+<p>Default is <code>420</code> seconds.</p>
 <h4 id="action-action">Action (<code>action</code>)</h4>
 <p>This setting allows you to specify the action that will be taken when Action Delay is reached.<br />
 You can choose from the following options:
@@ -1448,30 +1480,42 @@ Make sure this server is enabled and present in your proxy's config.</p>
 <h4 id="afk-location-afk-location">AFK Location (<code>afk-location</code>)</h4>
 <p>This is the location to which players will be teleported when the action is set to <code>teleport</code>.</p>
 <h4 id="allow-bypass-allow-bypass">Allow Bypass (<code>allow-bypass</code>)</h4>
-<p>If true, players with the permission <code>afk.bypass</code> bypass the AFK system.<br />
-Default is <code>true</code>.</p>
+<p>If true, players with the permission <code>afk.bypass</code> bypass the AFK system.  </p>
+<p>Default is <code>true</code>.</p>
 <h4 id="disabled-servers-disabled-servers">Disabled Servers (<code>disabled-servers</code>)</h4>
 <p>This is a list of servers where the AFK system is disabled. Players on these servers will not be marked as AFK.<br />
 You can specify multiple servers by separating them with commas.</p>
 <p>Example:</p>
 <pre><code class="language-yaml">disabled-servers: [lobby, survival]  
 </code></pre>
+<h4 id="broadcast-strategy-broadcast-strategy">Broadcast Strategy (<code>broadcast-strategy</code>)</h4>
+<p>This setting determines how AFK notifications are broadcasted to other players.  </p>
+<p>You can choose from the following options:
+- <code>ALL</code>: Notifications are sent to all players on the proxy and all servers.
+- <code>GLOBAL</code>: Notifications are sent to all players on the proxy, except for the player who has gone AFK.
+- <code>PER_SERVER</code>: Notifications are sent only to players on the same server as the AFK player, except for the player who has gone AFK.
+- <code>DISABLE</code>: No notifications are sent.</p>
+<p>This option affects the following language keys: <code>notification.afk_broadcast</code>, <code>notification.return_broadcast</code>, <code>notification.afk_kick_broadcast</code>, <code>notification.afk_disconnect_broadcast</code>.</p>
+<p>Default is <code>PER_SERVER</code>.</p>
+<h4 id="afk-command-cooldown-afk-command-cooldown">AFK Command cooldown (<code>afk-command-cooldown</code>)</h4>
+<p>This is the cooldown in seconds for the <code>/afk</code> command to prevent spamming.<br />
+Default is <code>10</code> seconds.</p>
 <h4 id="bypass-regions-bypass-regions">Bypass Regions (<code>bypass-regions</code>)</h4>
 <p>This is a list of regions where players will not be marked as AFK.<br />
 You can, but should not specify regions manually here, but rather use the <code>/afk region add</code> command to add regions.</p>
 <h3 id="auto-clicker-detection-settings">Auto Clicker Detection Settings</h3>
 <h4 id="enable-auto-clicker-detection-auto-clickerenabled">Enable Auto Clicker Detection (<code>auto-clicker.enabled</code>)</h4>
-<p>If true, auto clicker detection is enabled.<br />
-Default is <code>false</code>.</p>
+<p>If true, auto clicker detection is enabled.  </p>
+<p>Default is <code>false</code>.</p>
 <h4 id="allow-auto-clicker-bypass-auto-clickerallow-bypass">Allow Auto Clicker Bypass (<code>auto-clicker.allow-bypass</code>)</h4>
-<p>If true, players with the permission <code>bungeeafk.auto-clicker.bypass</code> bypass the auto clicker detection.<br />
-Default is <code>true</code>.</p>
+<p>If true, players with the permission <code>bungeeafk.auto-clicker.bypass</code> bypass the auto clicker detection.  </p>
+<p>Default is <code>true</code>.</p>
 <h4 id="notify-permission-auto-clickernotify-permission">Notify Permission (<code>auto-clicker.notify-permission</code>)</h4>
 <p>This is the permission required to receive notifications about auto clicker detections.<br />
 Default is <code>bungeeafk.auto-clicker.notify</code>.</p>
 <h4 id="notify-detected-player-auto-clickernotify-player">Notify detected Player (<code>auto-clicker.notify-player</code>)</h4>
-<p>If true, players will receive a notification when they are detected as using an auto clicker.<br />
-Default is <code>true</code>.</p>
+<p>If true, players will receive a notification when they are detected as using an auto clicker.  </p>
+<p>Default is <code>true</code>.</p>
 <h4 id="action-on-detection-auto-clickeraction">Action on Detection (<code>auto-clicker.action</code>)</h4>
 <p>This setting allows you to specify the action that will be taken when an auto clicker is detected.<br />
 You can choose from the following options:
@@ -1487,14 +1531,14 @@ Players on these servers will not be checked for auto clicker usage.</p>
 </code></pre>
 <h3 id="movement-pattern-detection-settings">Movement Pattern Detection Settings</h3>
 <h4 id="enable-movement-pattern-detection-movement-patternenabled">Enable Movement Pattern Detection (<code>movement-pattern.enabled</code>)</h4>
-<p>If true, movement pattern detection is enabled.<br />
-Default is <code>true</code>.</p>
+<p>If true, movement pattern detection is enabled.  </p>
+<p>Default is <code>true</code>.</p>
 <h4 id="allow-movement-pattern-bypass-movement-patternallow-bypass">Allow Movement Pattern Bypass (<code>movement-pattern.allow-bypass</code>)</h4>
-<p>If true, players with the permission <code>bungeeafk.movement-pattern.bypass</code> bypass the movement pattern detection.<br />
-Default is <code>true</code>.</p>
+<p>If true, players with the permission <code>bungeeafk.movement-pattern.bypass</code> bypass the movement pattern detection.  </p>
+<p>Default is <code>true</code>.</p>
 <h4 id="notify-permission-movement-patternnotify-permission">Notify Permission (<code>movement-pattern.notify-permission</code>)</h4>
-<p>This is the permission required to receive notifications about movement pattern detections.<br />
-Default is <code>bungeeafk.movement-pattern.notify</code>.</p>
+<p>This is the permission required to receive notifications about movement pattern detections.  </p>
+<p>Default is <code>bungeeafk.movement-pattern.notify</code>.</p>
 <h4 id="notify-detected-player-movement-patternnotify-player">Notify detected Player (<code>movement-pattern.notify-player</code>)</h4>
 <p>If true, players will receive a notification when they are detected as using a movement pattern.<br />
 Default is <code>true</code>.</p>
@@ -1530,8 +1574,8 @@ Certainty is calculated using the standard deviation of intervals between visiti
 <p>Default is <code>0.9</code>.</p>
 <h4 id="sample-size-movement-patternsample-size">Sample Size (<code>movement-pattern.sample-size</code>)</h4>
 <p>This is the number of required samples to detect a movement pattern.<br />
-Example: If set to <code>5</code>, the player must visit the same block at least <code>5</code> times before the movement pattern can be analyzed.<br />
-Default is <code>5</code>.</p>
+Example: If set to <code>5</code>, the player must visit the same block at least <code>5</code> times before the movement pattern can be analyzed.  </p>
+<p>Default is <code>5</code>.</p>
 
 
 

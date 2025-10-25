@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../configuration/">
+        <link rel="prev" href="../movement_pattern_detection/">
       
       
-        <link rel="next" href="../commands/">
+        <link rel="next" href="../issue_reporting/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Custom Messages - BungeeAFK Documentation</title>
+        <title>Contributing Guide - BungeeAFK Documentation</title>
       
     
     
@@ -97,7 +97,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Custom Messages
+              Contributing Guide
             
           </span>
         </div>
@@ -350,20 +350,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -379,7 +377,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Configuration
@@ -413,17 +411,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../custom_messages/" class="md-nav__link">
         
   
   
@@ -434,7 +425,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -587,18 +577,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -614,7 +606,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Contributing & Support
@@ -625,10 +617,17 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../contributing/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -639,6 +638,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -755,21 +755,28 @@
   
 
 
-  <h1>Custom Messages</h1>
+  <h1>Contributing Guide</h1>
 
-<p>BungeeAFK supports English(<code>en</code>) and German(<code>de</code>) by default.</p>
-<p>The language files are located at <code>plugins/BungeeAFK/lang/lang_xx.json</code> after the plugin's first startup.
-The language files must not be renamed or moved, as the plugin expects them to be in this specific location.
-Otherwise, the plugin will load a copy of the default language file.
-You can adjust all messages displayed by the plugin in this file, but you need to make sure that all the keys remain the same.<br />
-For example, you can change the AFK warning message by modifying the value for <code>notification.afk_warning</code> key in the language file,
-but the key itself must not be changed.</p>
-<pre><code class="language-json">{  
-  &quot;notification.afk_warning&quot;: &quot;Your desired message here&quot;
-}  
-</code></pre>
-<p>Creating a new language file is <strong>currently not supported</strong>. However, you can modify the existing language files to add your own translations or change the messages as needed.</p>
-<p>If a key is missing in the language file, the plugin will use the default message.</p>
+<p>With BungeeAFK being open source, everyone can contribute to its development. Whether it's reporting bugs, 
+suggesting new features, or submitting code changes, your contributions are welcome!</p>
+<p>See <a href="../issue_reporting/">Issue Reporting</a> or <a href="../feature_requests/">Feature Requests</a> for information on how to contribute with issues or suggestions.</p>
+<p>To contribute code changes, please follow these steps:</p>
+<ol>
+<li><strong>Fork the Repository</strong>: Start by forking the BungeeAFK repository on GitHub to your own account.</li>
+<li><strong>Clone Your Fork</strong>: Clone your forked repository to your local machine using Git.</li>
+<li><strong>Create a New Branch</strong>: Create a new branch for your changes. Use a descriptive name that reflects the purpose of your changes.
+   <code>git checkout -b feature/your-feature-name</code></li>
+<li><strong>Make Your Changes</strong>: Implement your changes in the codebase. Ensure that your code follows the project's coding standards and conventions.</li>
+<li><strong>Test Your Changes</strong>: Thoroughly test your changes to ensure they work as expected and do not introduce new issues.</li>
+<li><strong>Commit Your Changes</strong>: Commit your changes with a clear and concise commit message.
+   <code>git add .
+   git commit -m "Add your commit message here"</code></li>
+<li><strong>Push to Your Fork</strong>: Push your changes to your forked repository on GitHub.
+   <code>git push origin feature/your-feature-name</code></li>
+<li><strong>Create a Pull Request</strong>: Go to the original BungeeAFK repository and create a pull request from your forked repository <strong>into the development branch</strong>. Provide a detailed description of your changes and the purpose of the pull request.</li>
+<li><strong>Review Process</strong>: The project maintainers will review your pull request. They may provide feedback or request changes. Be responsive and make any necessary adjustments.</li>
+</ol>
+<p>Thank you for being interested in contributing to BungeeAFK in any way!</p>
 
 
 
