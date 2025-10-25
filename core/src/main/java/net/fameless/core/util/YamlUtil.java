@@ -24,6 +24,11 @@ public class YamlUtil {
             # Available languages: en, de
             lang: %s
 
+            # Whether to send broadcast messages to all players when someone is marked as AFK, returns from AFK or an AFK action is performed
+            # Lang entries: 'notification.afk_broadcast', 'notification.return_broadcast', 'notification.afk_kick_broadcast', 'notification.afk_disconnect_broadcast'
+            # This option does not affect auto-clicker or movement pattern detection broadcasts to players with the notify-permission (see below)
+            afk-broadcast: %b
+
             # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
             # e.g., if set to 60, the player will receive a warning message after 1 minute of inactivity
             warning-delay: %d
@@ -157,6 +162,7 @@ public class YamlUtil {
               sample-size: %d          # Number of movement samples on the same location to analyze in a rolling window
             """.formatted(
                 Caption.getCurrentLanguage().getIdentifier(),
+                PluginConfig.get().getBoolean("afk-broadcast", true),
                 PluginConfig.get().getInt("warning-delay", 60),
                 PluginConfig.get().getInt("afk-delay", 600),
                 PluginConfig.get().getInt("action-delay", 630),
