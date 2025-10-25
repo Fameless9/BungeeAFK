@@ -16,7 +16,8 @@ Here are the topics covered in this documentation:
     - [Auto Clicker Detection](auto_clicker_detection.md)
     - [Bypass Regions](bypass_regions.md)
     - [Movement Pattern Detection](movement_pattern_detection.md)
-- #### Support
+- #### Contributing & Support
+    - [Contributing Guide](contributing.md)
     - [Issue Reporting](issue_reporting.md)
     - [Feature Requests](feature_requests.md)
     - [Reviews](reviewing.md)
