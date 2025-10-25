@@ -88,5 +88,5 @@
   "command.broadcast_strategy_set": "<prefix><green>Broadcast Strategy wurde auf <strategy> gesetzt.",
   "error.no_caller_type": "<prefix><red>Falscher CallerType.",
   "actionbar.afk": "<blue>Du bist AFK",
-  "actionbar.afk-action-taken": "<red>Sie wurden auf den AFK-Server verschoben"
+  "actionbar.afk_moved": "<blue>Du wurdest auf den AFK-Server connected"
 }

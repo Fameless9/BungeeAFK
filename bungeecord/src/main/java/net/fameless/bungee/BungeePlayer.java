@@ -177,7 +177,7 @@ public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
     public void openEmptyInventory() {
         ProxiedPlayer player = getPlatformPlayer().orElse(null);
         if (player == null) {
-            LOGGER.info("player is null, cannot set gamemode.");
+            LOGGER.info("player is null, cannot open inventory.");
             return;
         }
         byte[] data = (RequestType.OPEN_EMPTY_INVENTORY.getName() + ";" +
