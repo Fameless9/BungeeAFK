@@ -2,6 +2,7 @@ package net.fameless.core.util;
 
 import net.fameless.core.caption.Caption;
 import net.fameless.core.config.PluginConfig;
+import net.fameless.core.handling.BroadcastStrategy;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -67,6 +68,18 @@ public class YamlUtil {
             # Example: [lobby, hub]
             disabled-servers:
               %s
+
+            # Strategy used to broadcast AFK notifications to other players
+            # Affected message keys: 'notification.afk_broadcast', 'notification.return_broadcast', 'notification.afk_kick_broadcast', 'notification.afk_disconnect_broadcast'
+            # 'PASS_ALL' - The message is sent to every online player on the proxy
+            # 'GLOBAL' - The message is sent to every online player on the proxy, except the player who is AFK
+            # 'PER_SERVER' - The message is sent to every player on the same server as the player who is AFK
+            # 'DISABLE' - No broadcast message is sent
+            broadcast-strategy: %s
+
+            # Cooldown time between AFK toggle commands to prevent spamming
+            # Time unit is in seconds
+            afk-command-cooldown: %d
 
             # Map of regions where AFK detection can be toggled on or off independently
             # Players in regions where AFK detection is false will not be marked as AFK, and no actions will be performed
@@ -161,6 +174,8 @@ public class YamlUtil {
                 PluginConfig.get().getSection("afk-location").get("z"),
                 PluginConfig.get().getBoolean("allow-bypass", true),
                 PluginConfig.get().getStringList("disabled-servers"),
+                PluginConfig.get().getString("broadcast-strategy", BroadcastStrategy.PER_SERVER.name()),
+                PluginConfig.get().getInt("afk-command-cooldown", 10),
                 PluginConfig.YAML.dumpAsMap(Map.of("bypass-regions", PluginConfig.get().getSection("bypass-regions"))),
                 PluginConfig.get().getBoolean("auto-clicker.enabled", true),
                 PluginConfig.get().getBoolean("auto-clicker.allow-bypass", true),

@@ -1,5 +1,5 @@
 [versions]
-bungee = "1.21-R0.1-SNAPSHOT"
+bungee = "1.21-R0.4"
 spigot = "1.21.4-R0.1-SNAPSHOT"
 velocity = "3.4.0-SNAPSHOT"
 gson = "2.11.0"

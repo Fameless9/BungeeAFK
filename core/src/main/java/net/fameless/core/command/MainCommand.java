@@ -13,6 +13,7 @@ import net.fameless.core.detection.history.Detection;
 import net.fameless.core.detection.history.DetectionType;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
+import net.fameless.core.handling.BroadcastStrategy;
 import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.region.MockRegion;
@@ -25,6 +26,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MainCommand extends Command {
 
@@ -63,26 +65,23 @@ public class MainCommand extends Command {
                     String dump = PluginConfig.get().dump();
                     caller.sendMessage(Caption.of("command.config_dump", TagResolver.resolver("dump", Tag.inserting(Component.text(dump)))));
                 }
-                case "afk-broadcasts" -> {
+                case "broadcast-strategy" -> {
                     if (args.length < 3) {
                         sendUsage(caller);
                         return;
                     }
 
-                    boolean broadcast;
+                    BroadcastStrategy strategy;
                     try {
-                        broadcast = Boolean.parseBoolean(args[2]);
+                        strategy = BroadcastStrategy.valueOf(args[2]);
                     } catch (IllegalArgumentException e) {
-                        caller.sendMessage(Caption.of("command.invalid_boolean"));
+                        caller.sendMessage(Caption.of("command.invalid_broadcast_strategy"));
                         return;
                     }
 
-                    PluginConfig.get().set("afk-broadcast", broadcast);
-                    if (broadcast) {
-                        caller.sendMessage(Caption.of("command.broadcast_afk_status_enabled"));
-                    } else {
-                        caller.sendMessage(Caption.of("command.broadcast_afk_status_disabled"));
-                    }
+                    BungeeAFK.getAFKHandler().setBroadcastStrategy(strategy);
+                    PluginConfig.get().set("broadcast-strategy", strategy.name());
+                    caller.sendMessage(Caption.of("command.broadcast_strategy_set", TagResolver.resolver("strategy", Tag.inserting(Component.text(strategy.name())))));
                 }
                 case "allow-bypass" -> {
                     if (args.length < 3) {
@@ -310,6 +309,25 @@ public class MainCommand extends Command {
 
                     caller.sendMessage(Caption.of("command.disabled_server_list",
                             TagResolver.resolver("servers", Tag.inserting(Component.text(String.join(", ", PluginConfig.get().getStringList("disabled-servers")))))
+                    ));
+                }
+                case "afk-command-cooldown" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    long cooldown;
+                    try {
+                        cooldown = Integer.parseInt(args[2]);
+                    } catch (NumberFormatException e) {
+                        caller.sendMessage(Caption.of("command.invalid_number"));
+                        return;
+                    }
+                    PluginConfig.get().set("afk-command-cooldown", cooldown);
+                    caller.sendMessage(Caption.of(
+                            "command.afk_command_cooldown_set",
+                            TagResolver.resolver("value", Tag.inserting(Component.text(cooldown)))
                     ));
                 }
             }
@@ -664,7 +682,8 @@ public class MainCommand extends Command {
                 if (args[0].equalsIgnoreCase("configure")) {
                     completions.addAll(Arrays.asList(
                             "afk-delay", "action-delay", "action", "caption", "warning-delay",
-                            "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "afk-broadcasts"
+                            "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "broadcast-strategy",
+                            "afk-command-cooldown"
                     ));
                     if (BungeeAFK.isProxy()) {
                         completions.addAll(Arrays.asList("disable-server", "enable-server", "disabled-servers"));
@@ -708,6 +727,8 @@ public class MainCommand extends Command {
                         completions.addAll(serverNames);
                     } else if (args[1].equalsIgnoreCase("enable-server") && BungeeAFK.isProxy()) {
                         completions.addAll(PluginConfig.get().getStringList("disabled-servers"));
+                    } else if (args[1].equalsIgnoreCase("broadcast-strategy")) {
+                        completions.addAll(Arrays.stream(BroadcastStrategy.values()).map(BroadcastStrategy::name).collect(Collectors.toSet()));
                     }
                 } else if (args[0].equalsIgnoreCase("region")) {
                     if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("details") || args[1].equalsIgnoreCase("toggle-detection")) {

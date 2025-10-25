@@ -28,4 +28,11 @@ public class PlayerFilters {
         return p -> p.getAfkState() == state;
     }
 
+    public static @NotNull PlayerFilter passNone() {
+        return p -> false;
+    }
+
+    public static @NotNull PlayerFilter passAll() {
+        return p -> true;
+    }
 }

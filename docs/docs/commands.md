@@ -31,6 +31,7 @@ Commands to configure general plugin settings.
 | `/bungeeafk configure afk-location`                    | Sets the AFK teleport location to your current position                        |
 | `/bungeeafk configure reloadconfig`                    | Reloads the plugin configuration (This will override all of the cached config) |
 | `/bungeeafk configure saveconfig`                      | Saves the current configuration to the config.yml file                         |
+| `/bungeeafk configure broadcast-strategy <strategy>`   | Sets the broadcast strategy for AFK messages                                   |
 
 ### Proxy-only Configuration Commands
 

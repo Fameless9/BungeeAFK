@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class SpigotPlayer extends BAFKPlayer<Player> {
 
@@ -94,8 +95,8 @@ public class SpigotPlayer extends BAFKPlayer<Player> {
     }
 
     @Override
-    public void connect(String serverName) {
-        // Not needed for SpigotPlatform
+    public CompletableFuture<Boolean> connect(String serverName) {
+        return CompletableFuture.completedFuture(false); // Not needed for SpigotPlatform
     }
 
     @Override

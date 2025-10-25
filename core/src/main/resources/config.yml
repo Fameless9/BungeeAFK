@@ -56,6 +56,18 @@ allow-bypass: true
 disabled-servers:
   []
 
+# Strategy used to broadcast AFK notifications to other players
+# Affected message keys: 'notification.afk_broadcast', 'notification.return_broadcast', 'notification.afk_kick_broadcast', 'notification.afk_disconnect_broadcast'
+# 'PASS_ALL' - The message is sent to every online player on the proxy, including the player who has gone AFK
+# 'GLOBAL' - The message is sent to every online player on the proxy, except for the player who has gone AFK
+# 'PER_SERVER' - The message is sent to every player on the same server as the player who has gone AFK, except for the player who has gone AFK
+# 'DISABLE' - No broadcast message is sent
+broadcast-strategy: PER_SERVER
+
+# Cooldown time between AFK toggle commands to prevent spamming
+# Time unit is in seconds
+afk-command-cooldown: 10
+
 # Map of regions where AFK detection can be toggled on or off independently
 # Players in regions where AFK detection is false will not be marked as AFK, and no actions will be performed
 # Regions should be added using the /bafk region add <param> command
