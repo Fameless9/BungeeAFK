@@ -1,5 +1,5 @@
 name: BungeeAFKTracking
-version: '2.4.1'
+version: '2.5.0'
 main: net.fameless.bungeeAFKTracking.BungeeAFKTracking
 api-version: '1.21'
 prefix: BungeeAFK

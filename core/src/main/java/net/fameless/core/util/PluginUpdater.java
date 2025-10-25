@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class PluginUpdater {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + PluginUpdater.class.getSimpleName());
-    public static final String CURRENT_VERSION = "2.4.1";
+    public static final String CURRENT_VERSION = "2.5.0";
     private static final String GITHUB_API_URL = "https://api.github.com/repos/fameless9/BungeeAFK/releases/latest";
     private static final String JSON_TAG_NAME = "tag_name";
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
