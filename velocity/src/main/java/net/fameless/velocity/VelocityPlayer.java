@@ -176,7 +176,7 @@ public class VelocityPlayer extends BAFKPlayer<Player> {
     public void openEmptyInventory() {
         Player player = getPlatformPlayer().orElse(null);
         if (player == null) {
-                        LOGGER.info("player is null, cannot open inventory.");
+            LOGGER.info("player is null, cannot open inventory.");
             return;
         }
         ServerConnection connection = player.getCurrentServer().orElse(null);
