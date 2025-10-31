@@ -20,6 +20,12 @@ subprojects {
         mavenCentral()
     }
 
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    }
+
     spotless {
         java {
             target("**/*.java")

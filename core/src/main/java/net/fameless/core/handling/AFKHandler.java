@@ -10,7 +10,9 @@ import net.fameless.core.config.PluginConfig;
 import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
+import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.*;
+import net.fameless.core.util.cache.ExpirableSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -25,12 +27,6 @@ import java.util.concurrent.*;
 public abstract class AFKHandler {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + AFKHandler.class.getSimpleName());
-    private static final ScheduledExecutorService SCHEDULER =
-            Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "AFKHandler-Scheduler");
-                t.setDaemon(true);
-                return t;
-            });
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
@@ -39,6 +35,7 @@ public abstract class AFKHandler {
     private final Map<UUID, String> playerPreviousServerMap = new ConcurrentHashMap<>();
     private final Map<UUID, Location> playerPreviousLocationMap = new ConcurrentHashMap<>();
     private final Map<UUID, GameMode> playerPreviousGameModeMap = new ConcurrentHashMap<>();
+    private final ExpirableSet<BAFKPlayer<?>> revertCooldown = new ExpirableSet<>();
     private static final long UPDATE_PERIOD_MILLIS = 500L;
 
     private Action action;
@@ -51,24 +48,19 @@ public abstract class AFKHandler {
     public AFKHandler() {
         if (BungeeAFK.getAFKHandler() != null) throw new IllegalStateException("AFKHandler is already initialized.");
         fetchConfigValues();
-        this.scheduledTask = SCHEDULER.scheduleAtFixedRate(this::checkAFKPlayers, 0, UPDATE_PERIOD_MILLIS, TimeUnit.MILLISECONDS);
+        this.scheduledTask = SchedulerService.SCHEDULED_EXECUTOR
+                .scheduleAtFixedRate(this::run, 0, UPDATE_PERIOD_MILLIS, TimeUnit.MILLISECONDS);
         fetchPreviousPlayerStates();
-        init();
+        onInit();
     }
 
-    private void checkAFKPlayers() {
+    private void run() {
         try {
             BAFKPlayer.PLAYERS.stream()
                     .filter(PlayerFilters.isOnline())
                     .forEach(player -> {
                         player.increaseTimeSinceLastAction(UPDATE_PERIOD_MILLIS);
-                        switch (player.getAfkState()) {
-                            case ACTIVE -> handleWarning(player);
-                            case WARNED -> handleAfkStatus(player);
-                        }
-                        handleAction(player);
-                        updatePlayerStatus(player);
-                        sendActionBar(player);
+                        SchedulerService.VIRTUAL_EXECUTOR.submit(() -> processPlayer(player));
                     });
         } catch (Exception e) {
             LOGGER.error("Error during AFK check task", e);
@@ -76,8 +68,143 @@ public abstract class AFKHandler {
         }
     }
 
+    public void processPlayer(BAFKPlayer<?> player) {
+        try {
+            switch (player.getAfkState()) {
+                case ACTIVE -> {
+                    revertPreviousState(player);
+                    warnIfNeeded(player);
+                }
+                case WARNED -> {
+                    revertPreviousState(player);
+                    setAFKIfNeeded(player);
+                }
+                case AFK -> determineAndPerformAction(player);
+            }
+            sendActionBar(player);
+        } catch (Exception e) {
+            LOGGER.error("Error processing AFK checks for player {}", player.getName());
+        }
+    }
+
+    private void revertPreviousState(@NotNull BAFKPlayer<?> player) {
+        if (revertCooldown.contains(player)) return;
+        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
+        if (player.getCurrentServerName().equalsIgnoreCase(afkServerName)) {
+            player.connect(playerPreviousServerMap.getOrDefault(player.getUniqueId(), "lobby"));
+            playerPreviousServerMap.remove(player.getUniqueId());
+        }
+
+        if (playerPreviousLocationMap.containsKey(player.getUniqueId()) && playerPreviousGameModeMap.containsKey(player.getUniqueId())) {
+            player.teleport(playerPreviousLocationMap.remove(player.getUniqueId()));
+            player.updateGameMode(playerPreviousGameModeMap.remove(player.getUniqueId()));
+        }
+        revertCooldown.add(player, UPDATE_PERIOD_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    private void warnIfNeeded(@NotNull BAFKPlayer<?> player) {
+        if (player.getTimeSinceLastAction() < warnDelay) return;
+        player.sendMessage(Caption.of("notification.afk_warning"));
+        player.setAfkState(AFKState.WARNED);
+    }
+
+    private void setAFKIfNeeded(@NotNull BAFKPlayer<?> player) {
+        if (player.getTimeSinceLastAction() < afkDelay) return;
+        player.setAfkState(AFKState.AFK);
+
+        long timeUntilAction = Math.max(0, actionDelay - afkDelay);
+        player.sendMessage(Caption.of(
+                action.getMessageKey(),
+                TagResolver.resolver("action-delay", Tag.inserting(Component.text(Format.formatTime((int) (timeUntilAction / 1000)))))
+        ));
+
+        MessageBroadcaster.broadcastMessageToFiltered(
+                Caption.of("notification.afk_broadcast",
+                        TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
+                broadcastStrategy.broadcastFilter(player)
+        );
+
+        LOGGER.info("{} is now AFK.", player.getName());
+    }
+
+    private void determineAndPerformAction(@NotNull BAFKPlayer<?> player) {
+        if (player.getTimeSinceLastAction() < actionDelay) return;
+        switch (action) {
+            case CONNECT -> performConnectAction(player,
+                    Caption.of("notification.afk_kick"),
+                    Caption.of("notification.afk_kick_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
+                    Caption.of("notification.afk_disconnect"),
+                    Caption.of("notification.afk_disconnect_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))))
+            );
+            case KICK -> performKickAction(player,
+                    Caption.of("notification.afk_kick"),
+                    Caption.of("notification.afk_kick_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))))
+            );
+            case TELEPORT -> performTeleportAction(player, Caption.of("notification.afk_teleport"));
+        }
+        player.setAfkState(AFKState.ACTION_TAKEN);
+    }
+
+    public void performConnectAction(@NotNull BAFKPlayer<?> player, Component kickReason, Component kickBroadcastMessage, Component connectMessage, Component connectBroadcastMessage) {
+        if (!Action.isAfkServerConfigured()) {
+            LOGGER.warn("AFK server not configured. Defaulting to KICK.");
+            this.action = Action.KICK;
+            performKickAction(player, kickReason, kickBroadcastMessage);
+            return;
+        }
+
+        String previousServer = player.getCurrentServerName();
+        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
+
+        player.connect(afkServerName)
+                .thenAccept(success -> {
+                    if (success) {
+                        playerPreviousServerMap.put(player.getUniqueId(), previousServer);
+                        player.sendMessage(connectMessage);
+
+                        MessageBroadcaster.broadcastMessageToFiltered(
+                                connectBroadcastMessage,
+                                broadcastStrategy.broadcastFilter(player)
+                        );
+
+                        LOGGER.info("Moved {} to AFK server.", player.getName());
+                    } else {
+                        LOGGER.warn("Error while trying to connect {} to the AFK-Server. Defaulting to KICK", player.getName());
+                        performKickAction(player, kickReason, kickBroadcastMessage);
+                    }
+                });
+    }
+
+    public void performKickAction(@NotNull BAFKPlayer<?> player, Component reason, Component broadcastMessage) {
+        player.kick(reason);
+
+        MessageBroadcaster.broadcastMessageToFiltered(
+                broadcastMessage,
+                broadcastStrategy.broadcastFilter(player)
+        );
+
+        LOGGER.info("Kicked {} for being AFK.", player.getName());
+    }
+
+    public void performTeleportAction(@NotNull BAFKPlayer<?> player, Component message) {
+        playerPreviousLocationMap.put(player.getUniqueId(), player.getLocation());
+        playerPreviousGameModeMap.put(player.getUniqueId(), player.getGameMode());
+        player.updateGameMode(GameMode.SPECTATOR);
+        player.teleport(Location.getConfiguredAfkZone());
+        player.sendMessage(message);
+    }
+
+    private void sendActionBar(@NotNull BAFKPlayer<?> player) {
+        if (player.getAfkState().equals(AFKState.AFK)) {
+            player.sendActionbar(Caption.of("actionbar.afk"));
+        } else if (player.getAfkState().equals(AFKState.ACTION_TAKEN)) {
+            player.sendActionbar(Caption.of(action.equals(Action.CONNECT) ? "actionbar.afk_moved" : "actionbar.afk"));
+        }
+    }
+
     public void fetchPreviousPlayerStates() {
-        File playerStatesFile = createPersistedStatesFileIfNotExists();
+        File playerStatesFile = ResourceUtil.extractResourceIfMissing("persisted_player_states.json", PluginPaths.getPersistedStatesFile());
+
         JsonObject root;
         try (FileReader reader = new FileReader(playerStatesFile)) {
             root = GSON.fromJson(reader, JsonObject.class);
@@ -118,14 +245,6 @@ public abstract class AFKHandler {
             String previousServer = entry.getValue().getAsString();
             playerPreviousServerMap.put(playerUUID, previousServer);
         }
-    }
-
-    private @NotNull File createPersistedStatesFileIfNotExists() {
-        File playerStatesFile = PluginPaths.getPersistedStatesFile();
-        if (!playerStatesFile.exists()) {
-            ResourceUtil.extractResourceIfMissing("persisted_player_states.json", playerStatesFile);
-        }
-        return playerStatesFile;
     }
 
     public void fetchConfigValues() {
@@ -180,176 +299,15 @@ public abstract class AFKHandler {
         root.add("game_mode", gameModeObject);
         root.add("server", serverObject);
 
-        File playerStatesFile = createPersistedStatesFileIfNotExists();
-        try (FileWriter writer = new FileWriter(playerStatesFile)) {
-            GSON.toJson(root, writer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        SCHEDULER.shutdownNow();
-        LOGGER.info("AFK handler successfully shutdown.");
-    }
-
-    public void setAction(@NotNull Action action) {
-        if (!action.isAvailable()) return;
-        this.action = action;
-        PluginConfig.get().set("action", action.getIdentifier());
-    }
-
-    public void setWarnDelayMillis(long delay) {
-        this.warnDelay = delay;
-        PluginConfig.get().set("warning-delay", (int) (delay / 1000));
-    }
-
-    public void setActionDelayMillis(long delay) {
-        this.actionDelay = delay;
-        PluginConfig.get().set("action-delay", (int) (delay / 1000));
-    }
-
-    public void setAfkDelayMillis(long delay) {
-        this.afkDelay = delay;
-        PluginConfig.get().set("afk-delay", (int) (delay / 1000));
-    }
-
-    private void handleWarning(@NotNull BAFKPlayer<?> player) {
-        if (player.getTimeSinceLastAction() >= warnDelay) {
-            player.sendMessage(Caption.of("notification.afk_warning"));
-        }
-    }
-
-    private void handleAfkStatus(@NotNull BAFKPlayer<?> player) {
-        if (player.getTimeSinceLastAction() >= afkDelay) {
-            long timeUntilAction = Math.max(0, actionDelay - afkDelay);
-            player.sendMessage(Caption.of(
-                    action.getMessageKey(),
-                    TagResolver.resolver("action-delay", Tag.inserting(Component.text(Format.formatTime((int) (timeUntilAction / 1000)))))
-            ));
-
-            MessageBroadcaster.broadcastMessageToFiltered(
-                    Caption.of("notification.afk_broadcast",
-                            TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                    broadcastStrategy.broadcastFilter(player)
-            );
-
-            LOGGER.info("{} is now AFK.", player.getName());
-        }
-    }
-
-    public void handleAction(@NotNull BAFKPlayer<?> player) {
-        if (player.getAfkState() == AFKState.ACTION_TAKEN) return;
-        revertPreviousState(player);
-
-        if (action == Action.NOTHING || player.getAfkState() != AFKState.AFK || player.getTimeSinceLastAction() < actionDelay)
-            return;
-
-        switch (action) {
-            case CONNECT -> handleConnectAction(player,
-                    Caption.of("notification.afk_kick"),
-                    Caption.of("notification.afk_kick_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                    Caption.of("notification.afk_disconnect"),
-                    Caption.of("notification.afk_disconnect_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))))
-            );
-            case KICK -> handleKickAction(player,
-                    Caption.of("notification.afk_kick"),
-                    Caption.of("notification.afk_kick_broadcast", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName()))))
-            );
-            case TELEPORT -> handleTeleportAction(player, Caption.of("notification.afk_teleport"));
-        }
-    }
-
-    public void handleConnectAction(@NotNull BAFKPlayer<?> player, Component kickReason, Component kickBroadcastMessage, Component connectMessage, Component connectBroadcastMessage) {
-        if (!Action.isAfkServerConfigured()) {
-            LOGGER.warn("AFK server not configured. Defaulting to KICK.");
-            this.action = Action.KICK;
-            handleKickAction(player, kickReason, kickBroadcastMessage);
-            return;
-        }
-
-        String previousServer = player.getCurrentServerName();
-        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
-
-        player.connect(afkServerName)
-                .thenAccept(success -> {
-                    if (success) {
-                        playerPreviousServerMap.put(player.getUniqueId(), previousServer);
-                        player.sendMessage(connectMessage);
-
-                        MessageBroadcaster.broadcastMessageToFiltered(
-                                connectBroadcastMessage,
-                                broadcastStrategy.broadcastFilter(player)
-                        );
-
-                        LOGGER.info("Moved {} to AFK server.", player.getName());
-                    } else {
-                        LOGGER.warn("Error while trying to connect {} to the AFK-Server. Defaulting to KICK", player.getName());
-                        handleKickAction(player, kickReason, kickBroadcastMessage);
-                    }
-                });
-    }
-
-    public void handleKickAction(@NotNull BAFKPlayer<?> player, Component reason, Component broadcastMessage) {
-        player.kick(reason);
-
-        MessageBroadcaster.broadcastMessageToFiltered(
-                broadcastMessage,
-                broadcastStrategy.broadcastFilter(player)
-        );
-
-        LOGGER.info("Kicked {} for being AFK.", player.getName());
-    }
-
-    public void handleTeleportAction(@NotNull BAFKPlayer<?> player, Component message) {
-        playerPreviousLocationMap.put(player.getUniqueId(), player.getLocation());
-        playerPreviousGameModeMap.put(player.getUniqueId(), player.getGameMode());
-        player.updateGameMode(GameMode.SPECTATOR);
-        player.teleport(Location.getConfiguredAfkZone());
-        player.sendMessage(message);
-    }
-
-    public void revertPreviousState(@NotNull BAFKPlayer<?> player) {
-        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
-        if (player.getCurrentServerName().equalsIgnoreCase(afkServerName)) {
-            player.connect(playerPreviousServerMap.getOrDefault(player.getUniqueId(), "lobby"));
-            playerPreviousServerMap.remove(player.getUniqueId());
-        }
-
-        if (playerPreviousLocationMap.containsKey(player.getUniqueId()) && playerPreviousGameModeMap.containsKey(player.getUniqueId())) {
-            player.teleport(playerPreviousLocationMap.get(player.getUniqueId()));
-            player.updateGameMode(playerPreviousGameModeMap.get(player.getUniqueId()));
-            playerPreviousLocationMap.remove(player.getUniqueId());
-            playerPreviousGameModeMap.remove(player.getUniqueId());
-        }
-    }
-
-    private void updatePlayerStatus(@NotNull BAFKPlayer<?> player) {
-        if (player.getAfkState() == AFKState.BYPASS) return;
-        long timeSinceLastAction = player.getTimeSinceLastAction();
-
-        if (timeSinceLastAction < warnDelay) {
-            player.setAfkState(AFKState.ACTIVE);
-        } else if (timeSinceLastAction < afkDelay) {
-            player.setAfkState(AFKState.WARNED);
-        } else if (timeSinceLastAction < actionDelay) {
-            player.setAfkState(AFKState.AFK);
-        } else {
-            player.setAfkState(AFKState.ACTION_TAKEN);
-        }
-    }
-
-    public void handleJoin(@NotNull BAFKPlayer<?> player) {
-        player.setTimeSinceLastAction(0);
-        player.setAfkState(AFKState.ACTIVE);
-        revertPreviousState(player);
-    }
-
-    private void sendActionBar(@NotNull BAFKPlayer<?> player) {
-        if (player.getAfkState().equals(AFKState.AFK)) {
-            player.sendActionbar(Caption.of("actionbar.afk"));
-        } else if (player.getAfkState().equals(AFKState.ACTION_TAKEN)) {
-            player.sendActionbar(Caption.of(action.equals(Action.CONNECT) ? "actionbar.afk_moved" : "actionbar.afk"));
-        }
-    }
+        SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
+            File playerStatesFile = ResourceUtil.extractResourceIfMissing("persisted_player_states.json", PluginPaths.getPersistedStatesFile());
+            try (var writer = new BufferedWriter(new FileWriter(playerStatesFile))) {
+                GSON.toJson(root, writer);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+ }
 
     public BroadcastStrategy getBroadcastStrategy() {
         return broadcastStrategy;
@@ -375,5 +333,26 @@ public abstract class AFKHandler {
         return actionDelay;
     }
 
-    protected abstract void init();
+    public void setAction(@NotNull Action action) {
+        if (!action.isAvailable()) return;
+        this.action = action;
+        PluginConfig.get().set("action", action.getIdentifier());
+    }
+
+    public void setWarnDelayMillis(long delay) {
+        this.warnDelay = delay;
+        PluginConfig.get().set("warning-delay", (int) (delay / 1000));
+    }
+
+    public void setActionDelayMillis(long delay) {
+        this.actionDelay = delay;
+        PluginConfig.get().set("action-delay", (int) (delay / 1000));
+    }
+
+    public void setAfkDelayMillis(long delay) {
+        this.afkDelay = delay;
+        PluginConfig.get().set("afk-delay", (int) (delay / 1000));
+    }
+
+    protected abstract void onInit();
 }

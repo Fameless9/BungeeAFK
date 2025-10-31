@@ -2,6 +2,7 @@ package net.fameless.core.config;
 
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.region.Region;
+import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
 import net.fameless.core.util.YamlUtil;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,11 +27,7 @@ public class PluginConfig {
 
     public static void init() {
         LOGGER.info("Loading configuration...");
-        File configFile = PluginPaths.getConfigFile();
-
-        if (!configFile.exists()) {
-            ResourceUtil.extractResourceIfMissing("config.yml", configFile);
-        }
+        File configFile = ResourceUtil.extractResourceIfMissing("config.yml", PluginPaths.getConfigFile());
 
         String yamlContent;
         try {
@@ -83,16 +81,17 @@ public class PluginConfig {
     }
 
     public static void saveNow() {
-        saveRegions();
-        File configFile = PluginPaths.getConfigFile();
+        SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
+            saveRegions();
+            File configFile = PluginPaths.getConfigFile();
 
-        String fileContent = YamlUtil.generateConfig();
-        try (FileWriter writer = new FileWriter(configFile)) {
-            writer.write(fileContent);
-            writer.flush();
-        } catch (IOException e) {
-            LOGGER.error("Failed to write configuration file: {}", configFile.getAbsolutePath(), e);
-        }
+            String fileContent = YamlUtil.generateConfig();
+            try (var writer = new BufferedWriter(new FileWriter(configFile))) {
+                writer.write(fileContent);
+            } catch (IOException e) {
+                LOGGER.error("Failed to write configuration file: {}", configFile.getAbsolutePath(), e);
+            }
+        });
     }
 
     public static YamlConfig get() {

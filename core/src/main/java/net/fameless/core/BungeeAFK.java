@@ -13,18 +13,18 @@ import net.fameless.core.detection.history.DetectionHistoryManager;
 import net.fameless.core.detection.movementpattern.MovementPatternDetection;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
+import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.ColorUtil;
 import net.fameless.core.util.PluginUpdater;
+import net.fameless.core.util.cache.ExpirableMap;
+import net.fameless.core.util.cache.ExpirableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class BungeeAFK {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + BungeeAFK.class.getSimpleName());
-    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static boolean initialized = false;
     private static BungeeAFKPlatform platform;
     private static AFKHandler afkHandler;
@@ -35,6 +35,11 @@ public class BungeeAFK {
         if (initialized) {
             throw new RuntimeException("You may not initialize another instance of BungeeAFK Core.");
         }
+
+        if (Runtime.version().feature() < 21) {
+            throw new IllegalStateException("BungeeAFK requires at least Java 21");
+        }
+
         String startupMessage = ColorUtil.ANSI_CYAN + """
 
                 ██████╗ ██╗   ██╗███╗   ██╗ ██████╗ ███████╗███████╗ █████╗ ███████╗██╗  ██╗
@@ -85,6 +90,9 @@ public class BungeeAFK {
         DetectionHistoryManager.saveDetections();
         PluginConfig.shutdown();
         afkHandler.shutdown();
+        ExpirableMap.shutdownScheduler();
+        ExpirableSet.shutdownScheduler();
+        SchedulerService.shutdown();
     }
 
     private static void checkForMisconfiguration() {
@@ -134,9 +142,5 @@ public class BungeeAFK {
 
     public static MovementPatternDetection getMovementPatternDetection() {
         return movementPatternDetection;
-    }
-
-    public static ScheduledExecutorService getScheduler() {
-        return scheduler;
     }
 }

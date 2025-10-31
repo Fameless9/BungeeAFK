@@ -164,4 +164,20 @@ public class ExpirableSet<E> {
     public int size() {
         return set.size();
     }
+
+    /**
+     * Shuts down the shared daemon scheduler immediately, attempting to cancel
+     * all actively executing and pending tasks.
+     *
+     * <p>This method should typically only be called during application shutdown.
+     * After calling this method, no new removal tasks can be scheduled by any
+     * {@code ExpirableSet} instance, and attempts to do so will cause exceptions.</p>
+     *
+     * <p>Note: The scheduler thread is a daemon, so the JVM will not wait for it
+     * to terminate before exiting. Calling this method is optional but can help
+     * ensure clean shutdown.</p>
+     */
+    public static void shutdownScheduler() {
+        scheduler.shutdownNow();
+    }
 }

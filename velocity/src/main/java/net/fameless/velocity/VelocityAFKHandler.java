@@ -9,8 +9,8 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.handling.AFKHandler;
-import net.fameless.core.handling.AFKState;
 import net.fameless.core.messaging.RequestType;
+import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +19,7 @@ import java.util.*;
 public class VelocityAFKHandler extends AFKHandler {
 
     @Override
-    public void init() {
+    public void onInit() {
         var proxy = VelocityPlatform.getProxy();
         proxy.getChannelRegistrar().register(MinecraftChannelIdentifier.create("bungee", "bungeeafk"));
         proxy.getEventManager().register(VelocityPlatform.get(), this);
@@ -29,25 +29,21 @@ public class VelocityAFKHandler extends AFKHandler {
     public void onCommandExecute(@NotNull CommandExecuteEvent event) {
         if (event.getCommandSource() instanceof Player p) {
             VelocityPlayer player = VelocityPlayer.adapt(p);
-            player.setTimeSinceLastAction(0);
-            player.setAfkState(AFKState.ACTIVE);
-            BungeeAFK.getAFKHandler().handleAction(player);
+            player.setActive();
         }
     }
 
     @Subscribe
     public void onPlayerChat(@NotNull PlayerChatEvent event) {
         VelocityPlayer player = VelocityPlayer.adapt(event.getPlayer());
-        player.setTimeSinceLastAction(0);
-        player.setAfkState(AFKState.ACTIVE);
-        BungeeAFK.getAFKHandler().handleAction(player);
+        player.setActive();
     }
 
     @Subscribe
     public void onConnect(@NotNull ServerPostConnectEvent event) {
         VelocityPlayer player = VelocityPlayer.adapt(event.getPlayer());
         if (event.getPreviousServer() == null) {
-            handleJoin(player);
+            player.setActive();
         }
     }
 
@@ -62,11 +58,18 @@ public class VelocityAFKHandler extends AFKHandler {
             switch (type) {
                 case ACTION_CAUGHT -> {
                     if (parts.length < 2) return;
-                    handleActionCaught(parts[1]);
+                    VelocityPlayer.adapt(UUID.fromString(parts[1])).ifPresent(BAFKPlayer::setActive);
                 }
                 case GAMEMODE_CHANGE -> {
                     if (parts.length < 3) return;
-                    handleGameModeChange(parts[1], parts[2]);
+                    VelocityPlayer.adapt(UUID.fromString(parts[1])).ifPresent(velocityPlayer -> {
+                        try {
+                            GameMode gameMode = GameMode.valueOf(parts[2].toUpperCase(Locale.ROOT));
+                            velocityPlayer.setGameMode(gameMode);
+                        } catch (IllegalArgumentException e) {
+                            LOGGER.warn("Invalid game mode enum: {}", parts[2]);
+                        }
+                    });
                 }
                 case LOCATION_CHANGE -> {
                     if (parts.length < 8) return;
@@ -74,35 +77,15 @@ public class VelocityAFKHandler extends AFKHandler {
                 }
                 case CLICK -> {
                     if (parts.length < 2) return;
-                    handleClick(parts[1]);
+                    VelocityPlayer.adapt(UUID.fromString(parts[1])).ifPresent(velocityPlayer -> {
+                        velocityPlayer.setActive();
+                        BungeeAFK.getAutoClickerDetector().registerClick(velocityPlayer);
+                    });
                 }
             }
         } catch (Exception e) {
             LOGGER.error("Invalid data received: {} stacktrace: {}", Arrays.toString(parts), e.getMessage());
         }
-    }
-
-    private void handleClick(String uuidStr) {
-        VelocityPlayer velocityPlayer = VelocityPlayer.adapt(UUID.fromString(uuidStr)).orElse(null);
-        if (velocityPlayer == null) return;
-        velocityPlayer.setTimeSinceLastAction(0);
-        velocityPlayer.setAfkState(AFKState.ACTIVE);
-        BungeeAFK.getAutoClickerDetector().registerClick(velocityPlayer);
-    }
-
-    private void handleActionCaught(String uuidStr) {
-        VelocityPlayer velocityPlayer = VelocityPlayer.adapt(UUID.fromString(uuidStr)).orElse(null);
-        if (velocityPlayer == null) return;
-        velocityPlayer.setTimeSinceLastAction(0);
-        velocityPlayer.setAfkState(AFKState.ACTIVE);
-        BungeeAFK.getAFKHandler().handleAction(velocityPlayer);
-    }
-
-    private void handleGameModeChange(String uuidStr, String modeStr) {
-        VelocityPlayer velocityPlayer = VelocityPlayer.adapt(UUID.fromString(uuidStr)).orElse(null);
-        if (velocityPlayer == null) return;
-        GameMode gameMode = GameMode.valueOf(modeStr.toUpperCase(Locale.ROOT));
-        velocityPlayer.setGameMode(gameMode);
     }
 
     private void handleLocationChange(String @NotNull [] parts) {

@@ -1,5 +1,8 @@
 package net.fameless.core.util.cache;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -232,5 +235,54 @@ public class ExpirableMap<K, V> {
      */
     public int size() {
         return map.size();
+    }
+
+    /**
+     * Returns an unmodifiable view of the keys currently in the map.
+     * The returned set is backed by the underlying {@link ConcurrentHashMap},
+     * so changes to the map are reflected in the set.
+     *
+     * @return a set view of the keys contained in this map
+     */
+    public Set<K> keySet() {
+        return map.keySet();
+    }
+
+    /**
+     * Returns an unmodifiable view of the values currently in the map.
+     * The returned collection is backed by the underlying {@link ConcurrentHashMap},
+     * so changes to the map are reflected in the collection.
+     *
+     * @return a collection view of the values contained in this map
+     */
+    public Collection<V> values() {
+        return map.values();
+    }
+
+    /**
+     * Returns an unmodifiable view of the mappings currently in the map.
+     * The returned set is backed by the underlying {@link ConcurrentHashMap},
+     * so changes to the map are reflected in the set.
+     *
+     * @return a set view of the mappings contained in this map
+     */
+    public Set<Map.Entry<K, V>> entrySet() {
+        return map.entrySet();
+    }
+
+    /**
+     * Shuts down the shared daemon scheduler immediately, attempting to cancel
+     * all actively executing and pending tasks.
+     *
+     * <p>This method should typically only be called during application shutdown.
+     * After calling this method, no new removal tasks can be scheduled by any
+     * {@code ExpirableMap} instance, and attempts to do so will cause exceptions.</p>
+     *
+     * <p>Note: The scheduler thread is a daemon, so the JVM will not wait for it
+     * to terminate before exiting. Calling this method is optional but can help
+     * ensure clean shutdown.</p>
+     */
+    public static void shutdownScheduler() {
+        scheduler.shutdownNow();
     }
 }

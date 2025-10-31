@@ -2,6 +2,7 @@ package net.fameless.core.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import net.fameless.core.scheduler.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,8 +10,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class PluginUpdater {
@@ -19,10 +18,9 @@ public class PluginUpdater {
     public static final String CURRENT_VERSION = "2.5.0";
     private static final String GITHUB_API_URL = "https://api.github.com/repos/fameless9/BungeeAFK/releases/latest";
     private static final String JSON_TAG_NAME = "tag_name";
-    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public static void runTask() {
-        scheduler.scheduleAtFixedRate(PluginUpdater::checkForUpdate, 0, 1, TimeUnit.DAYS);
+        SchedulerService.SCHEDULED_EXECUTOR.scheduleAtFixedRate(PluginUpdater::checkForUpdate, 0, 1, TimeUnit.DAYS);
     }
 
     private static void checkForUpdate() {

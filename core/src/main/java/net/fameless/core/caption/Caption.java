@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
 import net.kyori.adventure.text.Component;
@@ -52,11 +53,7 @@ public final class Caption {
     public static void loadDefaultLanguages() {
         LOGGER.info("Loading default languages...");
         for (Language language : Language.values()) {
-            File langFile = PluginPaths.getLangFile(language);
-
-            if (!langFile.exists()) {
-                ResourceUtil.extractResourceIfMissing("lang_" + language.getIdentifier() + ".json", langFile);
-            }
+            File langFile = ResourceUtil.extractResourceIfMissing("lang_" + language.getIdentifier() + ".json", PluginPaths.getLangFile(language));
 
             JsonObject jsonObject;
             try (FileReader reader = new FileReader(langFile)) {
@@ -115,16 +112,18 @@ public final class Caption {
 
     public static void saveToFile() {
         for (Language language : Language.values()) {
-            File langFile = PluginPaths.getLangFile(language);
-            JsonObject jsonObject = languageJsonObjectHashMap.get(language);
+            SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
+                File langFile = PluginPaths.getLangFile(language);
+                JsonObject jsonObject = languageJsonObjectHashMap.get(language);
 
-            if (jsonObject != null) {
-                try (FileWriter writer = new FileWriter(langFile)) {
-                    GSON.toJson(jsonObject, writer);
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to save language file: " + langFile.getPath(), e);
+                if (jsonObject != null) {
+                    try (var writer = new BufferedWriter(new FileWriter(langFile))) {
+                        GSON.toJson(jsonObject, writer);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to save language file: " + langFile.getPath(), e);
+                    }
                 }
-            }
+            });
         }
     }
 }

@@ -26,7 +26,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MainCommand extends Command {
 
@@ -679,110 +678,111 @@ public class MainCommand extends Command {
         switch (args.length) {
             case 1 -> completions.addAll(Arrays.asList("configure", "lang", "region", "auto-clicker", "movement-pattern"));
             case 2 -> {
-                if (args[0].equalsIgnoreCase("configure")) {
-                    completions.addAll(Arrays.asList(
-                            "afk-delay", "action-delay", "action", "caption", "warning-delay",
-                            "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "broadcast-strategy",
-                            "afk-command-cooldown"
-                    ));
-                    if (BungeeAFK.isProxy()) {
-                        completions.addAll(Arrays.asList("disable-server", "enable-server", "disabled-servers"));
+                switch (args[0].toLowerCase()) {
+                    case "configure" -> {
+                        completions.addAll(Arrays.asList(
+                                "afk-delay", "action-delay", "action", "caption", "warning-delay",
+                                "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "broadcast-strategy",
+                                "afk-command-cooldown"
+                        ));
+                        if (BungeeAFK.isProxy()) {
+                            completions.addAll(Arrays.asList("disable-server", "enable-server", "disabled-servers"));
+                        }
                     }
-                } else if (args[0].equalsIgnoreCase("lang")) {
-                    completions.add("reload");
-                    for (Language language : Language.values()) {
-                        completions.add(language.getIdentifier());
+                    case "lang" -> {
+                        completions.add("reload");
+                        for (Language language : Language.values()) {
+                            completions.add(language.getIdentifier());
+                        }
                     }
-                } else if (args[0].equalsIgnoreCase("region")) {
-                    completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
-                } else if (args[0].equalsIgnoreCase("auto-clicker") || args[0].equalsIgnoreCase("movement-pattern")) {
-                    completions.addAll(Arrays.asList(
-                            "enable", "disable", "toggle-notify-player",
-                            "toggle-bypass", "action", "detection-history"
-                    ));
-                    if (BungeeAFK.isProxy()) {
-                        completions.add("toggle-on-server");
+                    case "region" -> completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
+                    case "movement-pattern", "auto-clicker" -> {
+                        completions.addAll(Arrays.asList(
+                                "enable", "disable", "toggle-notify-player",
+                                "toggle-bypass", "action", "detection-history"
+                        ));
+                        if (BungeeAFK.isProxy()) {
+                            completions.add("toggle-on-server");
+                        }
                     }
                 }
             }
             case 3 -> {
-                if (args[0].equalsIgnoreCase("configure")) {
-                    if (args[1].equalsIgnoreCase("action")) {
-                        for (Action action : Action.getAvailableActions()) {
-                            completions.add(action.getIdentifier());
-                        }
-                    } else if (args[1].equalsIgnoreCase("afk-delay")
-                            || args[1].equalsIgnoreCase("action-delay")
-                            || args[1].equalsIgnoreCase("warning-delay")) {
-                        completions.add("<seconds>");
-                    } else if (args[1].equalsIgnoreCase("caption")) {
-                        for (Language language : Language.values()) {
-                            completions.add(language.getIdentifier());
-                        }
-                    } else if (args[1].equalsIgnoreCase("allow-bypass") || args[1].equalsIgnoreCase("afk-broadcasts")) {
-                        completions.addAll(Arrays.asList("true", "false"));
-                    } else if (args[1].equalsIgnoreCase("disable-server") && BungeeAFK.isProxy()) {
-                        List<String> serverNames = new ArrayList<>(BungeeAFK.getPlatform().getServers());
-                        serverNames.removeAll(PluginConfig.get().getStringList("disabled-servers"));
-                        completions.addAll(serverNames);
-                    } else if (args[1].equalsIgnoreCase("enable-server") && BungeeAFK.isProxy()) {
-                        completions.addAll(PluginConfig.get().getStringList("disabled-servers"));
-                    } else if (args[1].equalsIgnoreCase("broadcast-strategy")) {
-                        completions.addAll(Arrays.stream(BroadcastStrategy.values()).map(BroadcastStrategy::name).collect(Collectors.toSet()));
-                    }
-                } else if (args[0].equalsIgnoreCase("region")) {
-                    if (args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("details") || args[1].equalsIgnoreCase("toggle-detection")) {
-                        completions.addAll(Region.getAllRegions().stream()
-                                .map(Region::getRegionName)
-                                .toList());
-                    } else if (args[1].equalsIgnoreCase("add")) {
-                        completions.add("<regionName>");
-                    }
-                } else if (args[0].equalsIgnoreCase("auto-clicker")) {
-                    switch (args[1].toLowerCase()) {
-                        case "action" -> {
-                            for (ActionOnDetection action : ActionOnDetection.values()) {
-                                completions.add(action.getIdentifier());
+                switch (args[0].toLowerCase()) {
+                    case "configure" -> {
+                        switch (args[1].toLowerCase()) {
+                            case "action" -> Action.getAvailableActions().forEach(action -> completions.add(action.getIdentifier()));
+                            case "warning-delay", "afk-delay", "action-delay" -> completions.add("<seconds>");
+                            case "caption" -> completions.addAll(Arrays.stream(Language.values()).map(Language::getIdentifier).toList());
+                            case "allow-bypass" -> completions.addAll(Arrays.asList("true", "false"));
+                            case "disable-server" -> {
+                                if (BungeeAFK.isProxy()) {
+                                    List<String> serverNames = new ArrayList<>(BungeeAFK.getPlatform().getServers());
+                                    serverNames.removeAll(PluginConfig.get().getStringList("disabled-servers"));
+                                    completions.addAll(serverNames);
+                                }
                             }
+                            case "enable-server" -> {
+                                if (BungeeAFK.isProxy()) {
+                                    completions.addAll(PluginConfig.get().getStringList("disabled-servers"));
+                                }
+                            }
+                            case "broadcast-strategy" -> completions.addAll(Arrays.stream(BroadcastStrategy.values()).map(BroadcastStrategy::name).toList());
                         }
-                        case "detection-history" -> {
-                            List<String> players = Detection.getDetections()
-                                    .stream()
-                                    .filter(d -> d.getType() == DetectionType.AUTO_CLICKER)
-                                    .map(Detection::getPlayerName)
-                                    .distinct()
-                                    .toList();
-                            completions.addAll(players);
+                    }
+                    case "region" -> {
+                        switch (args[1].toLowerCase()) {
+                            case "remove", "details", "toggle-detection" -> completions.addAll(Region.getAllRegions().stream().map(Region::getRegionName).toList());
+                            case "add" -> completions.add("<regionName>");
                         }
-                        case "toggle-on-server" -> {
-                            if (BungeeAFK.isProxy()) {
-                                completions.addAll(BungeeAFK.getPlatform().getServers());
-                            } else {
-                                completions.add("-- Only available on proxy --");
+                    }
+                    case "auto-clicker" -> {
+                        switch (args[1].toLowerCase()) {
+                            case "action" -> {
+                                for (ActionOnDetection action : ActionOnDetection.values()) {
+                                    completions.add(action.getIdentifier());
+                                }
+                            }
+                            case "detection-history" -> {
+                                List<String> players = Detection.getDetections()
+                                        .stream()
+                                        .filter(d -> d.type() == DetectionType.AUTO_CLICKER)
+                                        .map(Detection::playerName)
+                                        .distinct()
+                                        .toList();
+                                completions.addAll(players);
+                            }
+                            case "toggle-on-server" -> {
+                                if (BungeeAFK.isProxy()) {
+                                    completions.addAll(BungeeAFK.getPlatform().getServers());
+                                } else {
+                                    completions.add("-- Only available on proxy --");
+                                }
                             }
                         }
                     }
-                } else if (args[0].equalsIgnoreCase("movement-pattern")) {
-                    switch (args[1].toLowerCase()) {
-                        case "action" -> {
-                            for (net.fameless.core.detection.movementpattern.ActionOnDetection action : net.fameless.core.detection.movementpattern.ActionOnDetection.values()) {
-                                completions.add(action.getIdentifier());
+                    case "movement-pattern" -> {
+                        switch (args[1].toLowerCase()) {
+                            case "action" -> {
+                                for (net.fameless.core.detection.movementpattern.ActionOnDetection action : net.fameless.core.detection.movementpattern.ActionOnDetection.values()) {
+                                    completions.add(action.getIdentifier());
+                                }
                             }
-                        }
-                        case "detection-history" -> {
-                            List<String> players = Detection.getDetections()
-                                    .stream()
-                                    .filter(d -> d.getType() == DetectionType.MOVEMENT_PATTERN)
-                                    .map(Detection::getPlayerName)
-                                    .distinct()
-                                    .toList();
-                            completions.addAll(players);
-                        }
-                        case "toggle-on-server" -> {
-                            if (BungeeAFK.isProxy()) {
-                                completions.addAll(BungeeAFK.getPlatform().getServers());
-                            } else {
-                                completions.add("-- Only available on proxy --");
+                            case "detection-history" -> {
+                                List<String> players = Detection.getDetections()
+                                        .stream()
+                                        .filter(d -> d.type() == DetectionType.MOVEMENT_PATTERN)
+                                        .map(Detection::playerName)
+                                        .distinct()
+                                        .toList();
+                                completions.addAll(players);
+                            }
+                            case "toggle-on-server" -> {
+                                if (BungeeAFK.isProxy()) {
+                                    completions.addAll(BungeeAFK.getPlatform().getServers());
+                                } else {
+                                    completions.add("-- Only available on proxy --");
+                                }
                             }
                         }
                     }
@@ -809,29 +809,19 @@ public class MainCommand extends Command {
                 }
             }
             case 6 -> {
-                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
-                    completions.add("<y1>");
-                }
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) completions.add("<y1>");
             }
             case 7 -> {
-                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
-                    completions.add("<z1>");
-                }
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) completions.add("<z1>");
             }
             case 8 -> {
-                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
-                    completions.add("<x2>");
-                }
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) completions.add("<x2>");
             }
             case 9 -> {
-                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
-                    completions.add("<y2>");
-                }
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) completions.add("<y2>");
             }
             case 10 -> {
-                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
-                    completions.add("<z2>");
-                }
+                if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) completions.add("<z2>");
             }
         }
         return StringUtil.copyPartialMatches(args[args.length - 1], completions, new ArrayList<>());

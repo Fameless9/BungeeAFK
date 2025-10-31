@@ -42,8 +42,8 @@ public class ResourceUtil {
         }
     }
 
-    public static void extractResourceIfMissing(String resourcePath, @NotNull File targetFile) {
-        if (targetFile.exists()) return;
+    public static @NotNull File extractResourceIfMissing(String resourcePath, @NotNull File targetFile) {
+        if (targetFile.exists()) return targetFile;
 
         targetFile.getParentFile().mkdirs();
 
@@ -59,9 +59,9 @@ public class ResourceUtil {
             while ((len = in.read(buffer)) != -1) {
                 out.write(buffer, 0, len);
             }
-
         } catch (IOException e) {
             throw new RuntimeException("Failed to extract resource: " + resourcePath, e);
         }
+        return targetFile;
     }
 }

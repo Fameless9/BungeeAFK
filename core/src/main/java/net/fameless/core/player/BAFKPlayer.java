@@ -141,6 +141,12 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
         this.location = location;
     }
 
+    public void setActive() {
+        this.timeSinceLastAction = 0;
+        this.afkState = AFKState.ACTIVE;
+        BungeeAFK.getAFKHandler().processPlayer(this);
+    }
+
     public abstract String getName();
 
     public abstract Audience getAudience();
