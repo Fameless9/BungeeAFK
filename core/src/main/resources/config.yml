@@ -11,6 +11,11 @@
 # Available languages: en, de
 lang: en
 
+# Whether to send broadcast messages to all players when someone is marked as AFK, returns from AFK or an AFK action is performed
+# Lang entries: 'notification.afk_broadcast', 'notification.return_broadcast', 'notification.afk_kick_broadcast', 'notification.afk_disconnect_broadcast'
+# This option does not affect auto-clicker or movement pattern detection broadcasts to players with the notify-permission (see below)
+afk-broadcast: true
+
 # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
 # e.g., if set to 90, the player will receive a warning message after 1 minute and 30 seconds of inactivity
 warning-delay: 90

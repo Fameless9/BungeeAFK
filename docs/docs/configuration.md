@@ -17,6 +17,16 @@ The plugin will use the language file: `lang_xx.json` where `xx` is the language
 
 Default is `en`.
 
+#### AFK-Broadcasts (`afk-broadcast`)
+If true, a broadcast message will be sent to all players (except the AFK player) when a player goes AFK, returns from AFK or
+an AFK action is performed. This option does not affect broadcasts sent to players with specific permissions.
+Affected language keys are:
+- `notification.afk_broadcast`
+- `notification.return_broadcast`
+- `notification.afk_kick_broadcast`
+- `notification.afk_disconnect_broadcast`
+Default is `true`.
+
 #### Warning Delay (`warning-delay`)
 This is the delay in seconds after which a warning message is sent to the player after their last activity. The warning message  
 can be customized in the language file under the key `notification.afk_warning`.  
