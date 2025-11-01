@@ -3,11 +3,12 @@ package net.fameless.core.location;
 import com.google.gson.JsonObject;
 import net.fameless.core.config.PluginConfig;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Map;
 import java.util.Objects;
 
-public class Location {
+public record Location(String worldName, double x, double y, double z, float pitch, float yaw) {
 
     public static @NotNull Location getConfiguredAfkZone() {
         if (!PluginConfig.get().contains("afk-location")) {
@@ -17,78 +18,11 @@ public class Location {
         return fromMap(afkZone);
     }
 
-    private String worldName;
-    private double x;
-    private double y;
-    private double z;
-    private float pitch = 0.0f;
-    private float yaw = 0.0f;
-
-    public Location(String worldName, double x, double y, double z, float pitch, float yaw) {
-        this.worldName = worldName;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.pitch = pitch;
-        this.yaw = yaw;
-    }
-
     public Location(String worldName, double x, double y, double z) {
-        this.worldName = worldName;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this(worldName, x, y, z, 0f, 0f);
     }
 
-    public String getWorldName() {
-        return worldName;
-    }
-
-    public void setWorldName(String worldName) {
-        this.worldName = worldName;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getZ() {
-        return z;
-    }
-
-    public void setZ(double z) {
-        this.z = z;
-    }
-
-    public float getPitch() {
-        return pitch;
-    }
-
-    public void setPitch(float pitch) {
-        this.pitch = pitch;
-    }
-
-    public float getYaw() {
-        return yaw;
-    }
-
-    public void setYaw(float yaw) {
-        this.yaw = yaw;
-    }
-
-    public JsonObject toJson() {
+    public @NotNull JsonObject toJson() {
         JsonObject obj = new JsonObject();
         obj.addProperty("worldName", worldName);
         obj.addProperty("x", x);
@@ -109,7 +43,7 @@ public class Location {
         return new Location(worldName, x, y, z, pitch, yaw);
     }
 
-    public Map<String, Object> toMap() {
+    public @NotNull @Unmodifiable Map<String, Object> toMap() {
         return Map.of(
                 "world", worldName,
                 "x", x,
@@ -130,7 +64,7 @@ public class Location {
         return new Location(worldName, x, y, z, pitch, yaw);
     }
 
-    public String getCoordinates() {
+    public @NotNull String getCoordinates() {
         return String.format("X: %.2f, Y: %.2f, Z: %.2f",
                 x, y, z);
     }
@@ -142,7 +76,7 @@ public class Location {
                this.z == other.z;
     }
 
-    public Location getBlockLocation() {
+    public @NotNull Location getBlockLocation() {
         return new Location(
                 this.worldName,
                 Math.floor(this.x),
@@ -155,7 +89,7 @@ public class Location {
         return getBlockLocation().equals(other.getBlockLocation());
     }
 
-    public Location floor() {
+    public @NotNull Location floor() {
         return new Location(
                 this.worldName,
                 Math.floor(this.x),
@@ -166,19 +100,19 @@ public class Location {
         );
     }
 
-    public Location withoutPitchAndYaw() {
+    public @NotNull Location withoutPitchAndYaw() {
         return new Location(this.worldName, this.x, this.y, this.z);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Location other &&
-               this.worldName.equals(other.worldName) &&
-               this.x == other.x &&
-               this.y == other.y &&
-               this.z == other.z &&
-               this.pitch == other.pitch &&
-               this.yaw == other.yaw;
+        return obj instanceof Location(String name, double x1, double y1, double z1, float pitch1, float yaw1) &&
+               this.worldName.equals(name) &&
+               this.x == x1 &&
+               this.y == y1 &&
+               this.z == z1 &&
+               this.pitch == pitch1 &&
+               this.yaw == yaw1;
     }
 
     @Override
@@ -187,7 +121,7 @@ public class Location {
     }
 
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return toJson().toString();
     }
 }

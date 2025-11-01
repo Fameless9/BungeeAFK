@@ -12,17 +12,17 @@ public class SpigotLocationAdapter {
 
     @Contract("_ -> new")
     public static @NotNull Location adapt(@NotNull net.fameless.core.location.Location location) {
-        World world = Bukkit.getWorld(location.getWorldName());
+        World world = Bukkit.getWorld(location.worldName());
         if (world == null) {
-            throw new IllegalArgumentException("World '" + location.getWorldName() + "' not found for location conversion");
+            throw new IllegalArgumentException("World '" + location.worldName() + "' not found for location conversion");
         }
         return new Location(
             world,
-            location.getX(),
-            location.getY(),
-            location.getZ(),
-            location.getYaw(),
-            location.getPitch()
+            location.x(),
+            location.y(),
+            location.z(),
+            location.yaw(),
+            location.pitch()
         );
     }
 

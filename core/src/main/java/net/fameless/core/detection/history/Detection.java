@@ -10,6 +10,10 @@ import java.util.*;
 
 public record Detection(DetectionType type, long timestamp, String serverName, String playerName) {
 
+    public Detection {
+        DETECTIONS.add(this);
+    }
+
     private static final List<Detection> DETECTIONS = new ArrayList<>();
 
     @Contract(pure = true)
@@ -25,15 +29,6 @@ public record Detection(DetectionType type, long timestamp, String serverName, S
             }
         }
         return playerDetections;
-    }
-
-    public Detection(DetectionType type, long timestamp, String serverName, String playerName) {
-        this.type = type;
-        this.timestamp = timestamp;
-        this.serverName = serverName;
-        this.playerName = playerName;
-
-        DETECTIONS.add(this);
     }
 
     public @NotNull String getFriendlyString() {
