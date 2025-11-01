@@ -70,7 +70,7 @@ public class BungeeAFK {
         checkForMisconfiguration();
 
         if (!Action.isAfkServerConfigured()) {
-            LOGGER.warn("AFK server is not configured. This may cause players to be kicked instead of moved to an AFK server. Ignore if 'connect' action is not used.");
+            LOGGER.warn("AFK server is not configured. This may cause players to be kicked instead of being moved to the AFK server. Ignore if 'connect' action is not used.");
         }
 
         Command.init();
