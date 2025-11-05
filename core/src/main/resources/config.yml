@@ -16,6 +16,10 @@ lang: en
 # This option does not affect auto-clicker or movement pattern detection broadcasts to players with the notify-permission (see below)
 afk-broadcast: true
 
+# Whether to send action bar messages while handling AFK states
+# Lang entries: 'actionbar.afk', 'actionbar.afk_moved'
+actionbar-enabled: true
+
 # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
 # e.g., if set to 90, the player will receive a warning message after 1 minute and 30 seconds of inactivity
 warning-delay: 90

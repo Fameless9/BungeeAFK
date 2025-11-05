@@ -29,6 +29,10 @@ public class YamlUtil {
             # This option does not affect auto-clicker or movement pattern detection broadcasts to players with the notify-permission (see below)
             afk-broadcast: %b
 
+            # Whether to send action bar messages while handling AFK states
+            # Affected language keys: 'actionbar.afk', 'actionbar.afk_moved'
+            actionbar-enabled: %b
+
             # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
             # e.g., if set to 60, the player will receive a warning message after 1 minute of inactivity
             warning-delay: %d
@@ -163,6 +167,7 @@ public class YamlUtil {
             """.formatted(
                 Caption.getCurrentLanguage().getIdentifier(),
                 PluginConfig.get().getBoolean("afk-broadcast", true),
+                PluginConfig.get().getBoolean("actionbar-enabled", true),
                 PluginConfig.get().getInt("warning-delay", 60),
                 PluginConfig.get().getInt("afk-delay", 600),
                 PluginConfig.get().getInt("action-delay", 630),
