@@ -27,6 +27,11 @@ Affected language keys are:
 - `notification.afk_disconnect_broadcast`
 Default is `true`.
 
+#### Action Bar Messages (`actionbar-enabled`)
+Controls whether players receive action bar notifications while AFK handling runs.
+Affected language keys are `actionbar.afk` and `actionbar.afk_moved`.
+Default is `true`.
+
 #### Warning Delay (`warning-delay`)
 This is the delay in seconds after which a warning message is sent to the player after their last activity. The warning message  
 can be customized in the language file under the key `notification.afk_warning`.  
