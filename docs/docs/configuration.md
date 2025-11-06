@@ -58,6 +58,11 @@ Default is `kick`.
 This is the name of the server to which players will be connected when the action is set to `connect`.  
 Make sure this server is enabled and present in your proxy's config.
 
+#### Action Bar Messages (`actionbar`)
+Controls whether players receive action bar notifications while AFK handling runs.
+Affected language keys are `actionbar.afk` and `actionbar.afk_moved`.
+Default is `true`.
+
 #### AFK Location (`afk-location`)
 This is the location to which players will be teleported when the action is set to `teleport`.
 

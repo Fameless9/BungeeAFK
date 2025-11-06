@@ -86,6 +86,7 @@
   "command.afk_command_cooldown_set": "<prefix><green>AFK command cooldown set to <value> seconds.",
   "command.invalid_broadcast_strategy": "<prefix><red>Invalid broadcast strategy. Available strategies: 'PASS_ALL', 'GLOBAL', 'PER_SERVER', 'DISABLE'.",
   "command.broadcast_strategy_set": "<prefix><green>Broadcast strategy set to <strategy>.",
+  "command.actionbar_set": "<prefix><green>Actionbar messages have been set to <status>.",
   "error.no_caller_type": "<prefix><red>Invalid CallerType.",
   "actionbar.afk": "<blue>You are AFK",
   "actionbar.afk_moved": "<blue>You have been moved to the AFK server"

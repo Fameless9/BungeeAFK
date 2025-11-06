@@ -86,6 +86,7 @@
   "command.afk_command_cooldown_set": "<prefix><green>Abklingzeit des AFK-Befehls auf <value> Sekunden eingestellt.",
   "command.invalid_broadcast_strategy": "<prefix><red>Ungültige Broadcast Strategy. Verfügbar: 'PASS_ALL', 'GLOBAL', 'PER_SERVER', 'DISABLE'.",
   "command.broadcast_strategy_set": "<prefix><green>Broadcast Strategy wurde auf <strategy> gesetzt.",
+  "command.actionbar_set": "<prefix><green>Actionbar-Nachrichten wurden auf <status> gesetzt.",
   "error.no_caller_type": "<prefix><red>Falscher CallerType.",
   "actionbar.afk": "<blue>Du bist AFK",
   "actionbar.afk_moved": "<blue>Du wurdest auf den AFK-Server connected"

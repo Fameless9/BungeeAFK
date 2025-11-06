@@ -51,6 +51,11 @@ public class YamlUtil {
             # If the server does not exist, the action will default to "kick"
             # !!! Only available for BungeeCord and Velocity !!!
             afk-server-name: %s
+            
+            # Whether to send action bar messages while handling AFK states
+            # Note: Actionbar messages might overlap with other plugins using the action bar
+            # Affected language keys: 'actionbar.afk', 'actionbar.afk_moved'
+            actionbar: %b
 
             # AFK zone configuration
             # If the action is set to "teleport", the player will be teleported to this location
@@ -168,6 +173,7 @@ public class YamlUtil {
                 PluginConfig.get().getInt("action-delay", 630),
                 PluginConfig.get().getString("action", "kick"),
                 PluginConfig.get().getString("afk-server-name", ""),
+                PluginConfig.get().getBoolean("actionbar", true),
                 PluginConfig.get().getSection("afk-location").get("world"),
                 PluginConfig.get().getSection("afk-location").get("x"),
                 PluginConfig.get().getSection("afk-location").get("y"),

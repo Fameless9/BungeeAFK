@@ -60,6 +60,20 @@ public class MainCommand extends Command {
         if (args[0].equalsIgnoreCase("configure")) {
             AFKHandler afkHandler = BungeeAFK.getAFKHandler();
             switch (args[1]) {
+                case "actionbar" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    boolean newActionbarEnabled = Boolean.parseBoolean(args[2]);
+
+                    PluginConfig.get().set("actionbar", newActionbarEnabled);
+                    afkHandler.setActionbarEnabled(newActionbarEnabled);
+
+                    caller.sendMessage(Caption.of("command.actionbar_set", TagResolver.resolver("status",
+                            Tag.inserting(Component.text(newActionbarEnabled)))));
+                }
                 case "dump" -> {
                     String dump = PluginConfig.get().dump();
                     caller.sendMessage(Caption.of("command.config_dump", TagResolver.resolver("dump", Tag.inserting(Component.text(dump)))));
@@ -683,7 +697,7 @@ public class MainCommand extends Command {
                         completions.addAll(Arrays.asList(
                                 "afk-delay", "action-delay", "action", "caption", "warning-delay",
                                 "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "broadcast-strategy",
-                                "afk-command-cooldown"
+                                "afk-command-cooldown", "actionbar"
                         ));
                         if (BungeeAFK.isProxy()) {
                             completions.addAll(Arrays.asList("disable-server", "enable-server", "disabled-servers"));
@@ -714,7 +728,7 @@ public class MainCommand extends Command {
                             case "action" -> Action.getAvailableActions().forEach(action -> completions.add(action.getIdentifier()));
                             case "warning-delay", "afk-delay", "action-delay" -> completions.add("<seconds>");
                             case "caption" -> completions.addAll(Arrays.stream(Language.values()).map(Language::getIdentifier).toList());
-                            case "allow-bypass" -> completions.addAll(Arrays.asList("true", "false"));
+                            case "allow-bypass", "actionbar" -> completions.addAll(Arrays.asList("true", "false"));
                             case "disable-server" -> {
                                 if (BungeeAFK.isProxy()) {
                                     List<String> serverNames = new ArrayList<>(BungeeAFK.getPlatform().getServers());

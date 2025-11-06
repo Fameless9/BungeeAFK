@@ -43,6 +43,7 @@ public abstract class AFKHandler {
     private long afkDelay;
     private long actionDelay;
     private BroadcastStrategy broadcastStrategy;
+    private boolean actionbarEnabled;
     private final ScheduledFuture<?> scheduledTask;
 
     public AFKHandler() {
@@ -195,6 +196,7 @@ public abstract class AFKHandler {
     }
 
     private void sendActionBar(@NotNull BAFKPlayer<?> player) {
+        if (!actionbarEnabled) return;
         if (player.getAfkState().equals(AFKState.AFK)) {
             player.sendActionbar(Caption.of("actionbar.afk"));
         } else if (player.getAfkState().equals(AFKState.ACTION_TAKEN)) {
@@ -251,6 +253,7 @@ public abstract class AFKHandler {
         this.warnDelay = PluginConfig.get().getInt("warning-delay", 300) * 1000L;
         this.afkDelay = PluginConfig.get().getInt("afk-delay", 600) * 1000L;
         this.actionDelay = PluginConfig.get().getInt("action-delay", 630) * 1000L;
+        this.actionbarEnabled = PluginConfig.get().getBoolean("actionbar", true);
 
         try {
             this.broadcastStrategy = BroadcastStrategy.valueOf(PluginConfig.get().getString("broadcast-strategy", "PER_SERVER"));
@@ -311,6 +314,14 @@ public abstract class AFKHandler {
 
     public BroadcastStrategy getBroadcastStrategy() {
         return broadcastStrategy;
+    }
+
+    public boolean isActionbarEnabled() {
+        return actionbarEnabled;
+    }
+
+    public void setActionbarEnabled(boolean actionbarEnabled) {
+        this.actionbarEnabled = actionbarEnabled;
     }
 
     public void setBroadcastStrategy(BroadcastStrategy broadcastStrategy) {
