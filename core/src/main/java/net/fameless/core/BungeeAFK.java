@@ -88,7 +88,14 @@ public class BungeeAFK {
         if (!initialized) return;
         Caption.saveToFile();
         DetectionHistoryManager.saveDetections();
-        PluginConfig.shutdown();
+        if (PluginConfig.getConfigRegistry().hasConfigFileChanged()) {
+            if (!PluginConfig.get().getBoolean("overwrite-file-changes", true)) {
+                LOGGER.info("Configuration file changed on disk during runtime - skipping save to avoid overwriting external edits");
+            } else {
+                LOGGER.info("Configuration file changed on disk during runtime - overwriting file with cached config values");
+                PluginConfig.saveNow();
+            }
+        } else PluginConfig.saveNow();
         afkHandler.shutdown();
         ExpirableMap.shutdownScheduler();
         ExpirableSet.shutdownScheduler();

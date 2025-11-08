@@ -20,14 +20,16 @@ public class YamlUtil {
             #  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝
             #  BungeeAFK - AFK detection plugin for BungeeCord, Velocity and Spigot by Fameless9
 
+            # The plugin detects whether the config.yml file has been edited during runtime
+            # If false, the plugin will not save cached config values to the config.yml file on shutdown, if
+            # a change has been detected
+            # Note: Setting this to false may lead to loss of configuration changes made via in-game commands or APIs
+            # if you edit the config.yml file manually while the server is running. To preserve manual changes, set this to false.
+            overwrite-file-changes: %b
+
             # Language used for messages and notifications
             # Available languages: en, de
             lang: %s
-
-            # Whether to send broadcast messages to all players when someone is marked as AFK, returns from AFK or an AFK action is performed
-            # Lang entries: 'notification.afk_broadcast', 'notification.return_broadcast', 'notification.afk_kick_broadcast', 'notification.afk_disconnect_broadcast'
-            # This option does not affect auto-clicker or movement pattern detection broadcasts to players with the notify-permission (see below)
-            afk-broadcast: %b
 
             # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
             # e.g., if set to 60, the player will receive a warning message after 1 minute of inactivity
@@ -51,7 +53,7 @@ public class YamlUtil {
             # If the server does not exist, the action will default to "kick"
             # !!! Only available for BungeeCord and Velocity !!!
             afk-server-name: %s
-            
+
             # Whether to send action bar messages while handling AFK states
             # Note: Actionbar messages might overlap with other plugins using the action bar
             # Affected language keys: 'actionbar.afk', 'actionbar.afk_moved'
@@ -166,8 +168,8 @@ public class YamlUtil {
               certainty-threshold: %f  # Minimum certainty required to trigger detection (0.0 - 1.0)
               sample-size: %d          # Number of movement samples on the same location to analyze in a rolling window
             """.formatted(
+                PluginConfig.get().getBoolean("overwrite-file-changes", true),
                 Caption.getCurrentLanguage().getIdentifier(),
-                PluginConfig.get().getBoolean("afk-broadcast", true),
                 PluginConfig.get().getInt("warning-delay", 60),
                 PluginConfig.get().getInt("afk-delay", 600),
                 PluginConfig.get().getInt("action-delay", 630),
