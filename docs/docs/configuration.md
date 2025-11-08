@@ -11,21 +11,26 @@ The main configuration file is located at `plugins/BungeeAFK/config.yml`. Open t
 ---
 ### General Settings
 
+#### Overwrite File Changes (`overwrite-file-changes`)
+The plugin detects changes made to the configuration file during runtime.
+If this option is set to `false`, any manual changes made to the config.yml file will be
+preserved when the plugin shuts down and any changes made to the cache are lost.
+If set to `true`, the plugin will overwrite any manual changes made to the config.yml file
+when it shuts down, applying the cached values.
+
+Note: if the plugin detects no manual changes, the file will be overwritten regardless of this setting.
+If you update the config.yml file regularly, it is recommended to set this option to `false` to avoid losing changes.
+
+Alternatively, you can keep this setting `true` and reload the config using the `/bafk configure reloadconfig`
+command after making manual changes before shutting down.
+
+Default is `true`.
+
 #### Language (`lang`)
 The language setting allows you to choose the language for the plugin's messages. You can set it to `en` for English or `de` for German.  
 The plugin will use the language file: `lang_xx.json` where `xx` is the language code you set.  
 
 Default is `en`.
-
-#### AFK-Broadcasts (`afk-broadcast`)
-If true, a broadcast message will be sent to all players (except the AFK player) when a player goes AFK, returns from AFK or
-an AFK action is performed. This option does not affect broadcasts sent to players with specific permissions.
-Affected language keys are:
-- `notification.afk_broadcast`
-- `notification.return_broadcast`
-- `notification.afk_kick_broadcast`
-- `notification.afk_disconnect_broadcast`
-Default is `true`.
 
 #### Warning Delay (`warning-delay`)
 This is the delay in seconds after which a warning message is sent to the player after their last activity. The warning message  
