@@ -163,12 +163,12 @@ public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
         }
         byte[] data = (RequestType.TELEPORT_PLAYER.getName() + ";" +
                 this.getUniqueId() + ";" +
-                location.getWorldName() + ";" +
-                location.getX() + ";" +
-                location.getY() + ";" +
-                location.getZ() + ";" +
-                location.getYaw() + ";" +
-                location.getPitch()
+                location.worldName() + ";" +
+                location.x() + ";" +
+                location.y() + ";" +
+                location.z() + ";" +
+                location.yaw() + ";" +
+                location.pitch()
         ).getBytes();
         player.getServer().getInfo().sendData("bungee:bungeeafk", data);
     }

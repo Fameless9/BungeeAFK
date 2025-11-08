@@ -18,7 +18,7 @@ import java.util.List;
 @Plugin(
     id = "bungeeafk",
     name = "BungeeAFK-Velocity",
-    version = "2.5.0"
+    version = "2.5.5"
     ,description = "BungeeAFK for Velocity proxy"
     ,url = "https://github.com/Fameless9"
     ,authors = {"Fameless9"}

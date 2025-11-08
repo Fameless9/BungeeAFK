@@ -2,16 +2,16 @@ package net.fameless.core.config;
 
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.region.Region;
+import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
 import net.fameless.core.util.YamlUtil;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -20,15 +20,27 @@ import java.util.Map;
 public class PluginConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + PluginConfig.class.getSimpleName());
-    public static Yaml YAML;
+    public static Yaml YAML = new Yaml();
     private static YamlConfig config;
+    private static ConfigRegistry configRegistry;
 
     public static void init() {
         LOGGER.info("Loading configuration...");
-        File configFile = PluginPaths.getConfigFile();
+        ResourceUtil.extractResourceIfMissing("config.yml", PluginPaths.getConfigFile());
+        try {
+            config = readConfigFile();
+            configRegistry = new ConfigRegistry(config);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
+        loadBypassRegions();
+    }
+
+    public static @NotNull YamlConfig readConfigFile() throws FileNotFoundException {
+        File configFile = PluginPaths.getConfigFile();
         if (!configFile.exists()) {
-            ResourceUtil.extractResourceIfMissing("config.yml", configFile);
+            throw new FileNotFoundException("Failed to read config file: File does not exist");
         }
 
         String yamlContent;
@@ -38,10 +50,7 @@ public class PluginConfig {
             throw new RuntimeException(e);
         }
 
-        YAML = new Yaml();
-        config = new YamlConfig(YAML.load(yamlContent));
-
-        loadBypassRegions();
+        return new YamlConfig(YAML.load(yamlContent));
     }
 
     public static void loadBypassRegions() {
@@ -78,21 +87,22 @@ public class PluginConfig {
         BungeeAFK.getMovementPatternDetection().reloadConfigValues();
     }
 
-    public static void shutdown() {
-        saveNow();
+    public static void saveNow() {
+        SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
+            saveRegions();
+            File configFile = PluginPaths.getConfigFile();
+            String fileContent = YamlUtil.generateConfig();
+
+            try (var writer = new BufferedWriter(new FileWriter(configFile))) {
+                writer.write(fileContent);
+            } catch (IOException e) {
+                LOGGER.error("Failed to write configuration file: {}", configFile.getAbsolutePath(), e);
+            }
+        });
     }
 
-    public static void saveNow() {
-        saveRegions();
-        File configFile = PluginPaths.getConfigFile();
-
-        String fileContent = YamlUtil.generateConfig();
-        try (FileWriter writer = new FileWriter(configFile)) {
-            writer.write(fileContent);
-            writer.flush();
-        } catch (IOException e) {
-            LOGGER.error("Failed to write configuration file: {}", configFile.getAbsolutePath(), e);
-        }
+    public static ConfigRegistry getConfigRegistry() {
+        return configRegistry;
     }
 
     public static YamlConfig get() {

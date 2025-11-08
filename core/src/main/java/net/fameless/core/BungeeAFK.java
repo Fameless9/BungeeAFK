@@ -13,18 +13,18 @@ import net.fameless.core.detection.history.DetectionHistoryManager;
 import net.fameless.core.detection.movementpattern.MovementPatternDetection;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
+import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.ColorUtil;
 import net.fameless.core.util.PluginUpdater;
+import net.fameless.core.util.cache.ExpirableMap;
+import net.fameless.core.util.cache.ExpirableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class BungeeAFK {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + BungeeAFK.class.getSimpleName());
-    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static boolean initialized = false;
     private static BungeeAFKPlatform platform;
     private static AFKHandler afkHandler;
@@ -35,6 +35,11 @@ public class BungeeAFK {
         if (initialized) {
             throw new RuntimeException("You may not initialize another instance of BungeeAFK Core.");
         }
+
+        if (Runtime.version().feature() < 21) {
+            throw new IllegalStateException("BungeeAFK requires at least Java 21");
+        }
+
         String startupMessage = ColorUtil.ANSI_CYAN + """
 
                 ██████╗ ██╗   ██╗███╗   ██╗ ██████╗ ███████╗███████╗ █████╗ ███████╗██╗  ██╗
@@ -65,7 +70,7 @@ public class BungeeAFK {
         checkForMisconfiguration();
 
         if (!Action.isAfkServerConfigured()) {
-            LOGGER.warn("AFK server is not configured. This may cause players to be kicked instead of moved to an AFK server. Ignore if 'connect' action is not used.");
+            LOGGER.warn("AFK server is not configured. This may cause players to be kicked instead of being moved to the AFK server. Ignore if 'connect' action is not used.");
         }
 
         Command.init();
@@ -83,8 +88,18 @@ public class BungeeAFK {
         if (!initialized) return;
         Caption.saveToFile();
         DetectionHistoryManager.saveDetections();
-        PluginConfig.shutdown();
+        if (PluginConfig.getConfigRegistry().hasConfigFileChanged()) {
+            if (!PluginConfig.get().getBoolean("overwrite-file-changes", true)) {
+                LOGGER.info("Configuration file changed on disk during runtime - skipping save to avoid overwriting external edits");
+            } else {
+                LOGGER.info("Configuration file changed on disk during runtime - overwriting file with cached config values");
+                PluginConfig.saveNow();
+            }
+        } else PluginConfig.saveNow();
         afkHandler.shutdown();
+        ExpirableMap.shutdownScheduler();
+        ExpirableSet.shutdownScheduler();
+        SchedulerService.shutdown();
     }
 
     private static void checkForMisconfiguration() {
@@ -134,9 +149,5 @@ public class BungeeAFK {
 
     public static MovementPatternDetection getMovementPatternDetection() {
         return movementPatternDetection;
-    }
-
-    public static ScheduledExecutorService getScheduler() {
-        return scheduler;
     }
 }

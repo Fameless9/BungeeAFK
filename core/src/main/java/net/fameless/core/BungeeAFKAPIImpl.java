@@ -30,19 +30,19 @@ public class BungeeAFKAPIImpl extends BackendAPI {
     @Override
     public void performConnectAction(Player player, Component kickFallbackReason, Component kickFallbackBroadcastMessage, Component connectMessage, Component connectBroadcastMessage) throws PlayerNotFoundException {
         BAFKPlayer<?> bafkPlayer = APIAdapter.adapt(player);
-        afkHandler.handleConnectAction(bafkPlayer, kickFallbackReason, kickFallbackBroadcastMessage, connectMessage, connectBroadcastMessage);
+        afkHandler.performConnectAction(bafkPlayer, kickFallbackReason, kickFallbackBroadcastMessage, connectMessage, connectBroadcastMessage);
     }
 
     @Override
     public void performKickAction(Player player, Component reason, Component broadcastMessage) throws PlayerNotFoundException {
         BAFKPlayer<?> bafkPlayer = APIAdapter.adapt(player);
-        afkHandler.handleKickAction(bafkPlayer, reason, broadcastMessage);
+        afkHandler.performKickAction(bafkPlayer, reason, broadcastMessage);
     }
 
     @Override
     public void performTeleportAction(Player player, Component teleportMessage) throws PlayerNotFoundException {
         BAFKPlayer<?> bafkPlayer = APIAdapter.adapt(player);
-        afkHandler.handleTeleportAction(bafkPlayer, teleportMessage);
+        afkHandler.performTeleportAction(bafkPlayer, teleportMessage);
     }
 
     @Override
@@ -63,8 +63,7 @@ public class BungeeAFKAPIImpl extends BackendAPI {
         AFKState state = APIAdapter.adapt(afkState);
         bafkPlayer.setAfkState(state);
         if (state == AFKState.ACTIVE) {
-            bafkPlayer.setTimeSinceLastAction(0);
-            afkHandler.handleAction(bafkPlayer);
+            bafkPlayer.setActive();
         } else if (state == AFKState.WARNED) {
             bafkPlayer.setTimeSinceLastAction(afkHandler.getAfkDelayMillis());
         }
@@ -77,9 +76,7 @@ public class BungeeAFKAPIImpl extends BackendAPI {
             bafkPlayer.setAfkState(AFKState.WARNED);
             bafkPlayer.setTimeSinceLastAction(afkHandler.getAfkDelayMillis());
         } else {
-            bafkPlayer.setAfkState(AFKState.ACTIVE);
-            bafkPlayer.setTimeSinceLastAction(0);
-            afkHandler.handleAction(bafkPlayer);
+            bafkPlayer.setActive();
         }
     }
 

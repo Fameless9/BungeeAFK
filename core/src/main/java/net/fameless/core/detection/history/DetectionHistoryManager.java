@@ -1,6 +1,7 @@
 package net.fameless.core.detection.history;
 
 import com.google.gson.*;
+import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
 
@@ -14,8 +15,7 @@ public class DetectionHistoryManager {
             .create();
 
     public static void loadDetections() {
-        File detectionsFile = PluginPaths.getAutoClickerDetectionHistoryFile();
-        ResourceUtil.extractResourceIfMissing("detection_history.json", detectionsFile);
+        File detectionsFile = ResourceUtil.extractResourceIfMissing("detection_history.json", PluginPaths.getAutoClickerDetectionHistoryFile());
 
         JsonArray detectionHistoryArray;
         try (Reader reader = new FileReader(detectionsFile)) {
@@ -35,17 +35,19 @@ public class DetectionHistoryManager {
     }
 
     public static void saveDetections() {
-        File detectionsFile = PluginPaths.getAutoClickerDetectionHistoryFile();
-        JsonArray detectionHistoryArray = new JsonArray();
+        SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
+            File detectionsFile = PluginPaths.getAutoClickerDetectionHistoryFile();
+            JsonArray detectionHistoryArray = new JsonArray();
 
-        for (Detection detection : Detection.getDetections()) {
-            detectionHistoryArray.add(detection.toJson());
-        }
+            for (Detection detection : Detection.getDetections()) {
+                detectionHistoryArray.add(detection.toJson());
+            }
 
-        try (Writer writer = new FileWriter(detectionsFile)) {
-            GSON.toJson(detectionHistoryArray, writer);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to write detection history file: " + detectionsFile, e);
-        }
+            try (var writer = new BufferedWriter(new FileWriter(detectionsFile))) {
+                GSON.toJson(detectionHistoryArray, writer);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to write detection history file: " + detectionsFile, e);
+            }
+        });
     }
 }

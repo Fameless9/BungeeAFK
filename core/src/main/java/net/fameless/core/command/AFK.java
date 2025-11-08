@@ -52,9 +52,7 @@ public class AFK extends Command {
             player.setAfkState(AFKState.WARNED);
             player.setTimeSinceLastAction(afkHandler.getAfkDelayMillis());
         } else {
-            player.setTimeSinceLastAction(0);
-            player.setAfkState(AFKState.ACTIVE);
-            afkHandler.handleAction(player);
+            player.setActive();
         }
 
         long cooldown = PluginConfig.get().getInt("afk-command-cooldown", 30);

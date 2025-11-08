@@ -11,27 +11,27 @@ public class MockRegion {
     private final Location corner2;
 
     public MockRegion(@NotNull Location corner1, @NotNull Location corner2) {
-        if (!corner1.getWorldName().equalsIgnoreCase(corner2.getWorldName())) {
+        if (!corner1.worldName().equalsIgnoreCase(corner2.worldName())) {
             throw new IllegalArgumentException("Both corners must be in the same world.");
         }
 
-        this.worldName = corner1.getWorldName();
+        this.worldName = corner1.worldName();
         this.corner1 = corner1;
         this.corner2 = corner2;
     }
 
     public boolean isLocationInRegion(@NotNull Location location) {
-        if (!location.getWorldName().equalsIgnoreCase(worldName)) return false;
+        if (!location.worldName().equalsIgnoreCase(worldName)) return false;
 
-        double minX = Math.min(corner1.getX(), corner2.getX());
-        double maxX = Math.max(corner1.getX(), corner2.getX());
-        double minY = Math.min(corner1.getY(), corner2.getY());
-        double maxY = Math.max(corner1.getY(), corner2.getY());
-        double minZ = Math.min(corner1.getZ(), corner2.getZ());
-        double maxZ = Math.max(corner1.getZ(), corner2.getZ());
+        double minX = Math.min(corner1.x(), corner2.x());
+        double maxX = Math.max(corner1.x(), corner2.x());
+        double minY = Math.min(corner1.y(), corner2.y());
+        double maxY = Math.max(corner1.y(), corner2.y());
+        double minZ = Math.min(corner1.z(), corner2.z());
+        double maxZ = Math.max(corner1.z(), corner2.z());
 
-        return location.getX() >= minX && location.getX() <= maxX &&
-                location.getY() >= minY && location.getY() <= maxY &&
-                location.getZ() >= minZ && location.getZ() <= maxZ;
+        return location.x() >= minX && location.x() <= maxX &&
+                location.y() >= minY && location.y() <= maxY &&
+                location.z() >= minZ && location.z() <= maxZ;
     }
 }

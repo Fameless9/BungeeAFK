@@ -20,7 +20,7 @@ public class Region {
     private boolean afkDetection;
 
     public Region(String regionName, @NotNull Location corner1, @NotNull Location corner2, boolean afkDetection) {
-        if (!corner1.getWorldName().equalsIgnoreCase(corner2.getWorldName())) {
+        if (!corner1.worldName().equalsIgnoreCase(corner2.worldName())) {
             throw new IllegalArgumentException("Both corners must be in the same world.");
         }
 
@@ -31,7 +31,7 @@ public class Region {
         }
 
         this.regionName = regionName;
-        this.worldName = corner1.getWorldName();
+        this.worldName = corner1.worldName();
         this.corner1 = corner1;
         this.corner2 = corner2;
         this.afkDetection = afkDetection;
@@ -77,18 +77,18 @@ public class Region {
     }
 
     public boolean isLocationInRegion(@NotNull Location location) {
-        if (!location.getWorldName().equalsIgnoreCase(worldName)) return false;
+        if (!location.worldName().equalsIgnoreCase(worldName)) return false;
 
-        double minX = Math.min(corner1.getX(), corner2.getX());
-        double maxX = Math.max(corner1.getX(), corner2.getX());
-        double minY = Math.min(corner1.getY(), corner2.getY());
-        double maxY = Math.max(corner1.getY(), corner2.getY());
-        double minZ = Math.min(corner1.getZ(), corner2.getZ());
-        double maxZ = Math.max(corner1.getZ(), corner2.getZ());
+        double minX = Math.min(corner1.x(), corner2.x());
+        double maxX = Math.max(corner1.x(), corner2.x());
+        double minY = Math.min(corner1.y(), corner2.y());
+        double maxY = Math.max(corner1.y(), corner2.y());
+        double minZ = Math.min(corner1.z(), corner2.z());
+        double maxZ = Math.max(corner1.z(), corner2.z());
 
-        return location.getX() >= minX && location.getX() <= maxX &&
-                location.getY() >= minY && location.getY() <= maxY &&
-                location.getZ() >= minZ && location.getZ() <= maxZ;
+        return location.x() >= minX && location.x() <= maxX &&
+                location.y() >= minY && location.y() <= maxY &&
+                location.z() >= minZ && location.z() <= maxZ;
     }
 
     public static void removeRegion(@NotNull Region region) {
@@ -121,24 +121,24 @@ public class Region {
 
     public Location getMinimumCorner() {
         return new Location(worldName,
-                Math.min(corner1.getX(), corner2.getX()),
-                Math.min(corner1.getY(), corner2.getY()),
-                Math.min(corner1.getZ(), corner2.getZ())
+                Math.min(corner1.x(), corner2.x()),
+                Math.min(corner1.y(), corner2.y()),
+                Math.min(corner1.z(), corner2.z())
         );
     }
 
     public Location getMaximumCorner() {
         return new Location(worldName,
-                Math.max(corner1.getX(), corner2.getX()),
-                Math.max(corner1.getY(), corner2.getY()),
-                Math.max(corner1.getZ(), corner2.getZ())
+                Math.max(corner1.x(), corner2.x()),
+                Math.max(corner1.y(), corner2.y()),
+                Math.max(corner1.z(), corner2.z())
         );
     }
 
     public double getVolume() {
-        double dx = Math.abs(corner1.getX() - corner2.getX()) + 1;
-        double dy = Math.abs(corner1.getY() - corner2.getY()) + 1;
-        double dz = Math.abs(corner1.getZ() - corner2.getZ()) + 1;
+        double dx = Math.abs(corner1.x() - corner2.x()) + 1;
+        double dy = Math.abs(corner1.y() - corner2.y()) + 1;
+        double dz = Math.abs(corner1.z() - corner2.z()) + 1;
         return dx * dy * dz;
     }
 

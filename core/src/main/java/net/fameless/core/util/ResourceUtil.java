@@ -7,6 +7,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 public class ResourceUtil {
 
@@ -16,52 +20,42 @@ public class ResourceUtil {
             .create();
 
     public static @NotNull String readResource(String path) {
-        try (InputStreamReader reader = new InputStreamReader(ResourceUtil.class.getClassLoader().getResourceAsStream(path))) {
-            StringBuilder content = new StringBuilder();
-            char[] buffer = new char[1024];
-            int numRead;
-            while ((numRead = reader.read(buffer)) != -1) {
-                content.append(buffer, 0, numRead);
-            }
-            return content.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        try (InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(path)) {
+            if (in == null) throw new FileNotFoundException("Resource not found: " + path);
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
     @Contract("_ -> new")
     public static @NotNull File getFile(String path) {
-        return new File(ResourceUtil.class.getClassLoader().getResource(path).getFile());
+        return new File(Objects.requireNonNull(ResourceUtil.class.getClassLoader().getResource(path)).getFile());
     }
 
     public static JsonObject readJsonResource(String path) {
-        try (InputStreamReader reader = new InputStreamReader(ResourceUtil.class.getClassLoader().getResourceAsStream(path))) {
-            return GSON.fromJson(reader, JsonObject.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        try (InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(path)) {
+            if (in == null) throw new FileNotFoundException("Resource not found: " + path);
+            try (Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
+                return GSON.fromJson(reader, JsonObject.class);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public static void extractResourceIfMissing(String resourcePath, @NotNull File targetFile) {
-        if (targetFile.exists()) return;
+    public static @NotNull File extractResourceIfMissing(String resourcePath, @NotNull File targetFile) {
+        if (targetFile.exists()) return targetFile;
 
-        targetFile.getParentFile().mkdirs();
-
-        try (InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(resourcePath);
-             OutputStream out = new FileOutputStream(targetFile)) {
-
-            if (in == null) {
-                throw new FileNotFoundException("Resource not found in JAR: " + resourcePath);
+        try {
+            Files.createDirectories(targetFile.getParentFile().toPath());
+            try (InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(resourcePath)) {
+                if (in == null) throw new FileNotFoundException("Resource not found in JAR: " + resourcePath);
+                Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
-
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = in.read(buffer)) != -1) {
-                out.write(buffer, 0, len);
-            }
-
         } catch (IOException e) {
-            throw new RuntimeException("Failed to extract resource: " + resourcePath, e);
+            throw new UncheckedIOException("Failed to extract resource: " + resourcePath, e);
         }
+        return targetFile;
     }
 }

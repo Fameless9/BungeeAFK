@@ -56,11 +56,11 @@ public class MovementPatternDetection {
             }
 
             switch (action) {
-                case KICK -> BungeeAFK.getAFKHandler().handleKickAction(player, Caption.of("notification.movement_pattern_kick_message"),
+                case KICK -> BungeeAFK.getAFKHandler().performKickAction(player, Caption.of("notification.movement_pattern_kick_message"),
                        Component.empty());
-                case CONNECT -> BungeeAFK.getAFKHandler().handleConnectAction(player, Caption.of("notification.movement_pattern_kick_message"), Component.empty(),
+                case CONNECT -> BungeeAFK.getAFKHandler().performConnectAction(player, Caption.of("notification.movement_pattern_kick_message"), Component.empty(),
                         Caption.of("notification.movement_pattern_connect_message"), Component.empty());
-                case TELEPORT -> BungeeAFK.getAFKHandler().handleTeleportAction(player, Caption.of("notification.movement_pattern_teleport_message"));
+                case TELEPORT -> BungeeAFK.getAFKHandler().performTeleportAction(player, Caption.of("notification.movement_pattern_teleport_message"));
             }
             player.setAfkState(AFKState.ACTION_TAKEN);
         };
