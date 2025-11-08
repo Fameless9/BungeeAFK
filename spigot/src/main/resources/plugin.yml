@@ -1,5 +1,5 @@
 name: SpigotPlatform
-version: '2.5.0'
+version: '2.5.5'
 main: net.fameless.spigot.SpigotPlatform
 api-version: '1.21'
 prefix: [BungeeAFK]
