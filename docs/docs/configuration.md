@@ -32,6 +32,14 @@ The plugin will use the language file: `lang_xx.json` where `xx` is the language
 
 Default is `en`.
 
+#### Action Bar Messages (`actionbar`)
+Controls whether players receive action bar notifications while AFK handling runs.
+Affected language keys are `actionbar.afk` and `actionbar.afk_moved`. Actionbar messages might
+overlap with other plugins using the actionbar.
+If set to false, no actionbar messages are being sent.
+
+Default is `true`.
+
 #### Warning Delay (`warning-delay`)
 This is the delay in seconds after which a warning message is sent to the player after their last activity. The warning message  
 can be customized in the language file under the key `notification.afk_warning`.  
