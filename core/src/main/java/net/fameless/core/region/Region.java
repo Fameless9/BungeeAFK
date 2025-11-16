@@ -5,13 +5,10 @@ import com.google.gson.JsonParseException;
 import net.fameless.core.location.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 
 public class Region {
-
-    private static final List<Region> REGIONS = new ArrayList<>();
 
     private final String regionName;
     private final String worldName;
@@ -24,18 +21,11 @@ public class Region {
             throw new IllegalArgumentException("Both corners must be in the same world.");
         }
 
-        for (Region region : REGIONS) {
-            if (region.regionName.equalsIgnoreCase(regionName)) {
-                throw new IllegalArgumentException("Region with name '" + regionName + "' already exists.");
-            }
-        }
-
         this.regionName = regionName;
         this.worldName = corner1.worldName();
         this.corner1 = corner1;
         this.corner2 = corner2;
         this.afkDetection = afkDetection;
-        REGIONS.add(this);
     }
 
     public void toggleAfkDetection() {
@@ -48,20 +38,6 @@ public class Region {
 
     public String getRegionName() {
         return regionName;
-    }
-
-    @Contract(pure = true)
-    public static @NotNull @Unmodifiable List<Region> getAllRegions() {
-        return List.copyOf(REGIONS);
-    }
-
-    public static Optional<Region> getRegionByName(@NotNull String regionName) {
-        for (Region region : REGIONS) {
-            if (region.regionName.equalsIgnoreCase(regionName)) {
-                return Optional.of(region);
-            }
-        }
-        return Optional.empty();
     }
 
     public String getWorldName() {
@@ -89,34 +65,6 @@ public class Region {
         return location.x() >= minX && location.x() <= maxX &&
                 location.y() >= minY && location.y() <= maxY &&
                 location.z() >= minZ && location.z() <= maxZ;
-    }
-
-    public static void removeRegion(@NotNull Region region) {
-        if (!REGIONS.remove(region)) {
-            throw new IllegalArgumentException("Region not found: " + region);
-        }
-    }
-
-    public static void clearRegions() {
-        REGIONS.clear();
-    }
-
-    public static boolean isLocationInAnyRegion(@NotNull Location location) {
-        for (Region region : REGIONS) {
-            if (region.isLocationInRegion(location)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isLocationInAnyBypassRegion(@NotNull Location location) {
-        for (Region region : REGIONS) {
-            if (region.isLocationInRegion(location) && !region.isAfkDetectionEnabled()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public Location getMinimumCorner() {

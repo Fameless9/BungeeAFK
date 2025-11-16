@@ -11,10 +11,10 @@ import java.util.Objects;
 public record Location(String worldName, double x, double y, double z, float pitch, float yaw) {
 
     public static @NotNull Location getConfiguredAfkZone() {
-        if (!PluginConfig.get().contains("afk-location")) {
+        if (!PluginConfig.getInstance().getConfig().contains("afk-location")) {
             throw new IllegalStateException("AFK location is not configured in the plugin config.");
         }
-        Map<String, Object> afkZone = PluginConfig.get().getSection("afk-location");
+        Map<String, Object> afkZone = PluginConfig.getInstance().getConfig().getSection("afk-location");
         return fromMap(afkZone);
     }
 

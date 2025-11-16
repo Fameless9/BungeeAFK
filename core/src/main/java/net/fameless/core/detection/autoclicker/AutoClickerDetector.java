@@ -47,7 +47,7 @@ public class AutoClickerDetector {
         reloadConfigValues();
 
         this.defaultActionOnDetection = player -> {
-            String notifyPermission = PluginConfig.get().getString("auto-clicker.notify-permission", "bungeeafk.autoclicker.notify");
+            String notifyPermission = PluginConfig.getInstance().getConfig().getString("auto-clicker.notify-permission", "bungeeafk.autoclicker.notify");
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Auto-clicker detected for player: {}", player.getName());
             }
@@ -61,11 +61,11 @@ public class AutoClickerDetector {
                             TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))
                     )));
 
-            if (PluginConfig.get().getBoolean("auto-clicker.notify-player", true)) {
+            if (PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.notify-player", true)) {
                 player.sendMessage(Caption.of("notification.auto_clicker_detected_player"));
             }
 
-            String actionIdentifier = PluginConfig.get().getString("auto-clicker.action", "kick");
+            String actionIdentifier = PluginConfig.getInstance().getConfig().getString("auto-clicker.action", "kick");
             ActionOnDetection action = ActionOnDetection.existsByIdentifier(actionIdentifier)
                     ? ActionOnDetection.fromIdentifier(actionIdentifier)
                     : ActionOnDetection.KICK;
@@ -77,13 +77,13 @@ public class AutoClickerDetector {
     }
 
     public void reloadConfigValues() {
-        sampleSize = PluginConfig.get().getInt("auto-clicker.sample-size", 20);
-        consecutiveDetectionsRequired = PluginConfig.get().getInt("auto-clicker.consecutive-detections", 3);
-        stddevThresholdMillis = PluginConfig.get().getInt("auto-clicker.stddev-threshold", 50);
-        minClickIntervalMillis = PluginConfig.get().getInt("auto-clicker.min-click-interval", 50);
-        disabledServers = PluginConfig.get().getStringList("disabled-servers");
-        allowBypass = PluginConfig.get().getBoolean("auto-clicker.allow-bypass", true);
-        enabled = PluginConfig.get().getBoolean("auto-clicker.enabled", true);
+        sampleSize = PluginConfig.getInstance().getConfig().getInt("auto-clicker.sample-size", 20);
+        consecutiveDetectionsRequired = PluginConfig.getInstance().getConfig().getInt("auto-clicker.consecutive-detections", 3);
+        stddevThresholdMillis = PluginConfig.getInstance().getConfig().getInt("auto-clicker.stddev-threshold", 50);
+        minClickIntervalMillis = PluginConfig.getInstance().getConfig().getInt("auto-clicker.min-click-interval", 50);
+        disabledServers = PluginConfig.getInstance().getConfig().getStringList("disabled-servers");
+        allowBypass = PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.allow-bypass", true);
+        enabled = PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.enabled", true);
     }
 
     public synchronized void registerClick(BAFKPlayer<?> player) {

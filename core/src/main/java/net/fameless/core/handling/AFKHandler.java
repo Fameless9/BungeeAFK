@@ -48,7 +48,7 @@ public abstract class AFKHandler {
 
     public AFKHandler() {
         if (BungeeAFK.getAFKHandler() != null) throw new IllegalStateException("AFKHandler is already initialized.");
-        fetchConfigValues();
+        reloadConfigValues();
         this.scheduledTask = SchedulerService.SCHEDULED_EXECUTOR
                 .scheduleAtFixedRate(this::run, 0, UPDATE_PERIOD_MILLIS, TimeUnit.MILLISECONDS);
         fetchPreviousPlayerStates();
@@ -90,7 +90,7 @@ public abstract class AFKHandler {
 
     private void revertPreviousState(@NotNull BAFKPlayer<?> player) {
         if (revertCooldown.contains(player)) return;
-        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
+        String afkServerName = PluginConfig.getInstance().getConfig().getString("afk-server-name", "");
         if (player.getCurrentServerName().equalsIgnoreCase(afkServerName)) {
             player.connect(playerPreviousServerMap.getOrDefault(player.getUniqueId(), "lobby"));
             playerPreviousServerMap.remove(player.getUniqueId());
@@ -155,7 +155,7 @@ public abstract class AFKHandler {
         }
 
         String previousServer = player.getCurrentServerName();
-        String afkServerName = PluginConfig.get().getString("afk-server-name", "");
+        String afkServerName = PluginConfig.getInstance().getConfig().getString("afk-server-name", "");
 
         player.connect(afkServerName)
                 .thenAccept(success -> {
@@ -259,28 +259,28 @@ public abstract class AFKHandler {
         }
     }
 
-    public void fetchConfigValues() {
-        this.warnDelay = PluginConfig.get().getInt("warning-delay", 300) * 1000L;
-        this.afkDelay = PluginConfig.get().getInt("afk-delay", 600) * 1000L;
-        this.actionDelay = PluginConfig.get().getInt("action-delay", 630) * 1000L;
-        this.actionbarEnabled = PluginConfig.get().getBoolean("actionbar", true);
+    public void reloadConfigValues() {
+        this.warnDelay = PluginConfig.getInstance().getConfig().getInt("warning-delay", 300) * 1000L;
+        this.afkDelay = PluginConfig.getInstance().getConfig().getInt("afk-delay", 600) * 1000L;
+        this.actionDelay = PluginConfig.getInstance().getConfig().getInt("action-delay", 630) * 1000L;
+        this.actionbarEnabled = PluginConfig.getInstance().getConfig().getBoolean("actionbar", true);
 
         try {
-            this.broadcastStrategy = BroadcastStrategy.valueOf(PluginConfig.get().getString("broadcast-strategy", "PER_SERVER"));
+            this.broadcastStrategy = BroadcastStrategy.valueOf(PluginConfig.getInstance().getConfig().getString("broadcast-strategy", "PER_SERVER"));
         } catch (IllegalArgumentException e) {
             LOGGER.warn("Invalid Broadcast Strategy in config. Defaulting to 'PER_SERVER'.");
             this.broadcastStrategy = BroadcastStrategy.PER_SERVER;
         }
 
         try {
-            this.action = Action.fromIdentifier(PluginConfig.get().getString("action", ""));
+            this.action = Action.fromIdentifier(PluginConfig.getInstance().getConfig().getString("action", ""));
         } catch (IllegalArgumentException e) {
             LOGGER.warn("Invalid action identifier in config. Defaulting to 'KICK'.");
             this.action = Action.KICK;
         }
 
         if (action == Action.CONNECT) {
-            String serverName = PluginConfig.get().getString("afk-server-name", "");
+            String serverName = PluginConfig.getInstance().getConfig().getString("afk-server-name", "");
             if (!BungeeAFK.getPlatform().doesServerExist(serverName)) {
                 LOGGER.warn("AFK server not found. Defaulting to KICK.");
                 this.action = Action.KICK;
@@ -357,22 +357,22 @@ public abstract class AFKHandler {
     public void setAction(@NotNull Action action) {
         if (!action.isAvailable()) return;
         this.action = action;
-        PluginConfig.get().set("action", action.getIdentifier());
+        PluginConfig.getInstance().getConfig().set("action", action.getIdentifier());
     }
 
     public void setWarnDelayMillis(long delay) {
         this.warnDelay = delay;
-        PluginConfig.get().set("warning-delay", (int) (delay / 1000));
+        PluginConfig.getInstance().getConfig().set("warning-delay", (int) (delay / 1000));
     }
 
     public void setActionDelayMillis(long delay) {
         this.actionDelay = delay;
-        PluginConfig.get().set("action-delay", (int) (delay / 1000));
+        PluginConfig.getInstance().getConfig().set("action-delay", (int) (delay / 1000));
     }
 
     public void setAfkDelayMillis(long delay) {
         this.afkDelay = delay;
-        PluginConfig.get().set("afk-delay", (int) (delay / 1000));
+        PluginConfig.getInstance().getConfig().set("afk-delay", (int) (delay / 1000));
     }
 
     protected abstract void onInit();

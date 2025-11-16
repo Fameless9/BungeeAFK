@@ -108,7 +108,7 @@ public final class Caption {
     public static void setCurrentLanguage(Language newLanguage) {
         if (newLanguage != getCurrentLanguage()) {
             Caption.currentLanguage = newLanguage;
-            PluginConfig.get().set("lang", newLanguage.getIdentifier());
+            PluginConfig.getInstance().getConfig().set("lang", newLanguage.getIdentifier());
         }
     }
 

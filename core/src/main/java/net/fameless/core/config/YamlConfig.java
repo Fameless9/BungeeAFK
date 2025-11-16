@@ -1,5 +1,6 @@
 package net.fameless.core.config;
 
+import net.fameless.core.util.YamlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -139,6 +140,6 @@ public record YamlConfig(Map<String, Object> data) {
     }
 
     public String dump() {
-        return PluginConfig.YAML.dump(data);
+        return YamlUtil.YAML.dump(data);
     }
 }

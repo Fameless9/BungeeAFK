@@ -49,7 +49,7 @@ public class MovementPatternDetection {
         defaultActionOnDetection = player -> {
             ActionOnDetection action;
             try {
-                action = ActionOnDetection.fromIdentifier(PluginConfig.get().getString("movement-pattern.action", "kick"));
+                action = ActionOnDetection.fromIdentifier(PluginConfig.getInstance().getConfig().getString("movement-pattern.action", "kick"));
             } catch (IllegalArgumentException e) {
                 LOGGER.error("Invalid action on movement pattern detection, defaulting to kick", e);
                 action = ActionOnDetection.KICK;
@@ -67,12 +67,12 @@ public class MovementPatternDetection {
     }
 
     public void reloadConfigValues() {
-        this.certaintyThreshold = PluginConfig.get().getDouble("movement-pattern.certainty-threshold", 0.9);
-        this.sampleSize = PluginConfig.get().getInt("movement-pattern.sample-size", 5);
-        this.disabledServers = PluginConfig.get().getStringList("movement-pattern.disabled-servers");
-        this.allowBypass = PluginConfig.get().getBoolean("movement-pattern.allow-bypass", true);
-        this.enabled = PluginConfig.get().getBoolean("movement-pattern.enabled", true);
-        this.clearAfterSeconds = PluginConfig.get().getInt("movement-pattern.clear-after", 600);
+        this.certaintyThreshold = PluginConfig.getInstance().getConfig().getDouble("movement-pattern.certainty-threshold", 0.9);
+        this.sampleSize = PluginConfig.getInstance().getConfig().getInt("movement-pattern.sample-size", 5);
+        this.disabledServers = PluginConfig.getInstance().getConfig().getStringList("movement-pattern.disabled-servers");
+        this.allowBypass = PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.allow-bypass", true);
+        this.enabled = PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.enabled", true);
+        this.clearAfterSeconds = PluginConfig.getInstance().getConfig().getInt("movement-pattern.clear-after", 600);
 
         if (clearAfterSeconds < 0) {
             clearAfterSeconds = 0;
@@ -139,7 +139,7 @@ public class MovementPatternDetection {
 
         MessageBroadcaster.broadcastMessageToFiltered(Caption.of("notification.movement_pattern_detected_admin",
                         TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                PlayerFilters.hasPermission(PluginConfig.get().getString("movement-pattern.notify-permission", "bungeeafk.movement-pattern.notify")),
+                PlayerFilters.hasPermission(PluginConfig.getInstance().getConfig().getString("movement-pattern.notify-permission", "bungeeafk.movement-pattern.notify")),
                 PlayerFilters.notMatching(player));
 
         PlayerMovementPatternDetectedEvent event = new PlayerMovementPatternDetectedEvent(APIAdapter.adapt(player), APIAdapter.adaptModelConsumer(defaultActionOnDetection));

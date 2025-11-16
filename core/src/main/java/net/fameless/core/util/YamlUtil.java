@@ -4,10 +4,13 @@ import net.fameless.core.caption.Caption;
 import net.fameless.core.config.PluginConfig;
 import net.fameless.core.handling.BroadcastStrategy;
 import org.jetbrains.annotations.NotNull;
+import org.yaml.snakeyaml.Yaml;
 
 import java.util.Map;
 
 public class YamlUtil {
+
+    public static Yaml YAML = new Yaml();
 
     public static @NotNull String generateConfig() {
         return """
@@ -168,42 +171,42 @@ public class YamlUtil {
               certainty-threshold: %f  # Minimum certainty required to trigger detection (0.0 - 1.0)
               sample-size: %d          # Number of movement samples on the same location to analyze in a rolling window
             """.formatted(
-                PluginConfig.get().getBoolean("overwrite-file-changes", true),
+                PluginConfig.getInstance().getConfig().getBoolean("overwrite-file-changes", true),
                 Caption.getCurrentLanguage().getIdentifier(),
-                PluginConfig.get().getInt("warning-delay", 60),
-                PluginConfig.get().getInt("afk-delay", 600),
-                PluginConfig.get().getInt("action-delay", 630),
-                PluginConfig.get().getString("action", "kick"),
-                PluginConfig.get().getString("afk-server-name", ""),
-                PluginConfig.get().getBoolean("actionbar", true),
-                PluginConfig.get().getSection("afk-location").get("world"),
-                PluginConfig.get().getSection("afk-location").get("x"),
-                PluginConfig.get().getSection("afk-location").get("y"),
-                PluginConfig.get().getSection("afk-location").get("z"),
-                PluginConfig.get().getBoolean("allow-bypass", true),
-                PluginConfig.get().getStringList("disabled-servers"),
-                PluginConfig.get().getString("broadcast-strategy", BroadcastStrategy.PER_SERVER.name()),
-                PluginConfig.get().getInt("afk-command-cooldown", 10),
-                PluginConfig.YAML.dumpAsMap(Map.of("bypass-regions", PluginConfig.get().getSection("bypass-regions"))),
-                PluginConfig.get().getBoolean("auto-clicker.enabled", true),
-                PluginConfig.get().getBoolean("auto-clicker.allow-bypass", true),
-                PluginConfig.get().getString("auto-clicker.notify-permission", "bungeeafk.auto-clicker.notify"),
-                PluginConfig.get().getBoolean("auto-clicker.notify-player", true),
-                PluginConfig.get().getString("auto-clicker.action", "open-inv"),
-                PluginConfig.get().getStringList("auto-clicker.disabled-servers"),
-                PluginConfig.get().getInt("auto-clicker.sample-size", 200),
-                PluginConfig.get().getInt("auto-clicker.consecutive-detections", 3),
-                PluginConfig.get().getInt("auto-clicker.stddev-threshold", 10),
-                PluginConfig.get().getInt("auto-clicker.min-click-interval", 30),
-                PluginConfig.get().getBoolean("movement-pattern.enabled", true),
-                PluginConfig.get().getBoolean("movement-pattern.allow-bypass", true),
-                PluginConfig.get().getString("movement-pattern.notify-permission", "bungeeafk.movement-pattern.notify"),
-                PluginConfig.get().getBoolean("movement-pattern.notify-player", true),
-                PluginConfig.get().getString("movement-pattern.action", "kick"),
-                PluginConfig.get().getStringList("movement-pattern.disabled-servers"),
-                PluginConfig.get().getInt("movement-pattern.clear-after", 600),
-                PluginConfig.get().getDouble("movement-pattern.certainty-threshold", 0.9),
-                PluginConfig.get().getInt("movement-pattern.sample-size", 5)
+                PluginConfig.getInstance().getConfig().getInt("warning-delay", 60),
+                PluginConfig.getInstance().getConfig().getInt("afk-delay", 600),
+                PluginConfig.getInstance().getConfig().getInt("action-delay", 630),
+                PluginConfig.getInstance().getConfig().getString("action", "kick"),
+                PluginConfig.getInstance().getConfig().getString("afk-server-name", ""),
+                PluginConfig.getInstance().getConfig().getBoolean("actionbar", true),
+                PluginConfig.getInstance().getConfig().getSection("afk-location").get("world"),
+                PluginConfig.getInstance().getConfig().getSection("afk-location").get("x"),
+                PluginConfig.getInstance().getConfig().getSection("afk-location").get("y"),
+                PluginConfig.getInstance().getConfig().getSection("afk-location").get("z"),
+                PluginConfig.getInstance().getConfig().getBoolean("allow-bypass", true),
+                PluginConfig.getInstance().getConfig().getStringList("disabled-servers"),
+                PluginConfig.getInstance().getConfig().getString("broadcast-strategy", BroadcastStrategy.PER_SERVER.name()),
+                PluginConfig.getInstance().getConfig().getInt("afk-command-cooldown", 10),
+                YAML.dumpAsMap(Map.of("bypass-regions", PluginConfig.getInstance().getConfig().getSection("bypass-regions"))),
+                PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.enabled", true),
+                PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.allow-bypass", true),
+                PluginConfig.getInstance().getConfig().getString("auto-clicker.notify-permission", "bungeeafk.auto-clicker.notify"),
+                PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.notify-player", true),
+                PluginConfig.getInstance().getConfig().getString("auto-clicker.action", "open-inv"),
+                PluginConfig.getInstance().getConfig().getStringList("auto-clicker.disabled-servers"),
+                PluginConfig.getInstance().getConfig().getInt("auto-clicker.sample-size", 200),
+                PluginConfig.getInstance().getConfig().getInt("auto-clicker.consecutive-detections", 3),
+                PluginConfig.getInstance().getConfig().getInt("auto-clicker.stddev-threshold", 10),
+                PluginConfig.getInstance().getConfig().getInt("auto-clicker.min-click-interval", 30),
+                PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.enabled", true),
+                PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.allow-bypass", true),
+                PluginConfig.getInstance().getConfig().getString("movement-pattern.notify-permission", "bungeeafk.movement-pattern.notify"),
+                PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.notify-player", true),
+                PluginConfig.getInstance().getConfig().getString("movement-pattern.action", "kick"),
+                PluginConfig.getInstance().getConfig().getStringList("movement-pattern.disabled-servers"),
+                PluginConfig.getInstance().getConfig().getInt("movement-pattern.clear-after", 600),
+                PluginConfig.getInstance().getConfig().getDouble("movement-pattern.certainty-threshold", 0.9),
+                PluginConfig.getInstance().getConfig().getInt("movement-pattern.sample-size", 5)
         );
     }
 

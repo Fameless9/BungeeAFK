@@ -8,6 +8,7 @@ import net.fameless.core.command.framework.CallerType;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.PluginConfig;
+import net.fameless.core.region.RegionService;
 import net.fameless.core.detection.autoclicker.ActionOnDetection;
 import net.fameless.core.detection.history.Detection;
 import net.fameless.core.detection.history.DetectionType;
@@ -68,14 +69,14 @@ public class MainCommand extends Command {
 
                     boolean newActionbarEnabled = Boolean.parseBoolean(args[2]);
 
-                    PluginConfig.get().set("actionbar", newActionbarEnabled);
+                    PluginConfig.getInstance().getConfig().set("actionbar", newActionbarEnabled);
                     afkHandler.setActionbarEnabled(newActionbarEnabled);
 
                     caller.sendMessage(Caption.of("command.actionbar_set", TagResolver.resolver("status",
                             Tag.inserting(Component.text(newActionbarEnabled)))));
                 }
                 case "dump" -> {
-                    String dump = PluginConfig.get().dump();
+                    String dump = PluginConfig.getInstance().getConfig().dump();
                     caller.sendMessage(Caption.of("command.config_dump", TagResolver.resolver("dump", Tag.inserting(Component.text(dump)))));
                 }
                 case "broadcast-strategy" -> {
@@ -93,7 +94,7 @@ public class MainCommand extends Command {
                     }
 
                     BungeeAFK.getAFKHandler().setBroadcastStrategy(strategy);
-                    PluginConfig.get().set("broadcast-strategy", strategy.name());
+                    PluginConfig.getInstance().getConfig().set("broadcast-strategy", strategy.name());
                     caller.sendMessage(Caption.of("command.broadcast_strategy_set", TagResolver.resolver("strategy", Tag.inserting(Component.text(strategy.name())))));
                 }
                 case "allow-bypass" -> {
@@ -109,7 +110,7 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    PluginConfig.get().set("allow-bypass", allowBypass);
+                    PluginConfig.getInstance().getConfig().set("allow-bypass", allowBypass);
                     caller.sendMessage(Caption.of("command.bypass_set",
                             TagResolver.resolver("allow", Tag.inserting(Component.text(allowBypass)))
                     ));
@@ -241,22 +242,22 @@ public class MainCommand extends Command {
                     BAFKPlayer<?> player = (BAFKPlayer<?>) caller;
                     Location newLocation = player.getLocation();
 
-                    if (Region.isLocationInAnyRegion(newLocation) && !warnedLocationInRegion.contains(player)) {
+                    if (RegionService.getInstance().isLocationInAnyRegion(newLocation) && !warnedLocationInRegion.contains(player)) {
                         caller.sendMessage(Caption.of("command.afk_location_in_region"));
                         warnedLocationInRegion.add(player);
                         return;
                     }
 
-                    PluginConfig.get().set("afk-location", player.getLocation().toMap());
+                    PluginConfig.getInstance().getConfig().set("afk-location", player.getLocation().toMap());
                     warnedLocationInRegion.remove(player);
                     player.sendMessage(Caption.of("command.afk_location_set"));
                 }
                 case "reloadconfig" -> {
-                    PluginConfig.reloadAll();
+                    PluginConfig.getInstance().reloadAll();
                     caller.sendMessage(Caption.of("command.config_reloaded"));
                 }
                 case "saveconfig" -> {
-                    PluginConfig.saveNow();
+                    PluginConfig.getInstance().saveNow();
                     caller.sendMessage(Caption.of("command.config_saved"));
                 }
                 case "disable-server" -> {
@@ -270,7 +271,7 @@ public class MainCommand extends Command {
                     }
 
                     String serverName = args[2];
-                    List<String> disabledServers = PluginConfig.get().getStringList("disabled-servers");
+                    List<String> disabledServers = PluginConfig.getInstance().getConfig().getStringList("disabled-servers");
 
                     if (!BungeeAFK.getPlatform().doesServerExist(serverName)) {
                         caller.sendMessage(Caption.of("command.server_not_found", TagResolver.resolver("server", Tag.inserting(Component.text(serverName)))));
@@ -282,7 +283,7 @@ public class MainCommand extends Command {
                         return;
                     }
                     disabledServers.add(serverName);
-                    PluginConfig.get().set("disabled-servers", disabledServers);
+                    PluginConfig.getInstance().getConfig().set("disabled-servers", disabledServers);
                     caller.sendMessage(Caption.of("command.server_disabled",
                             TagResolver.resolver("server", Tag.inserting(Component.text(serverName)))
                     ));
@@ -303,13 +304,13 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    List<String> disabledServers = PluginConfig.get().getStringList("disabled-servers");
+                    List<String> disabledServers = PluginConfig.getInstance().getConfig().getStringList("disabled-servers");
                     if (!disabledServers.contains(serverName)) {
                         caller.sendMessage(Caption.of("command.server_already_enabled", TagResolver.resolver("server", Tag.inserting(Component.text(serverName)))));
                         return;
                     }
                     disabledServers.remove(serverName);
-                    PluginConfig.get().set("disabled-servers", disabledServers);
+                    PluginConfig.getInstance().getConfig().set("disabled-servers", disabledServers);
                     caller.sendMessage(Caption.of("command.server_enabled",
                             TagResolver.resolver("server", Tag.inserting(Component.text(serverName)))
                     ));
@@ -321,7 +322,7 @@ public class MainCommand extends Command {
                     }
 
                     caller.sendMessage(Caption.of("command.disabled_server_list",
-                            TagResolver.resolver("servers", Tag.inserting(Component.text(String.join(", ", PluginConfig.get().getStringList("disabled-servers")))))
+                            TagResolver.resolver("servers", Tag.inserting(Component.text(String.join(", ", PluginConfig.getInstance().getConfig().getStringList("disabled-servers")))))
                     ));
                 }
                 case "afk-command-cooldown" -> {
@@ -337,7 +338,7 @@ public class MainCommand extends Command {
                         caller.sendMessage(Caption.of("command.invalid_number"));
                         return;
                     }
-                    PluginConfig.get().set("afk-command-cooldown", cooldown);
+                    PluginConfig.getInstance().getConfig().set("afk-command-cooldown", cooldown);
                     caller.sendMessage(Caption.of(
                             "command.afk_command_cooldown_set",
                             TagResolver.resolver("value", Tag.inserting(Component.text(cooldown)))
@@ -364,11 +365,11 @@ public class MainCommand extends Command {
         } else if (args[0].equalsIgnoreCase("region")) {
             switch (args[1]) {
                 case "reload" -> {
-                    PluginConfig.loadBypassRegions();
+                    RegionService.getInstance().loadFromConfig();
                     caller.sendMessage(Caption.of("command.regions_reloaded"));
                 }
                 case "list" -> {
-                    List<String> regions = Region.getAllRegions().stream().map(Region::getRegionName).toList();
+                    List<String> regions = RegionService.getInstance().getRegions().stream().map(Region::getRegionName).toList();
                     if (regions.isEmpty()) {
                         caller.sendMessage(Caption.of("command.no_regions_found"));
                     } else {
@@ -383,7 +384,7 @@ public class MainCommand extends Command {
                         return;
                     }
                     String regionName = args[2];
-                    Region region = Region.getRegionByName(regionName).orElse(null);
+                    Region region = RegionService.getInstance().getRegion(regionName);
                     if (region == null) {
                         caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                         return;
@@ -402,7 +403,7 @@ public class MainCommand extends Command {
                         return;
                     }
                     String regionName = args[2];
-                    Region region = Region.getRegionByName(regionName).orElse(null);
+                    Region region = RegionService.getInstance().getRegion(regionName);
                     if (region == null) {
                         caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                         return;
@@ -419,16 +420,13 @@ public class MainCommand extends Command {
                         return;
                     }
                     String regionName = args[2];
-                    Region region = Region.getAllRegions().stream()
-                            .filter(r -> r.getRegionName().equalsIgnoreCase(regionName))
-                            .findFirst()
-                            .orElse(null);
-                    if (region == null) {
+                    boolean removed = RegionService.getInstance().removeRegion(regionName);
+
+                    if (!removed) {
                         caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
-                        return;
+                    } else {
+                        caller.sendMessage(Caption.of("command.region_deleted", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                     }
-                    Region.removeRegion(region);
-                    caller.sendMessage(Caption.of("command.region_deleted", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                 }
                 case "add" -> {
                     if (args.length < 10) {
@@ -451,7 +449,7 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    if (Region.getRegionByName(regionName).isPresent()) {
+                    if (RegionService.getInstance().containsRegion(regionName)) {
                         caller.sendMessage(Caption.of("command.region_already_exists", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                         return;
                     }
@@ -471,6 +469,7 @@ public class MainCommand extends Command {
                     try {
                         Region region = new Region(regionName, new Location(worldName, x1, y1, z1),
                                 new Location(worldName, x2, y2, z2), false);
+                        RegionService.getInstance().addRegion(region);
                         caller.sendMessage(Caption.of("command.region_created", TagResolver.resolver("region", Tag.inserting(Component.text(region.getRegionName())))));
                     } catch (IllegalArgumentException e) {
                         caller.sendMessage(Caption.of("command.invalid_region_format"));
@@ -481,16 +480,16 @@ public class MainCommand extends Command {
         } else if (args[0].equalsIgnoreCase("auto-clicker")) {
             switch (args[1]) {
                 case "enable" -> {
-                    PluginConfig.get().set("auto-clicker.enabled", true);
+                    PluginConfig.getInstance().getConfig().set("auto-clicker.enabled", true);
                     caller.sendMessage(Caption.of("command.auto_clicker_detection_enabled"));
                 }
                 case "disable" -> {
-                    PluginConfig.get().set("auto-clicker.enabled", false);
+                    PluginConfig.getInstance().getConfig().set("auto-clicker.enabled", false);
                     caller.sendMessage(Caption.of("command.auto_clicker_detection_disabled"));
                 }
                 case "toggle-bypass" -> {
-                    boolean allowBypass = PluginConfig.get().getBoolean("auto-clicker.allow-bypass", true);
-                    PluginConfig.get().set("auto-clicker.allow-bypass", !allowBypass);
+                    boolean allowBypass = PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.allow-bypass", true);
+                    PluginConfig.getInstance().getConfig().set("auto-clicker.allow-bypass", !allowBypass);
 
                     caller.sendMessage(Caption.of("command.auto_clicker_bypass_toggled",
                             TagResolver.resolver("bypass", Tag.inserting(Component.text(!allowBypass)))
@@ -511,14 +510,14 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    List<String> disabledServers = PluginConfig.get().getStringList("auto-clicker.disabled-servers");
+                    List<String> disabledServers = PluginConfig.getInstance().getConfig().getStringList("auto-clicker.disabled-servers");
                     boolean enabled = disabledServers.contains(serverName);
                     if (enabled) {
                         disabledServers.remove(serverName);
-                        PluginConfig.get().set("auto-clicker.disabled-servers", disabledServers);
+                        PluginConfig.getInstance().getConfig().set("auto-clicker.disabled-servers", disabledServers);
                     } else {
                         disabledServers.add(serverName);
-                        PluginConfig.get().set("auto-clicker.disabled-servers", disabledServers);
+                        PluginConfig.getInstance().getConfig().set("auto-clicker.disabled-servers", disabledServers);
                     }
                     caller.sendMessage(Caption.of("command.auto_clicker_detection_toggled_on_server",
                             TagResolver.resolver("server", Tag.inserting(Component.text(serverName))),
@@ -539,13 +538,13 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    PluginConfig.get().set("auto-clicker.action", action.getIdentifier());
+                    PluginConfig.getInstance().getConfig().set("auto-clicker.action", action.getIdentifier());
                     caller.sendMessage(Caption.of("command.auto_clicker_action_set",
                             TagResolver.resolver("action", Tag.inserting(Component.text(action.getIdentifier())))));
                 }
                 case "toggle-notify-player" -> {
-                    boolean notifyPlayer = PluginConfig.get().getBoolean("auto-clicker.notify-player", true);
-                    PluginConfig.get().set("auto-clicker.notify-player", !notifyPlayer);
+                    boolean notifyPlayer = PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.notify-player", true);
+                    PluginConfig.getInstance().getConfig().set("auto-clicker.notify-player", !notifyPlayer);
                     caller.sendMessage(Caption.of("command.auto_clicker_notify_player_toggled",
                             TagResolver.resolver("notify", Tag.inserting(Component.text(!notifyPlayer)))
                     ));
@@ -582,16 +581,16 @@ public class MainCommand extends Command {
         } else if (args[0].equalsIgnoreCase("movement-pattern")) {
             switch (args[1]) {
                 case "enable" -> {
-                    PluginConfig.get().set("movement-pattern.enabled", true);
+                    PluginConfig.getInstance().getConfig().set("movement-pattern.enabled", true);
                     caller.sendMessage(Caption.of("command.movement_pattern_detection_enabled"));
                 }
                 case "disable" -> {
-                    PluginConfig.get().set("movement-pattern.enabled", false);
+                    PluginConfig.getInstance().getConfig().set("movement-pattern.enabled", false);
                     caller.sendMessage(Caption.of("command.movement_pattern_detection_disabled"));
                 }
                 case "toggle-bypass" -> {
-                    boolean allowBypass = PluginConfig.get().getBoolean("movement-pattern.allow-bypass", true);
-                    PluginConfig.get().set("movement-pattern.allow-bypass", !allowBypass);
+                    boolean allowBypass = PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.allow-bypass", true);
+                    PluginConfig.getInstance().getConfig().set("movement-pattern.allow-bypass", !allowBypass);
 
                     caller.sendMessage(Caption.of("command.movement_pattern_bypass_toggled",
                             TagResolver.resolver("bypass", Tag.inserting(Component.text(!allowBypass)))
@@ -612,14 +611,14 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    List<String> disabledServers = PluginConfig.get().getStringList("movement-pattern.disabled-servers");
+                    List<String> disabledServers = PluginConfig.getInstance().getConfig().getStringList("movement-pattern.disabled-servers");
                     boolean enabled = disabledServers.contains(serverName);
                     if (enabled) {
                         disabledServers.remove(serverName);
-                        PluginConfig.get().set("movement-pattern.disabled-servers", disabledServers);
+                        PluginConfig.getInstance().getConfig().set("movement-pattern.disabled-servers", disabledServers);
                     } else {
                         disabledServers.add(serverName);
-                        PluginConfig.get().set("movement-pattern.disabled-servers", disabledServers);
+                        PluginConfig.getInstance().getConfig().set("movement-pattern.disabled-servers", disabledServers);
                     }
                     caller.sendMessage(Caption.of("command.movement_pattern_detection_toggled_on_server",
                             TagResolver.resolver("server", Tag.inserting(Component.text(serverName))),
@@ -640,13 +639,13 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    PluginConfig.get().set("movement-pattern.action", action.getIdentifier());
+                    PluginConfig.getInstance().getConfig().set("movement-pattern.action", action.getIdentifier());
                     caller.sendMessage(Caption.of("command.movement_pattern_action_set",
                             TagResolver.resolver("action", Tag.inserting(Component.text(action.getIdentifier())))));
                 }
                 case "toggle-notify-player" -> {
-                    boolean notifyPlayer = PluginConfig.get().getBoolean("movement-pattern.notify-player", true);
-                    PluginConfig.get().set("movement-pattern.notify-player", !notifyPlayer);
+                    boolean notifyPlayer = PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.notify-player", true);
+                    PluginConfig.getInstance().getConfig().set("movement-pattern.notify-player", !notifyPlayer);
                     caller.sendMessage(Caption.of("command.movement_pattern_notify_player_toggled",
                             TagResolver.resolver("notify", Tag.inserting(Component.text(!notifyPlayer)))
                     ));
@@ -732,13 +731,13 @@ public class MainCommand extends Command {
                             case "disable-server" -> {
                                 if (BungeeAFK.isProxy()) {
                                     List<String> serverNames = new ArrayList<>(BungeeAFK.getPlatform().getServers());
-                                    serverNames.removeAll(PluginConfig.get().getStringList("disabled-servers"));
+                                    serverNames.removeAll(PluginConfig.getInstance().getConfig().getStringList("disabled-servers"));
                                     completions.addAll(serverNames);
                                 }
                             }
                             case "enable-server" -> {
                                 if (BungeeAFK.isProxy()) {
-                                    completions.addAll(PluginConfig.get().getStringList("disabled-servers"));
+                                    completions.addAll(PluginConfig.getInstance().getConfig().getStringList("disabled-servers"));
                                 }
                             }
                             case "broadcast-strategy" -> completions.addAll(Arrays.stream(BroadcastStrategy.values()).map(BroadcastStrategy::name).toList());
@@ -746,7 +745,7 @@ public class MainCommand extends Command {
                     }
                     case "region" -> {
                         switch (args[1].toLowerCase()) {
-                            case "remove", "details", "toggle-detection" -> completions.addAll(Region.getAllRegions().stream().map(Region::getRegionName).toList());
+                            case "remove", "details", "toggle-detection" -> completions.addAll(RegionService.getInstance().getRegions().stream().map(Region::getRegionName).toList());
                             case "add" -> completions.add("<regionName>");
                         }
                     }
