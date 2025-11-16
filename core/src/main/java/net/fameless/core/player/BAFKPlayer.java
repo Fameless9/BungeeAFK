@@ -7,9 +7,9 @@ import net.fameless.core.adapter.APIAdapter;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.PluginConfig;
+import net.fameless.core.region.RegionService;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.location.Location;
-import net.fameless.core.region.Region;
 import net.fameless.core.util.MessageBroadcaster;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
@@ -82,7 +82,7 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     public AFKState getAfkState() {
         if ((PluginConfig.getInstance().getConfig().getBoolean("allow-bypass") && hasPermission("bungeeafk.bypass")) ||
                 PluginConfig.getInstance().getConfig().getStringList("disabled-servers").contains(getCurrentServerName()) ||
-                Region.isLocationInAnyBypassRegion(location)
+                RegionService.getInstance().isLocationInAnyBypassRegion(location)
         ) {
             return AFKState.BYPASS;
         }

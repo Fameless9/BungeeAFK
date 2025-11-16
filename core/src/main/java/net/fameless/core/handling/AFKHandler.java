@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.config.PluginConfig;
-import net.fameless.core.config.YamlConfig;
 import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;

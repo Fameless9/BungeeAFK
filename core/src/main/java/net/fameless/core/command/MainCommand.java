@@ -8,6 +8,7 @@ import net.fameless.core.command.framework.CallerType;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.PluginConfig;
+import net.fameless.core.region.RegionService;
 import net.fameless.core.detection.autoclicker.ActionOnDetection;
 import net.fameless.core.detection.history.Detection;
 import net.fameless.core.detection.history.DetectionType;
@@ -241,7 +242,7 @@ public class MainCommand extends Command {
                     BAFKPlayer<?> player = (BAFKPlayer<?>) caller;
                     Location newLocation = player.getLocation();
 
-                    if (Region.isLocationInAnyRegion(newLocation) && !warnedLocationInRegion.contains(player)) {
+                    if (RegionService.getInstance().isLocationInAnyRegion(newLocation) && !warnedLocationInRegion.contains(player)) {
                         caller.sendMessage(Caption.of("command.afk_location_in_region"));
                         warnedLocationInRegion.add(player);
                         return;
@@ -364,11 +365,11 @@ public class MainCommand extends Command {
         } else if (args[0].equalsIgnoreCase("region")) {
             switch (args[1]) {
                 case "reload" -> {
-                    PluginConfig.getInstance().loadBypassRegions();
+                    RegionService.getInstance().loadFromConfig();
                     caller.sendMessage(Caption.of("command.regions_reloaded"));
                 }
                 case "list" -> {
-                    List<String> regions = Region.getAllRegions().stream().map(Region::getRegionName).toList();
+                    List<String> regions = RegionService.getInstance().getRegions().stream().map(Region::getRegionName).toList();
                     if (regions.isEmpty()) {
                         caller.sendMessage(Caption.of("command.no_regions_found"));
                     } else {
@@ -383,7 +384,7 @@ public class MainCommand extends Command {
                         return;
                     }
                     String regionName = args[2];
-                    Region region = Region.getRegionByName(regionName).orElse(null);
+                    Region region = RegionService.getInstance().getRegion(regionName);
                     if (region == null) {
                         caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                         return;
@@ -402,7 +403,7 @@ public class MainCommand extends Command {
                         return;
                     }
                     String regionName = args[2];
-                    Region region = Region.getRegionByName(regionName).orElse(null);
+                    Region region = RegionService.getInstance().getRegion(regionName);
                     if (region == null) {
                         caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                         return;
@@ -419,16 +420,13 @@ public class MainCommand extends Command {
                         return;
                     }
                     String regionName = args[2];
-                    Region region = Region.getAllRegions().stream()
-                            .filter(r -> r.getRegionName().equalsIgnoreCase(regionName))
-                            .findFirst()
-                            .orElse(null);
-                    if (region == null) {
+                    boolean removed = RegionService.getInstance().removeRegion(regionName);
+
+                    if (!removed) {
                         caller.sendMessage(Caption.of("command.region_not_found", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
-                        return;
+                    } else {
+                        caller.sendMessage(Caption.of("command.region_deleted", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                     }
-                    Region.removeRegion(region);
-                    caller.sendMessage(Caption.of("command.region_deleted", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                 }
                 case "add" -> {
                     if (args.length < 10) {
@@ -451,7 +449,7 @@ public class MainCommand extends Command {
                         return;
                     }
 
-                    if (Region.getRegionByName(regionName).isPresent()) {
+                    if (RegionService.getInstance().containsRegion(regionName)) {
                         caller.sendMessage(Caption.of("command.region_already_exists", TagResolver.resolver("region", Tag.inserting(Component.text(regionName)))));
                         return;
                     }
@@ -471,6 +469,7 @@ public class MainCommand extends Command {
                     try {
                         Region region = new Region(regionName, new Location(worldName, x1, y1, z1),
                                 new Location(worldName, x2, y2, z2), false);
+                        RegionService.getInstance().addRegion(region);
                         caller.sendMessage(Caption.of("command.region_created", TagResolver.resolver("region", Tag.inserting(Component.text(region.getRegionName())))));
                     } catch (IllegalArgumentException e) {
                         caller.sendMessage(Caption.of("command.invalid_region_format"));
@@ -746,7 +745,7 @@ public class MainCommand extends Command {
                     }
                     case "region" -> {
                         switch (args[1].toLowerCase()) {
-                            case "remove", "details", "toggle-detection" -> completions.addAll(Region.getAllRegions().stream().map(Region::getRegionName).toList());
+                            case "remove", "details", "toggle-detection" -> completions.addAll(RegionService.getInstance().getRegions().stream().map(Region::getRegionName).toList());
                             case "add" -> completions.add("<regionName>");
                         }
                     }

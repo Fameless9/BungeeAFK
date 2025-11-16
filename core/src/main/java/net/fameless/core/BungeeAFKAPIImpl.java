@@ -6,6 +6,7 @@ import net.fameless.api.model.Player;
 import net.fameless.api.service.BackendAPI;
 import net.fameless.core.adapter.APIAdapter;
 import net.fameless.core.config.PluginConfig;
+import net.fameless.core.region.RegionService;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.player.BAFKPlayer;
@@ -117,15 +118,16 @@ public class BungeeAFKAPIImpl extends BackendAPI {
     @Override
     public JsonArray getBypassRegions() {
         JsonArray regions = new JsonArray();
-        Region.getAllRegions().forEach(region -> regions.add(region.toJson()));
+        RegionService.getInstance().getRegions().forEach(region -> regions.add(region.toJson()));
         return regions;
     }
 
     @Override
     public void setBypassRegions(@NotNull JsonArray bypassRegions) {
-        Region.clearRegions();
+        RegionService.getInstance().clearRegions();
         for (int i = 0; i < bypassRegions.size(); i++) {
-            Region.fromJson(bypassRegions.get(i).getAsJsonObject());
+            Region region = Region.fromJson(bypassRegions.get(i).getAsJsonObject());
+            RegionService.getInstance().addRegion(region);
         }
     }
 
