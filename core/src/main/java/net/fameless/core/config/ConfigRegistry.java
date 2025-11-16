@@ -5,13 +5,10 @@ import java.io.FileNotFoundException;
 public record ConfigRegistry(YamlConfig configStateOnLoad) {
 
     public boolean hasConfigFileChanged() {
-        YamlConfig currentState;
         try {
-            currentState = PluginConfig.readConfigFile();
+            return !PluginConfig.getInstance().readConfigFile().data().equals(configStateOnLoad.data());
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-
-        return !currentState.data().equals(configStateOnLoad.data());
     }
 }

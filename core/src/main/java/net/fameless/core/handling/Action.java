@@ -32,11 +32,11 @@ public enum Action {
     }
 
     public static boolean isAfkServerConfigured() {
-        if (!PluginConfig.get().contains("afk-server-name")) {
+        if (!PluginConfig.getInstance().getConfig().contains("afk-server-name")) {
             return false;
         }
 
-        String serverName = PluginConfig.get().getString("afk-server-name", null);
+        String serverName = PluginConfig.getInstance().getConfig().getString("afk-server-name", null);
         if (serverName == null) return false;
         return BungeeAFK.getPlatform().doesServerExist(serverName);
     }

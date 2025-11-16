@@ -9,7 +9,6 @@ import net.fameless.core.util.YamlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -20,16 +19,28 @@ import java.util.Map;
 public class PluginConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + PluginConfig.class.getSimpleName());
-    public static Yaml YAML = new Yaml();
-    private static YamlConfig config;
-    private static ConfigRegistry configRegistry;
 
-    public static void init() {
+    private static class Holder {
+        private static final PluginConfig INSTANCE = new PluginConfig();
+    }
+
+    public static PluginConfig getInstance() {
+        return Holder.INSTANCE;
+    }
+
+    private @NotNull YamlConfig config;
+    private @NotNull ConfigRegistry configRegistry;
+
+    private PluginConfig() {
+        load();
+    }
+
+    public void load() {
         LOGGER.info("Loading configuration...");
         ResourceUtil.extractResourceIfMissing("config.yml", PluginPaths.getConfigFile());
         try {
-            config = readConfigFile();
-            configRegistry = new ConfigRegistry(config);
+            this.config = readConfigFile();
+            this.configRegistry = new ConfigRegistry(config);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -37,7 +48,11 @@ public class PluginConfig {
         loadBypassRegions();
     }
 
-    public static @NotNull YamlConfig readConfigFile() throws FileNotFoundException {
+    public @NotNull YamlConfig getConfig() {
+        return config;
+    }
+
+    public @NotNull YamlConfig readConfigFile() throws FileNotFoundException {
         File configFile = PluginPaths.getConfigFile();
         if (!configFile.exists()) {
             throw new FileNotFoundException("Failed to read config file: File does not exist");
@@ -50,10 +65,10 @@ public class PluginConfig {
             throw new RuntimeException(e);
         }
 
-        return new YamlConfig(YAML.load(yamlContent));
+        return new YamlConfig(YamlUtil.YAML.load(yamlContent));
     }
 
-    public static void loadBypassRegions() {
+    public void loadBypassRegions() {
         Region.clearRegions();
         if (config.contains("bypass-regions")) {
             Map<String, Object> bypassRegions = config.getSection("bypass-regions");
@@ -66,7 +81,7 @@ public class PluginConfig {
         }
     }
 
-    public static void saveRegions() {
+    public void saveRegions() {
         Map<String, Object> bypassRegions = new HashMap<>();
         for (int i = 0; i < Region.getAllRegions().size(); i++) {
             Region region = Region.getAllRegions().get(i);
@@ -75,19 +90,16 @@ public class PluginConfig {
         config.set("bypass-regions", bypassRegions);
     }
 
-    public static void reload() {
-        init();
-    }
-
-    public static void reloadAll() {
+    public void reloadAll() {
         LOGGER.info("Reloading all configurations...");
-        PluginConfig.reload();
-        BungeeAFK.getAFKHandler().fetchConfigValues();
+        this.load();
+        BungeeAFK.getAFKHandler().reloadConfigValues();
         BungeeAFK.getAutoClickerDetector().reloadConfigValues();
         BungeeAFK.getMovementPatternDetection().reloadConfigValues();
+        LOGGER.info("Reload complete");
     }
 
-    public static void saveNow() {
+    public void saveNow() {
         SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
             saveRegions();
             File configFile = PluginPaths.getConfigFile();
@@ -101,11 +113,7 @@ public class PluginConfig {
         });
     }
 
-    public static ConfigRegistry getConfigRegistry() {
+    public @NotNull ConfigRegistry getConfigRegistry() {
         return configRegistry;
-    }
-
-    public static YamlConfig get() {
-        return config;
     }
 }

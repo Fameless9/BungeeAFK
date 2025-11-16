@@ -55,7 +55,7 @@ public class AFK extends Command {
             player.setActive();
         }
 
-        long cooldown = PluginConfig.get().getInt("afk-command-cooldown", 30);
+        long cooldown = PluginConfig.getInstance().getConfig().getInt("afk-command-cooldown", 30);
         cooldownCache.addOrRefresh(player, System.currentTimeMillis() + cooldown * 1000L, cooldown, TimeUnit.SECONDS);
     }
 

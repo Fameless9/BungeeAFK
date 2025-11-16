@@ -24,7 +24,7 @@ public class BungeeAFKAPIImpl extends BackendAPI {
 
     @Override
     public void reloadPluginConfig() {
-        PluginConfig.reloadAll();
+        PluginConfig.getInstance().reloadAll();
     }
 
     @Override
@@ -94,24 +94,24 @@ public class BungeeAFKAPIImpl extends BackendAPI {
 
     @Override
     public void setMovementPatternDetectionEnabled(boolean enabled) {
-        PluginConfig.get().set("movement-pattern.enabled", enabled);
+        PluginConfig.getInstance().getConfig().set("movement-pattern.enabled", enabled);
         BungeeAFK.getMovementPatternDetection().reloadConfigValues();
     }
 
     @Override
     public boolean isMovementPatternDetectionEnabled() {
-        return PluginConfig.get().getBoolean("movement-pattern.enabled", true);
+        return PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.enabled", true);
     }
 
     @Override
     public void setAutoClickerDetectionEnabled(boolean enabled) {
-        PluginConfig.get().set("auto-clicker.enabled", enabled);
+        PluginConfig.getInstance().getConfig().set("auto-clicker.enabled", enabled);
         BungeeAFK.getAutoClickerDetector().reloadConfigValues();
     }
 
     @Override
     public boolean isAutoClickerDetectionEnabled() {
-        return PluginConfig.get().getBoolean("auto-clicker.enabled", true);
+        return PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.enabled", true);
     }
 
     @Override
@@ -131,11 +131,11 @@ public class BungeeAFKAPIImpl extends BackendAPI {
 
     @Override
     public void setConfigValue(String key, Object value) {
-        PluginConfig.get().set(key, value);
+        PluginConfig.getInstance().getConfig().set(key, value);
     }
 
     @Override
     public Object getConfigValue(String key) {
-        return PluginConfig.get().getValue(key);
+        return PluginConfig.getInstance().getConfig().getValue(key);
     }
 }

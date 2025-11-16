@@ -58,7 +58,6 @@ public class BungeeAFK {
                 platformModule
         );
 
-        PluginConfig.init();
         PluginUpdater.runTask();
 
         platform = injector.getInstance(BungeeAFKPlatform.class);
@@ -76,7 +75,7 @@ public class BungeeAFK {
         Command.init();
 
         Caption.loadDefaultLanguages();
-        Caption.setCurrentLanguage(Language.ofIdentifier(PluginConfig.get().getString("lang", "en")));
+        Caption.setCurrentLanguage(Language.ofIdentifier(PluginConfig.getInstance().getConfig().getString("lang", "en")));
 
         LOGGER.info("initializing BungeeAFK API...");
         new BungeeAFKAPIImpl();
@@ -88,14 +87,14 @@ public class BungeeAFK {
         if (!initialized) return;
         Caption.saveToFile();
         DetectionHistoryManager.saveDetections();
-        if (PluginConfig.getConfigRegistry().hasConfigFileChanged()) {
-            if (!PluginConfig.get().getBoolean("overwrite-file-changes", true)) {
+        if (PluginConfig.getInstance().getConfigRegistry().hasConfigFileChanged()) {
+            if (!PluginConfig.getInstance().getConfig().getBoolean("overwrite-file-changes", true)) {
                 LOGGER.info("Configuration file changed on disk during runtime - skipping save to avoid overwriting external edits");
             } else {
                 LOGGER.info("Configuration file changed on disk during runtime - overwriting file with cached config values");
-                PluginConfig.saveNow();
+                PluginConfig.getInstance().saveNow();
             }
-        } else PluginConfig.saveNow();
+        } else PluginConfig.getInstance().saveNow();
         afkHandler.shutdown();
         ExpirableMap.shutdownScheduler();
         ExpirableSet.shutdownScheduler();
@@ -115,10 +114,10 @@ public class BungeeAFK {
         }
         if (!misconfiguredMessage.isEmpty()) {
             LOGGER.warn("Misconfiguration detected: {} - This may cause unexpected behavior. Falling back to default configuration.", misconfiguredMessage);
-            PluginConfig.get().set("warning-delay", 90);
-            PluginConfig.get().set("afk-delay", 180);
-            PluginConfig.get().set("action-delay", 420);
-            afkHandler.fetchConfigValues();
+            PluginConfig.getInstance().getConfig().set("warning-delay", 90);
+            PluginConfig.getInstance().getConfig().set("afk-delay", 180);
+            PluginConfig.getInstance().getConfig().set("action-delay", 420);
+            afkHandler.reloadConfigValues();
         }
     }
 

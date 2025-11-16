@@ -80,8 +80,8 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     }
 
     public AFKState getAfkState() {
-        if ((PluginConfig.get().getBoolean("allow-bypass") && hasPermission("bungeeafk.bypass")) ||
-                PluginConfig.get().getStringList("disabled-servers").contains(getCurrentServerName()) ||
+        if ((PluginConfig.getInstance().getConfig().getBoolean("allow-bypass") && hasPermission("bungeeafk.bypass")) ||
+                PluginConfig.getInstance().getConfig().getStringList("disabled-servers").contains(getCurrentServerName()) ||
                 Region.isLocationInAnyBypassRegion(location)
         ) {
             return AFKState.BYPASS;
