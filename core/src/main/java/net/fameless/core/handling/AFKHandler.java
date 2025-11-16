@@ -203,6 +203,16 @@ public abstract class AFKHandler {
             player.sendActionbar(Caption.of(action.equals(Action.CONNECT) ? "actionbar.afk_moved" : "actionbar.afk"));
         }
     }
+  
+    private void sendActionBar(@NotNull BAFKPlayer<?> player) {
+        if (!actionBarEnabled) return;
+
+        if (player.getAfkState().equals(AFKState.AFK)) {
+            player.sendActionbar(Caption.of("actionbar.afk"));
+        } else if (player.getAfkState().equals(AFKState.ACTION_TAKEN)) {
+            player.sendActionbar(Caption.of(action.equals(Action.CONNECT) ? "actionbar.afk_moved" : "actionbar.afk"));
+        }
+    }
 
     public void fetchPreviousPlayerStates() {
         File playerStatesFile = ResourceUtil.extractResourceIfMissing("persisted_player_states.json", PluginPaths.getPersistedStatesFile());
