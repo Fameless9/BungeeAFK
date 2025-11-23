@@ -75,6 +75,7 @@ public abstract class AFKHandler {
     public void processPlayer(BAFKPlayer<?> player) {
         try {
             switch (player.getAfkState()) {
+                case BYPASS -> revertPreviousState(player);
                 case ACTIVE -> {
                     revertPreviousState(player);
                     warnIfNeeded(player);
