@@ -6,7 +6,7 @@ import net.fameless.core.location.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Map;
 
 public class Region {
 

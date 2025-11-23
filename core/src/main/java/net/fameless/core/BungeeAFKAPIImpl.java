@@ -5,12 +5,12 @@ import net.fameless.api.exception.PlayerNotFoundException;
 import net.fameless.api.model.Player;
 import net.fameless.api.service.BackendAPI;
 import net.fameless.core.adapter.APIAdapter;
-import net.fameless.core.config.PluginConfig;
-import net.fameless.core.region.RegionService;
+import net.fameless.core.config.Config;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.region.Region;
+import net.fameless.core.region.RegionService;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +25,7 @@ public class BungeeAFKAPIImpl extends BackendAPI {
 
     @Override
     public void reloadPluginConfig() {
-        PluginConfig.getInstance().reloadAll();
+        Config.getInstance().reloadAll();
     }
 
     @Override
@@ -95,24 +95,24 @@ public class BungeeAFKAPIImpl extends BackendAPI {
 
     @Override
     public void setMovementPatternDetectionEnabled(boolean enabled) {
-        PluginConfig.getInstance().getConfig().set("movement-pattern.enabled", enabled);
+        Config.getInstance().set("movement-pattern.enabled", enabled);
         BungeeAFK.getMovementPatternDetection().reloadConfigValues();
     }
 
     @Override
     public boolean isMovementPatternDetectionEnabled() {
-        return PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.enabled", true);
+        return Config.getInstance().getBoolean("movement-pattern.enabled", true);
     }
 
     @Override
     public void setAutoClickerDetectionEnabled(boolean enabled) {
-        PluginConfig.getInstance().getConfig().set("auto-clicker.enabled", enabled);
+        Config.getInstance().set("auto-clicker.enabled", enabled);
         BungeeAFK.getAutoClickerDetector().reloadConfigValues();
     }
 
     @Override
     public boolean isAutoClickerDetectionEnabled() {
-        return PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.enabled", true);
+        return Config.getInstance().getBoolean("auto-clicker.enabled", true);
     }
 
     @Override
@@ -133,11 +133,11 @@ public class BungeeAFKAPIImpl extends BackendAPI {
 
     @Override
     public void setConfigValue(String key, Object value) {
-        PluginConfig.getInstance().getConfig().set(key, value);
+        Config.getInstance().set(key, value);
     }
 
     @Override
     public Object getConfigValue(String key) {
-        return PluginConfig.getInstance().getConfig().getValue(key);
+        return Config.getInstance().getValue(key);
     }
 }

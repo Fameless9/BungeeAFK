@@ -14,6 +14,8 @@
 # if you edit the config.yml file manually while the server is running. To preserve manual changes, set this to false.
 overwrite-file-changes: true
 
+uuid: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+
 # Language used for messages and notifications
 # Available languages: en, de
 lang: en

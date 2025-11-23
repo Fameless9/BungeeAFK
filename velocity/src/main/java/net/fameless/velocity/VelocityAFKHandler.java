@@ -1,20 +1,22 @@
  package net.fameless.velocity;
 
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.command.CommandExecuteEvent;
-import com.velocitypowered.api.event.connection.PluginMessageEvent;
-import com.velocitypowered.api.event.player.PlayerChatEvent;
-import com.velocitypowered.api.event.player.ServerPostConnectEvent;
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
-import net.fameless.core.BungeeAFK;
-import net.fameless.core.handling.AFKHandler;
-import net.fameless.core.messaging.RequestType;
-import net.fameless.core.player.BAFKPlayer;
-import net.fameless.core.player.GameMode;
-import org.jetbrains.annotations.NotNull;
+ import com.velocitypowered.api.event.Subscribe;
+ import com.velocitypowered.api.event.command.CommandExecuteEvent;
+ import com.velocitypowered.api.event.connection.PluginMessageEvent;
+ import com.velocitypowered.api.event.player.PlayerChatEvent;
+ import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+ import com.velocitypowered.api.proxy.Player;
+ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
+ import net.fameless.core.BungeeAFK;
+ import net.fameless.core.handling.AFKHandler;
+ import net.fameless.core.messaging.RequestType;
+ import net.fameless.core.player.BAFKPlayer;
+ import net.fameless.core.player.GameMode;
+ import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+ import java.util.Arrays;
+ import java.util.Locale;
+ import java.util.UUID;
 
 public class VelocityAFKHandler extends AFKHandler {
 

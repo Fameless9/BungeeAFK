@@ -5,7 +5,7 @@ import net.fameless.core.caption.Caption;
 import net.fameless.core.command.framework.CallerType;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.command.framework.CommandCaller;
-import net.fameless.core.config.PluginConfig;
+import net.fameless.core.config.Config;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.player.BAFKPlayer;
@@ -55,7 +55,7 @@ public class AFK extends Command {
             player.setActive();
         }
 
-        long cooldown = PluginConfig.getInstance().getConfig().getInt("afk-command-cooldown", 30);
+        long cooldown = Config.getInstance().getInt("afk-command-cooldown", 30);
         cooldownCache.addOrRefresh(player, System.currentTimeMillis() + cooldown * 1000L, cooldown, TimeUnit.SECONDS);
     }
 

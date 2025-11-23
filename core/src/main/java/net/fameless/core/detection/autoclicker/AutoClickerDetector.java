@@ -5,7 +5,7 @@ import net.fameless.api.event.PlayerAutoClickerDetectedEvent;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.adapter.APIAdapter;
 import net.fameless.core.caption.Caption;
-import net.fameless.core.config.PluginConfig;
+import net.fameless.core.config.Config;
 import net.fameless.core.detection.history.Detection;
 import net.fameless.core.detection.history.DetectionType;
 import net.fameless.core.player.BAFKPlayer;
@@ -47,7 +47,7 @@ public class AutoClickerDetector {
         reloadConfigValues();
 
         this.defaultActionOnDetection = player -> {
-            String notifyPermission = PluginConfig.getInstance().getConfig().getString("auto-clicker.notify-permission", "bungeeafk.autoclicker.notify");
+            String notifyPermission = Config.getInstance().getString("auto-clicker.notify-permission", "bungeeafk.autoclicker.notify");
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Auto-clicker detected for player: {}", player.getName());
             }
@@ -61,11 +61,11 @@ public class AutoClickerDetector {
                             TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))
                     )));
 
-            if (PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.notify-player", true)) {
+            if (Config.getInstance().getBoolean("auto-clicker.notify-player", true)) {
                 player.sendMessage(Caption.of("notification.auto_clicker_detected_player"));
             }
 
-            String actionIdentifier = PluginConfig.getInstance().getConfig().getString("auto-clicker.action", "kick");
+            String actionIdentifier = Config.getInstance().getString("auto-clicker.action", "kick");
             ActionOnDetection action = ActionOnDetection.existsByIdentifier(actionIdentifier)
                     ? ActionOnDetection.fromIdentifier(actionIdentifier)
                     : ActionOnDetection.KICK;
@@ -77,13 +77,13 @@ public class AutoClickerDetector {
     }
 
     public void reloadConfigValues() {
-        sampleSize = PluginConfig.getInstance().getConfig().getInt("auto-clicker.sample-size", 20);
-        consecutiveDetectionsRequired = PluginConfig.getInstance().getConfig().getInt("auto-clicker.consecutive-detections", 3);
-        stddevThresholdMillis = PluginConfig.getInstance().getConfig().getInt("auto-clicker.stddev-threshold", 50);
-        minClickIntervalMillis = PluginConfig.getInstance().getConfig().getInt("auto-clicker.min-click-interval", 50);
-        disabledServers = PluginConfig.getInstance().getConfig().getStringList("disabled-servers");
-        allowBypass = PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.allow-bypass", true);
-        enabled = PluginConfig.getInstance().getConfig().getBoolean("auto-clicker.enabled", true);
+        sampleSize = Config.getInstance().getInt("auto-clicker.sample-size", 20);
+        consecutiveDetectionsRequired = Config.getInstance().getInt("auto-clicker.consecutive-detections", 3);
+        stddevThresholdMillis = Config.getInstance().getInt("auto-clicker.stddev-threshold", 50);
+        minClickIntervalMillis = Config.getInstance().getInt("auto-clicker.min-click-interval", 50);
+        disabledServers = Config.getInstance().getStringList("disabled-servers");
+        allowBypass = Config.getInstance().getBoolean("auto-clicker.allow-bypass", true);
+        enabled = Config.getInstance().getBoolean("auto-clicker.enabled", true);
     }
 
     public synchronized void registerClick(BAFKPlayer<?> player) {

@@ -1,8 +1,10 @@
 package net.fameless.core.config;
 
-public record ConfigRegistry(YamlConfig configStateOnLoad) {
+import java.util.Map;
+
+public record ConfigRegistry(Map<String, Object> configStateOnLoad) {
 
     public boolean hasConfigFileChanged() {
-        return !PluginConfig.getInstance().readConfigFile().data().equals(configStateOnLoad.data());
+        return !Config.getInstance().readConfigFile().equals(configStateOnLoad);
     }
 }

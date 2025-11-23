@@ -1,58 +1,54 @@
 package net.fameless.core.region;
 
-import net.fameless.core.config.PluginConfig;
+import net.fameless.core.config.Config;
 import net.fameless.core.location.Location;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RegionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/RegionService");
 
     private static final class Holder {
-        public static final RegionService INSTANCE = new RegionService(PluginConfig.getInstance());
+        public static final RegionService INSTANCE = new RegionService();
     }
 
     public static RegionService getInstance() {
         return Holder.INSTANCE;
     }
 
-    private final Object writeLock = new Object();
+    private static final Object writeLock = new Object();
 
     private volatile List<Region> regions = List.of();
 
-    private final PluginConfig pluginConfig;
-
-    private RegionService(PluginConfig pluginConfig) {
+    private RegionService() {
         LOGGER.info("Initializing RegionService...");
-        this.pluginConfig = pluginConfig;
         loadFromConfig();
     }
 
     public void loadFromConfig() {
         synchronized (writeLock) {
-            List<Region> loaded = pluginConfig.readRegionsFromConfig();
+            List<Region> loaded = readRegionsFromConfig();
             regions = List.copyOf(loaded);
-            LOGGER.info("Loaded {} regions", regions.size());
+            LOGGER.info("Loaded {} region(s)", regions.size());
         }
     }
 
-    public boolean addRegion(Region region) {
+    public boolean addRegion(@NotNull Region region) {
         synchronized (writeLock) {
-            for (Region r : regions) {
-                if (r.getRegionName().equalsIgnoreCase(region.getRegionName())) {
-                    return false;
-                }
-            }
+            if (containsRegion(region.getRegionName())) return false;
+
             List<Region> newList = new ArrayList<>(regions);
             newList.add(region);
             regions = List.copyOf(newList);
 
-            pluginConfig.saveRegionsToConfig(newList);
+            saveRegionsToConfig(newList);
             return true;
         }
     }
@@ -64,7 +60,7 @@ public class RegionService {
             if (!removed) return false;
 
             regions = List.copyOf(newList);
-            pluginConfig.saveRegionsToConfig(newList);
+            saveRegionsToConfig(newList);
             return true;
         }
     }
@@ -90,8 +86,32 @@ public class RegionService {
     public void clearRegions() {
         synchronized (writeLock) {
             regions = List.of();
-            pluginConfig.saveRegionsToConfig(regions);
+            saveRegionsToConfig(regions);
         }
+    }
+
+    private @NotNull List<Region> readRegionsFromConfig() {
+        List<Region> list = new ArrayList<>();
+        Map<String, Object> regionSection = Config.getInstance().getSection("bypass-regions");
+
+        regionSection.values().forEach(regionEntry -> {
+            if (!(regionEntry instanceof Map<?,?>)) {
+                LOGGER.warn("Invalid Region entry found in config: {}", regionEntry.toString());
+            } else {
+                list.add(Region.fromMap((Map<String, Object>) regionEntry));
+            }
+        });
+
+        return list;
+    }
+
+    private void saveRegionsToConfig(@NotNull List<Region> regions) {
+        Map<String, Object> map = new HashMap<>();
+        for (Region region : regions) {
+            map.put(region.getRegionName(), region.toMap());
+        }
+
+        Config.getInstance().set("bypass-regions", map);
     }
 
     public boolean isLocationInAnyRegion(@NotNull Location location) {

@@ -6,10 +6,10 @@ import net.fameless.core.BungeeAFK;
 import net.fameless.core.adapter.APIAdapter;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.command.framework.CommandCaller;
-import net.fameless.core.config.PluginConfig;
-import net.fameless.core.region.RegionService;
+import net.fameless.core.config.Config;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.location.Location;
+import net.fameless.core.region.RegionService;
 import net.fameless.core.util.MessageBroadcaster;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
@@ -20,7 +20,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -80,8 +82,8 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     }
 
     public AFKState getAfkState() {
-        if ((PluginConfig.getInstance().getConfig().getBoolean("allow-bypass") && hasPermission("bungeeafk.bypass")) ||
-                PluginConfig.getInstance().getConfig().getStringList("disabled-servers").contains(getCurrentServerName()) ||
+        if ((Config.getInstance().getBoolean("allow-bypass") && hasPermission("bungeeafk.bypass")) ||
+                Config.getInstance().getStringList("disabled-servers").contains(getCurrentServerName()) ||
                 RegionService.getInstance().isLocationInAnyBypassRegion(location)
         ) {
             return AFKState.BYPASS;

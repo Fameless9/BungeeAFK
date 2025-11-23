@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.fameless.core.config.PluginConfig;
+import net.fameless.core.config.Config;
 import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
@@ -108,7 +108,7 @@ public final class Caption {
     public static void setCurrentLanguage(Language newLanguage) {
         if (newLanguage != getCurrentLanguage()) {
             Caption.currentLanguage = newLanguage;
-            PluginConfig.getInstance().getConfig().set("lang", newLanguage.getIdentifier());
+            Config.getInstance().set("lang", newLanguage.getIdentifier());
         }
     }
 

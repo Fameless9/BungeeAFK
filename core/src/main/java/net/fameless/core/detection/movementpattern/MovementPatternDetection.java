@@ -5,7 +5,7 @@ import net.fameless.api.event.PlayerMovementPatternDetectedEvent;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.adapter.APIAdapter;
 import net.fameless.core.caption.Caption;
-import net.fameless.core.config.PluginConfig;
+import net.fameless.core.config.Config;
 import net.fameless.core.detection.history.Detection;
 import net.fameless.core.detection.history.DetectionType;
 import net.fameless.core.handling.AFKState;
@@ -49,7 +49,7 @@ public class MovementPatternDetection {
         defaultActionOnDetection = player -> {
             ActionOnDetection action;
             try {
-                action = ActionOnDetection.fromIdentifier(PluginConfig.getInstance().getConfig().getString("movement-pattern.action", "kick"));
+                action = ActionOnDetection.fromIdentifier(Config.getInstance().getString("movement-pattern.action", "kick"));
             } catch (IllegalArgumentException e) {
                 LOGGER.error("Invalid action on movement pattern detection, defaulting to kick", e);
                 action = ActionOnDetection.KICK;
@@ -67,12 +67,12 @@ public class MovementPatternDetection {
     }
 
     public void reloadConfigValues() {
-        this.certaintyThreshold = PluginConfig.getInstance().getConfig().getDouble("movement-pattern.certainty-threshold", 0.9);
-        this.sampleSize = PluginConfig.getInstance().getConfig().getInt("movement-pattern.sample-size", 5);
-        this.disabledServers = PluginConfig.getInstance().getConfig().getStringList("movement-pattern.disabled-servers");
-        this.allowBypass = PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.allow-bypass", true);
-        this.enabled = PluginConfig.getInstance().getConfig().getBoolean("movement-pattern.enabled", true);
-        this.clearAfterSeconds = PluginConfig.getInstance().getConfig().getInt("movement-pattern.clear-after", 600);
+        this.certaintyThreshold = Config.getInstance().getDouble("movement-pattern.certainty-threshold", 0.9);
+        this.sampleSize = Config.getInstance().getInt("movement-pattern.sample-size", 5);
+        this.disabledServers = Config.getInstance().getStringList("movement-pattern.disabled-servers");
+        this.allowBypass = Config.getInstance().getBoolean("movement-pattern.allow-bypass", true);
+        this.enabled = Config.getInstance().getBoolean("movement-pattern.enabled", true);
+        this.clearAfterSeconds = Config.getInstance().getInt("movement-pattern.clear-after", 600);
 
         if (clearAfterSeconds < 0) {
             clearAfterSeconds = 0;
@@ -139,7 +139,7 @@ public class MovementPatternDetection {
 
         MessageBroadcaster.broadcastMessageToFiltered(Caption.of("notification.movement_pattern_detected_admin",
                         TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))),
-                PlayerFilters.hasPermission(PluginConfig.getInstance().getConfig().getString("movement-pattern.notify-permission", "bungeeafk.movement-pattern.notify")),
+                PlayerFilters.hasPermission(Config.getInstance().getString("movement-pattern.notify-permission", "bungeeafk.movement-pattern.notify")),
                 PlayerFilters.notMatching(player));
 
         PlayerMovementPatternDetectedEvent event = new PlayerMovementPatternDetectedEvent(APIAdapter.adapt(player), APIAdapter.adaptModelConsumer(defaultActionOnDetection));

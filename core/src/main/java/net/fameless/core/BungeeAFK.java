@@ -7,7 +7,7 @@ import com.google.inject.Stage;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.caption.Language;
 import net.fameless.core.command.framework.Command;
-import net.fameless.core.config.PluginConfig;
+import net.fameless.core.config.Config;
 import net.fameless.core.detection.autoclicker.AutoClickerDetector;
 import net.fameless.core.detection.history.DetectionHistoryManager;
 import net.fameless.core.detection.movementpattern.MovementPatternDetection;
@@ -20,6 +20,7 @@ import net.fameless.core.util.cache.ExpirableMap;
 import net.fameless.core.util.cache.ExpirableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 
 public class BungeeAFK {
@@ -75,7 +76,7 @@ public class BungeeAFK {
         Command.init();
 
         Caption.loadDefaultLanguages();
-        Caption.setCurrentLanguage(Language.ofIdentifier(PluginConfig.getInstance().getConfig().getString("lang", "en")));
+        Caption.setCurrentLanguage(Language.ofIdentifier(Config.getInstance().getString("lang", "en")));
 
         LOGGER.info("initializing BungeeAFK API...");
         new BungeeAFKAPIImpl();
@@ -87,14 +88,14 @@ public class BungeeAFK {
         if (!initialized) return;
         Caption.saveToFile();
         DetectionHistoryManager.saveDetections();
-        if (PluginConfig.getInstance().getConfigRegistry().hasConfigFileChanged()) {
-            if (!PluginConfig.getInstance().getConfig().getBoolean("overwrite-file-changes", true)) {
+        if (Config.getInstance().getConfigRegistry().hasConfigFileChanged()) {
+            if (!Config.getInstance().getBoolean("overwrite-file-changes", true)) {
                 LOGGER.info("Configuration file changed on disk during runtime - skipping save to avoid overwriting external edits");
             } else {
                 LOGGER.info("Configuration file changed on disk during runtime - overwriting file with cached config values");
-                PluginConfig.getInstance().saveNow();
+                Config.getInstance().saveConfigAsync();
             }
-        } else PluginConfig.getInstance().saveNow();
+        } else Config.getInstance().saveConfigAsync();
         afkHandler.shutdown();
         ExpirableMap.shutdownScheduler();
         ExpirableSet.shutdownScheduler();
@@ -114,9 +115,9 @@ public class BungeeAFK {
         }
         if (!misconfiguredMessage.isEmpty()) {
             LOGGER.warn("Misconfiguration detected: {} - This may cause unexpected behavior. Falling back to default configuration.", misconfiguredMessage);
-            PluginConfig.getInstance().getConfig().set("warning-delay", 90);
-            PluginConfig.getInstance().getConfig().set("afk-delay", 180);
-            PluginConfig.getInstance().getConfig().set("action-delay", 420);
+            Config.getInstance().set("warning-delay", 90);
+            Config.getInstance().set("afk-delay", 180);
+            Config.getInstance().set("action-delay", 420);
             afkHandler.reloadConfigValues();
         }
     }

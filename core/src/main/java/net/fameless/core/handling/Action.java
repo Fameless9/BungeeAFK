@@ -1,7 +1,7 @@
 package net.fameless.core.handling;
 
 import net.fameless.core.BungeeAFK;
-import net.fameless.core.config.PluginConfig;
+import net.fameless.core.config.Config;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -32,11 +32,11 @@ public enum Action {
     }
 
     public static boolean isAfkServerConfigured() {
-        if (!PluginConfig.getInstance().getConfig().contains("afk-server-name")) {
+        if (!Config.getInstance().contains("afk-server-name")) {
             return false;
         }
 
-        String serverName = PluginConfig.getInstance().getConfig().getString("afk-server-name", null);
+        String serverName = Config.getInstance().getString("afk-server-name", null);
         if (serverName == null) return false;
         return BungeeAFK.getPlatform().doesServerExist(serverName);
     }
