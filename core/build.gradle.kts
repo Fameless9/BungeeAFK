@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "net.fameless"
-version = "2.5.5"
+version = "2.5.6"
 description = "Core features implementing the basic logic of BungeeAFK"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
