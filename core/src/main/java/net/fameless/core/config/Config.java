@@ -7,6 +7,7 @@ import net.fameless.core.config.adapter.TypeAdapterRegistry;
 import net.fameless.core.region.Region;
 import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
+import net.fameless.core.util.ResourceUtil;
 import net.fameless.core.util.YamlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +45,7 @@ public class Config {
 
     public Config() {
         LOGGER.info("Initializing Config...");
+        ResourceUtil.extractResourceIfMissing("config.yml", PluginPaths.getConfigFile());
         typeAdapterRegistry.register(Region.class, new RegionTypeAdapter());
         load();
     }
