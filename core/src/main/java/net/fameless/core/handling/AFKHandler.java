@@ -75,17 +75,11 @@ public abstract class AFKHandler {
     public void processPlayer(BAFKPlayer<?> player) {
         try {
             switch (player.getAfkState()) {
-                case BYPASS -> revertPreviousState(player);
-                case ACTIVE -> {
-                    revertPreviousState(player);
-                    warnIfNeeded(player);
-                }
-                case WARNED -> {
-                    revertPreviousState(player);
-                    setAFKIfNeeded(player);
-                }
+                case ACTIVE -> warnIfNeeded(player);
+                case WARNED -> setAFKIfNeeded(player);
                 case AFK -> determineAndPerformAction(player);
             }
+            revertPreviousState(player);
             sendActionBar(player);
         } catch (Exception e) {
             LOGGER.error("Error processing AFK checks for player {}", player.getName());
@@ -94,6 +88,9 @@ public abstract class AFKHandler {
 
     private void revertPreviousState(@NotNull BAFKPlayer<?> player) {
         if (revertCooldown.contains(player)) return;
+        if (player.getTimeSinceLastAction() >= actionDelay) return;
+        if (player.getAfkState().equals(AFKState.ACTION_TAKEN)) return;
+
         String afkServerName = Config.getInstance().getString("afk-server-name", "");
         if (player.getCurrentServerName().equalsIgnoreCase(afkServerName)) {
             player.connect(playerPreviousServerMap.getOrDefault(player.getUniqueId(), "lobby"));
@@ -319,10 +316,6 @@ public abstract class AFKHandler {
 
     public BroadcastStrategy getBroadcastStrategy() {
         return broadcastStrategy;
-    }
-
-    public boolean isActionbarEnabled() {
-        return actionbarEnabled;
     }
 
     public void setActionbarEnabled(boolean actionbarEnabled) {
