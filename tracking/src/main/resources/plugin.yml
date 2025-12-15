@@ -1,6 +1,6 @@
 name: BungeeAFKTracking
 version: '2.5.6'
-main: net.fameless.bungeeAFKTracking.BungeeAFKTracking
+main: net.fameless.tracking.BungeeAFKTracking
 api-version: '1.21'
 prefix: BungeeAFK
 authors: [Fameless9]

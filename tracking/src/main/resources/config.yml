@@ -1,0 +1,5 @@
+# The address that the tracking plugin will use to send data to the proxy.
+# The host address must be equal to the proxy's host
+# The port must be equal to the netty-port configured in the proxy plugin's config.yml
+netty-host: "localhost"
+netty-port: 9000

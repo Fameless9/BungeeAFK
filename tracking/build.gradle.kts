@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.0.0-beta12"
 }
 
 repositories {
@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":bungeeafk-network"))
     compileOnly(libs.spigot)
 }
 
@@ -18,15 +19,18 @@ version = "2.5.6"
 description = "Tracking plugin required by BungeeAFK"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
+tasks.shadowJar {
+    archiveBaseName.set("BungeeAFK-Tracking")
+    archiveClassifier.set("")
+    archiveVersion.set("2.5.6")
+
+    relocate("io.netty", "net.fameless.libs.netty")
+    exclude("META-INF/**")
+}
+
 tasks {
     build {
         dependsOn(shadowJar)
-    }
-
-    shadowJar {
-        archiveBaseName.set("BungeeAFK-Tracking")
-        archiveClassifier.set("")
-        archiveVersion.set("2.5.6")
     }
 
     jar {

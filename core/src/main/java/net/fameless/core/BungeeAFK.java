@@ -13,6 +13,7 @@ import net.fameless.core.detection.history.DetectionHistoryManager;
 import net.fameless.core.detection.movementpattern.MovementPatternDetection;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
+import net.fameless.core.network.NettyServerBootstrap;
 import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.ColorUtil;
 import net.fameless.core.util.PluginUpdater;
@@ -81,6 +82,12 @@ public class BungeeAFK {
         LOGGER.info("initializing BungeeAFK API...");
         new BungeeAFKAPIImpl();
 
+        try {
+            NettyServerBootstrap.initializeServer();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Error while initializing netty Socket", e);
+        }
+
         initialized = true;
     }
 
@@ -97,6 +104,7 @@ public class BungeeAFK {
             }
         } else Config.getInstance().saveConfigAsync();
         afkHandler.shutdown();
+        NettyServerBootstrap.shutdownServer();
         ExpirableMap.shutdownScheduler();
         ExpirableSet.shutdownScheduler();
         SchedulerService.shutdown();

@@ -35,6 +35,10 @@ public class YamlUtil {
             # Available languages: en, de
             lang: %s
 
+            # Netty port used for communication between the proxy and Spigot servers
+            # Note: Changing this value requires updating the Spigot server configuration as well\s
+            netty-port: %d
+
             # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
             # e.g., if set to 60, the player will receive a warning message after 1 minute of inactivity
             warning-delay: %d
@@ -174,6 +178,7 @@ public class YamlUtil {
             """,
                 Config.getInstance().getBoolean("overwrite-file-changes", true),
                 Caption.getCurrentLanguage().getIdentifier(),
+                Config.getInstance().getInt("netty-port", 9000),
                 Config.getInstance().getInt("warning-delay", 60),
                 Config.getInstance().getInt("afk-delay", 600),
                 Config.getInstance().getInt("action-delay", 630),

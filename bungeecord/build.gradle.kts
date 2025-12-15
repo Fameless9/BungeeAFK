@@ -36,6 +36,7 @@ tasks {
         archiveClassifier.set("")
         archiveVersion.set("2.5.6")
 
+        relocate("io.netty", "net.fameless.bungeeafk.netty")
         relocate("org.bstats", "net.fameless.bungeeafk.bstats")
     }
 

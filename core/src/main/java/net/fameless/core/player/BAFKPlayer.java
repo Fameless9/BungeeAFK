@@ -9,6 +9,7 @@ import net.fameless.core.command.framework.CommandCaller;
 import net.fameless.core.config.Config;
 import net.fameless.core.handling.AFKState;
 import net.fameless.core.location.Location;
+import net.fameless.core.network.OutboundPacketSender;
 import net.fameless.core.region.RegionService;
 import net.fameless.core.util.MessageBroadcaster;
 import net.kyori.adventure.audience.Audience;
@@ -144,9 +145,21 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     }
 
     public void setActive() {
-        this.timeSinceLastAction = 0;
-        this.afkState = AFKState.ACTIVE;
+        setTimeSinceLastAction(0);
+        setAfkState(AFKState.ACTIVE);
         BungeeAFK.getAFKHandler().processPlayer(this);
+    }
+
+    public void openEmptyInventory() {
+        OutboundPacketSender.getInstance().sendOpenEmptyInventoryPacket(this);
+    }
+
+    public void teleport(Location location) {
+        OutboundPacketSender.getInstance().sendTeleportPlayerPacket(this, location);
+    }
+
+    public void updateGameMode(GameMode gameMode) {
+        OutboundPacketSender.getInstance().sendSetGameModePacket(this, gameMode);
     }
 
     public abstract String getName();
@@ -164,10 +177,4 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     public abstract boolean hasPermission(String permission);
 
     public abstract String getCurrentServerName();
-
-    public abstract void updateGameMode(GameMode gameMode);
-
-    public abstract void teleport(Location location);
-
-    public abstract void openEmptyInventory();
 }

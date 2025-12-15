@@ -4,10 +4,7 @@ import net.fameless.api.event.EventDispatcher;
 import net.fameless.api.event.PlayerKickEvent;
 import net.fameless.core.adapter.APIAdapter;
 import net.fameless.core.command.framework.CallerType;
-import net.fameless.core.location.Location;
-import net.fameless.core.messaging.RequestType;
 import net.fameless.core.player.BAFKPlayer;
-import net.fameless.core.player.GameMode;
 import net.fameless.core.util.ServerPinger;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -139,50 +136,5 @@ public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
         if (player == null) return "N/A";
         Server server = player.getServer();
         return server != null ? server.getInfo().getName() : "N/A";
-    }
-
-    @Override
-    public void updateGameMode(@NotNull GameMode gameMode) {
-        ProxiedPlayer player = getPlatformPlayer().orElse(null);
-        if (player == null) {
-            LOGGER.info("player is null, cannot set gamemode.");
-            return;
-        }
-        byte[] data = (RequestType.GAMEMODE_CHANGE.getName() + ";" +
-                this.getUniqueId() + ";" +
-                gameMode.name()).getBytes();
-        player.getServer().getInfo().sendData("bungee:bungeeafk", data);
-    }
-
-    @Override
-    public void teleport(@NotNull Location location) {
-        ProxiedPlayer player = getPlatformPlayer().orElse(null);
-        if (player == null) {
-            LOGGER.info("player is null, cannot teleport.");
-            return;
-        }
-        byte[] data = (RequestType.TELEPORT_PLAYER.getName() + ";" +
-                this.getUniqueId() + ";" +
-                location.worldName() + ";" +
-                location.x() + ";" +
-                location.y() + ";" +
-                location.z() + ";" +
-                location.yaw() + ";" +
-                location.pitch()
-        ).getBytes();
-        player.getServer().getInfo().sendData("bungee:bungeeafk", data);
-    }
-
-    @Override
-    public void openEmptyInventory() {
-        ProxiedPlayer player = getPlatformPlayer().orElse(null);
-        if (player == null) {
-            LOGGER.info("player is null, cannot open inventory.");
-            return;
-        }
-        byte[] data = (RequestType.OPEN_EMPTY_INVENTORY.getName() + ";" +
-                this.getUniqueId() + ";").getBytes();
-
-        player.getServer().getInfo().sendData("bungee:bungeeafk", data);
     }
 }

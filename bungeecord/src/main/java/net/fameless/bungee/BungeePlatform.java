@@ -36,8 +36,6 @@ public final class BungeePlatform extends Plugin implements BungeeAFKPlatform {
 
         BungeeAFK.initCore(new BungeeModule());
 
-        proxyServer.registerChannel("bungee:bungeeafk");
-
         new Metrics(this, 25576);
         long duration = System.currentTimeMillis() - startTime;
         LOGGER.info("Successfully enabled. (took {}ms)", duration);

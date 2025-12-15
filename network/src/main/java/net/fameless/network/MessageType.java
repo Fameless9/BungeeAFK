@@ -1,0 +1,15 @@
+package net.fameless.network;
+
+public enum MessageType {
+
+    HANDSHAKE,
+    ACTION_CAUGHT,
+    LOCATION_CHANGED,
+    GAMEMODE_CHANGED,
+    CLICK_DETECTED,
+
+    OPEN_EMPTY_INVENTORY,
+    TELEPORT_PLAYER,
+    SET_GAMEMODE
+
+}

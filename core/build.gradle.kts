@@ -1,5 +1,5 @@
 plugins {
-    `java-library`
+    id("java-library")
 }
 
 group = "net.fameless"
@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     implementation(project(":bungeeafk-api"))
+    implementation(project(":bungeeafk-network"))
     compileOnly(libs.annotations)
     implementation(libs.gson)
     implementation(libs.guice)

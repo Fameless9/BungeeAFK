@@ -18,6 +18,10 @@ overwrite-file-changes: true
 # Available languages: en, de
 lang: en
 
+# Netty port used for communication between the proxy and Spigot servers
+# Note: Changing this value requires updating the Spigot server configuration as well
+netty-port: 9000
+
 # Delay after which the warning message is sent to the player (seconds) | Lang entry: "notification.afk_warning"
 # e.g., if set to 90, the player will receive a warning message after 1 minute and 30 seconds of inactivity
 warning-delay: 90
