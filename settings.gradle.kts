@@ -1,6 +1,6 @@
 rootProject.name = "BungeeAFK"
 
-include("core", "bungeecord", "tracking", "velocity", "spigot", "api", "network")
+include("core", "bungeecord", "tracking", "velocity", "spigot", "api", "network", "limbo")
 
 project(":core").name = "bungeeafk-core"
 project(":bungeecord").name = "bungeeafk-bungeecord"
@@ -9,3 +9,4 @@ project(":velocity").name = "bungeeafk-velocity"
 project(":spigot").name = "bungeeafk-spigot"
 project(":api").name = "bungeeafk-api"
 project(":network").name = "bungeeafk-network"
+project(":limbo").name = "bungeeafk-limbo"

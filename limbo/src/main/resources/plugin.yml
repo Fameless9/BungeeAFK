@@ -1,0 +1,8 @@
+name: BungeeAFKTracking
+version: '2.5.6'
+main: net.fameless.limbo.LimboTracking
+api-version: '1.21'
+prefix: BungeeAFK
+author: Fameless9
+description: Tracking plugin needed for BungeeAFK
+website: https://github.com/Fameless9
