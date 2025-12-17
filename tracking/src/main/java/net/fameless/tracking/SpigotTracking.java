@@ -11,6 +11,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import net.fameless.network.MessageType;
 import net.fameless.network.NetworkUtil;
+import net.fameless.network.ServerSoftware;
 import net.fameless.network.packet.inbound.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -25,17 +26,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 
-public class BungeeAFKTracking extends JavaPlugin implements Listener {
+public class SpigotTracking extends JavaPlugin implements Listener {
 
-    private static BungeeAFKTracking instance;
+    private static SpigotTracking instance;
 
-    public static BungeeAFKTracking getInstance() {
+    public static SpigotTracking getInstance() {
         return instance;
     }
 
     private final EventLoopGroup group = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
-    private Channel channel;
+    private volatile Channel channel;
     private Bootstrap bootstrap;
+    private final Object connectionAttemptLock = new Object();
+    private volatile boolean connecting = false;
 
     @Override
     public void onEnable() {
@@ -60,7 +63,10 @@ public class BungeeAFKTracking extends JavaPlugin implements Listener {
                     }
                 });
 
-        establishConnection();
+        String host = getConfig().getString("netty-host", "localhost");
+        int port = getConfig().getInt("netty-port", 9000);
+        getLogger().info("Attempting to establish connection to proxy plugin instance on: " + host + ":" + port);
+        establishConnection(host, port);
     }
 
     @Override
@@ -68,21 +74,39 @@ public class BungeeAFKTracking extends JavaPlugin implements Listener {
         group.shutdownGracefully();
     }
 
-    public void establishConnection() {
-        if (channel != null) return;
-        bootstrap.connect(getConfig().getString("netty-host", "localhost"), getConfig().getInt("netty-port", 9000))
-                .addListener((ChannelFutureListener) future -> {
-                    if (future.isSuccess()) {
-                        this.channel = future.channel();
-                        sendHello();
-                    } else {
-                        Bukkit.getScheduler().runTaskLater(this, this::establishConnection, 20);
-                    }
-                });
+    public void establishConnection(String host, int port) {
+        synchronized (connectionAttemptLock) {
+            if (channel != null || connecting) return;
+            connecting = true;
+            bootstrap.connect(host, port)
+                    .addListener((ChannelFutureListener) future -> {
+                        synchronized (connectionAttemptLock) {
+                            try {
+                                if (future.isSuccess()) {
+                                    this.channel = future.channel();
+                                    sendHello();
+
+                                    channel.closeFuture().addListener((ChannelFutureListener) -> {
+                                        synchronized (connectionAttemptLock) {
+                                            this.channel = null;
+                                            Bukkit.getScheduler().runTaskLater(this, () -> establishConnection(host, port), 20);
+                                        }
+                                    });
+
+                                    getLogger().info("Connection to proxy plugin instance established successfully");
+                                } else {
+                                    Bukkit.getScheduler().runTaskLater(this, () -> establishConnection(host, port), 20);
+                                }
+                            } finally {
+                                connecting = false;
+                            }
+                        }
+                    });
+        }
     }
 
     private void sendHello() {
-        HandshakePacket packet = new HandshakePacket(getServer().getPort());
+        HandshakePacket packet = new HandshakePacket(ServerSoftware.SPIGOT, getServer().getPort());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.HANDSHAKE, packet));
     }
 

@@ -22,11 +22,12 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import net.fameless.network.MessageType;
 import net.fameless.network.NetworkUtil;
+import net.fameless.network.ServerSoftware;
 import net.fameless.network.packet.inbound.*;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class LimboTracking extends LimboPlugin implements Listener {
 
@@ -37,9 +38,11 @@ public class LimboTracking extends LimboPlugin implements Listener {
     }
 
     private final EventLoopGroup group = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
-    private Channel channel;
+    private volatile Channel channel;
     private Bootstrap bootstrap;
     private Config config;
+    private final Object connectionAttemptLock = new Object();
+    private volatile boolean connecting = false;
 
     @Override
     public void onEnable() {
@@ -64,7 +67,10 @@ public class LimboTracking extends LimboPlugin implements Listener {
                     }
                 });
 
-        establishConnection();
+        String host = config.getString("netty-host", "localhost");
+        int port = config.getInt("netty-port", 9000);
+        Limbo.getInstance().getConsole().sendMessage("[BungeeAFK] Attempting to establish connection to proxy plugin instance on: " + host + ":" + port);
+        establishConnection(host, port);
 
         new GameModeTracker(this::sendGameModeChanged);
     }
@@ -74,34 +80,51 @@ public class LimboTracking extends LimboPlugin implements Listener {
         group.shutdownGracefully();
     }
 
-    public void establishConnection() {
-        if (channel != null) return;
-        bootstrap.connect(config.getString("netty-host", "localhost"), config.getInt("netty-port", 9000))
-                .addListener((ChannelFutureListener) future -> {
-                    if (future.isSuccess()) {
-                        this.channel = future.channel();
-                        sendHello();
-                    } else {
-                        Limbo.getInstance().getScheduler().runTaskLater(this, this::establishConnection, 20);
-                    }
-                });
-    }
+    public void establishConnection(String host, int port) {
+        synchronized (connectionAttemptLock) {
+            if (channel != null || connecting) return;
+            connecting = true;
+            bootstrap.connect(host, port)
+                    .addListener((ChannelFutureListener) future -> {
+                        synchronized (connectionAttemptLock) {
+                            try {
+                                if (future.isSuccess()) {
+                                    this.channel = future.channel();
+                                    sendHello();
 
-    public void setChannel(Channel channel) {
-        this.channel = channel;
+                                    this.channel.closeFuture().addListener(cf -> {
+                                        synchronized (connectionAttemptLock) {
+                                            this.channel = null;
+                                            Limbo.getInstance().getScheduler().runTaskLater(this, () -> establishConnection(host, port), 20);
+                                        }
+                                    });
+
+                                    Limbo.getInstance().getConsole().sendMessage("[BungeeAFK] Connection to proxy plugin instance established successfully");
+                                } else {
+                                    Limbo.getInstance().getScheduler().runTaskLater(this, () -> establishConnection(host, port), 20);
+                                }
+                            } finally {
+                                connecting = false;
+                            }
+                        }
+                    });
+        }
     }
 
     private void sendHello() {
-        HandshakePacket packet = new HandshakePacket(getServer().getServerConnection().getServerSocket().getLocalPort());
+        if (channel == null) return;
+        HandshakePacket packet = new HandshakePacket(ServerSoftware.LIMBO, getServer().getServerConnection().getServerSocket().getLocalPort());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.HANDSHAKE, packet));
     }
 
     private void sendActionCaught(@NotNull Player player) {
+        if (channel == null) return;
         ActionCaughtPacket packet = new ActionCaughtPacket(player.getUniqueId());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.ACTION_CAUGHT, packet));
     }
 
     private void sendLocationChanged(@NotNull Player player, @NotNull Location to) {
+        if (channel == null) return;
         LocationChangedPacket packet = new LocationChangedPacket(
                 player.getUniqueId(),
                 to.getWorld().getName(),
@@ -114,12 +137,14 @@ public class LimboTracking extends LimboPlugin implements Listener {
         channel.writeAndFlush(NetworkUtil.msg(MessageType.LOCATION_CHANGED, packet));
     }
 
-    private void sendGameModeChanged(@NotNull Player player, @NotNull GameMode gameMode) {
-        GameModeChangedPacket packet = new GameModeChangedPacket(player.getUniqueId(), gameMode.name());
+    private void sendGameModeChanged(@NotNull UUID uuid, @NotNull GameMode gameMode) {
+        if (channel == null) return;
+        GameModeChangedPacket packet = new GameModeChangedPacket(uuid, gameMode.name());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.GAMEMODE_CHANGED, packet));
     }
 
     private void sendClickDetected(@NotNull Player player) {
+        if (channel == null) return;
         ClickDetectedPacket packet = new ClickDetectedPacket(player.getUniqueId());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.CLICK_DETECTED, packet));
     }
@@ -141,26 +166,15 @@ public class LimboTracking extends LimboPlugin implements Listener {
     @EventHandler
     public void onInteract(@NotNull PlayerInteractEvent event) {
         sendActionCaught(event.getPlayer());
-    }
-
-    @EventHandler
-    public void onPlayerInteract(@NonNull PlayerInteractEvent event) {
         if (event.getAction().equals(PlayerInteractEvent.Action.PHYSICAL)) return;
         sendClickDetected(event.getPlayer());
     }
 
     @EventHandler
-    public void onJoin(@NonNull PlayerJoinEvent event) {
+    public void onJoin(@NotNull PlayerJoinEvent event) {
         if (config.getBoolean("spectator-by-default", true)) event.getPlayer().setGamemode(GameMode.SPECTATOR);
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
         Limbo.getInstance().getScheduler().runTaskLater(this, () -> {
-            sendGameModeChanged(event.getPlayer(), event.getPlayer().getGamemode());
             sendLocationChanged(event.getPlayer(), event.getPlayer().getLocation());
-        }, 5L); // Delay to ensure player is fully initialized on proxy platform
+        }, 5L);
     }
-
-
 }

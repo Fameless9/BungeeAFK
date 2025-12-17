@@ -10,6 +10,7 @@ import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
 import net.fameless.network.MessageType;
 import net.fameless.network.NetworkMessage;
+import net.fameless.network.ServerSoftware;
 import net.fameless.network.packet.inbound.*;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -50,8 +51,9 @@ public class InboundChannelHandler extends SimpleChannelInboundHandler<String> {
             case HANDSHAKE -> {
                 HandshakePacket packet = gson.fromJson(message.payload, HandshakePacket.class);
                 int port = packet.minecraftServerPort;
+                ServerSoftware serverSoftware = packet.serverSoftware;
                 OutboundPacketSender.getInstance().getRegistry().register(ctx.channel(), port);
-                logger.info("Netty channel: proxy ↔ tracking plugin established (Port={})", port);
+                logger.info("Netty channel: proxy ↔ {} tracking plugin established (Port={})",  serverSoftware.friendlyName, port);
             }
             case ACTION_CAUGHT -> {
                 ActionCaughtPacket packet = gson.fromJson(message.payload, ActionCaughtPacket.class);
