@@ -1,0 +1,11 @@
+# The address that the tracking plugin will use to send data to the proxy.
+# The host address must be equal to the proxy's host
+# The port must be equal to the netty-port configured in the proxy plugin's config.yml
+netty-host: "localhost"
+netty-port: 9000
+
+# Whether to set the default game mode to spectator for players joining the limbo server
+# This is useful to prevent players from interacting with the limbo server environment
+# and ensures they are not sent back to the main server due to falling or other causes.
+# Recommended if limbo is used as the AFK server.
+spectator-by-default: true

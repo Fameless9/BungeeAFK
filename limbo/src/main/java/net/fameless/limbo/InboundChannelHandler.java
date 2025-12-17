@@ -1,7 +1,11 @@
-package net.fameless.tracking;
+package net.fameless.limbo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.loohp.limbo.Limbo;
+import com.loohp.limbo.location.Location;
+import com.loohp.limbo.player.Player;
+import com.loohp.limbo.utils.GameMode;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.fameless.network.MessageType;
@@ -9,10 +13,8 @@ import net.fameless.network.NetworkMessage;
 import net.fameless.network.packet.outbound.OpenEmptyInventoryPacket;
 import net.fameless.network.packet.outbound.SetGameModePacket;
 import net.fameless.network.packet.outbound.TeleportPlayerPacket;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import net.kyori.adventure.text.Component;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Locale;
 
@@ -24,13 +26,12 @@ public class InboundChannelHandler extends SimpleChannelInboundHandler<String> {
             .create();
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext ctx, @NonNull Throwable cause) {
         if (cause.getMessage() != null && cause.getMessage().contains("Connection reset")) {
             return;
         }
-
-        SpigotTracking.getInstance().getLogger().severe("Netty error in BungeeAFK-Tracking: " + cause.getMessage());
         ctx.close();
+        Limbo.getInstance().getConsole().sendMessage("[BungeeAFK] [Severe] Netty error in BungeeAFK-Tracking: " + cause.getMessage());
     }
 
     @Override
@@ -41,23 +42,24 @@ public class InboundChannelHandler extends SimpleChannelInboundHandler<String> {
         switch (type) {
             case OPEN_EMPTY_INVENTORY -> {
                 OpenEmptyInventoryPacket packet = gson.fromJson(message.payload, OpenEmptyInventoryPacket.class);
-                Player target = Bukkit.getPlayer(packet.uuid);
+                Player target = Limbo.getInstance().getPlayer(packet.uuid);
                 if (target == null) return;
-                Bukkit.getScheduler().runTask(SpigotTracking.getInstance(), () -> target.openInventory(Bukkit.createInventory(null, 27, "")));
+                Limbo.getInstance().getScheduler().runTask(LimboTracking.getInstance(),
+                        () -> target.openInventory(Limbo.getInstance().createInventory(Component.empty(), 27, null)));
             }
             case TELEPORT_PLAYER -> {
                 TeleportPlayerPacket packet = gson.fromJson(message.payload, TeleportPlayerPacket.class);
-                Location location = new Location(Bukkit.getWorld(packet.world), packet.x, packet.y, packet.z, packet.pitch, packet.yaw);
-                Player target = Bukkit.getPlayer(packet.uuid);
+                Location location = new Location(Limbo.getInstance().getWorld(packet.world), packet.x, packet.y, packet.z, packet.pitch, packet.yaw);
+                Player target = Limbo.getInstance().getPlayer(packet.uuid);
                 if (target == null) return;
-                Bukkit.getScheduler().runTask(SpigotTracking.getInstance(), () -> target.teleport(location));
+                Limbo.getInstance().getScheduler().runTask(LimboTracking.getInstance(), () -> target.teleport(location));
             }
             case SET_GAMEMODE -> {
                 SetGameModePacket packet = gson.fromJson(message.payload, SetGameModePacket.class);
                 GameMode gameMode = GameMode.valueOf(packet.gameMode.toUpperCase(Locale.US));
-                Player target = Bukkit.getPlayer(packet.uuid);
+                Player target = Limbo.getInstance().getPlayer(packet.uuid);
                 if (target == null) return;
-                Bukkit.getScheduler().runTask(SpigotTracking.getInstance(), () -> target.setGameMode(gameMode));
+                Limbo.getInstance().getScheduler().runTask(LimboTracking.getInstance(), () -> target.setGamemode(gameMode));
             }
         }
     }

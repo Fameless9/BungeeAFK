@@ -1,8 +1,8 @@
-name: SpigotTracking
+name: BungeeAFKTracking
 version: '2.5.6'
-main: net.fameless.tracking.SpigotTracking
+main: net.fameless.limbo.LimboTracking
 api-version: '1.21'
 prefix: BungeeAFK
-authors: [Fameless9]
+author: Fameless9
 description: Tracking plugin needed for BungeeAFK
 website: https://github.com/Fameless9
