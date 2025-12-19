@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "net.fameless"
-version = "2.5.6"
+version = "2.6.0"
 description = "BungeeAFK"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
@@ -14,7 +14,7 @@ subprojects {
     apply(plugin = "com.diffplug.spotless")
 
     group = "net.fameless"
-    version = "2.5.6"
+    version = "2.6.0"
 
     repositories {
         mavenCentral()

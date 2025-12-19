@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "net.fameless"
-version = "2.5.6"
+version = "2.6.0"
 
 repositories {
     mavenCentral()
