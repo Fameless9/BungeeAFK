@@ -26,6 +26,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class SpigotTracking extends JavaPlugin implements Listener {
 
@@ -41,6 +44,7 @@ public class SpigotTracking extends JavaPlugin implements Listener {
     private final Object connectionAttemptLock = new Object();
     private volatile boolean connecting = false;
     private boolean debugLogging = false;
+    private final Set<UUID> joinProcessed = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -156,6 +160,7 @@ public class SpigotTracking extends JavaPlugin implements Listener {
     @EventHandler
     public void onMove(@NotNull PlayerMoveEvent event) {
         if (event.getTo() == null) return;
+        if (!joinProcessed.contains(event.getPlayer().getUniqueId())) return;
         if (!event.getFrom().equals(event.getTo())) {
             if (debugLogging) getLogger().info("Caught a move action from player " + event.getPlayer().getName());
             sendActionCaught(event.getPlayer());
@@ -184,10 +189,18 @@ public class SpigotTracking extends JavaPlugin implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onJoin(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            sendGameModeChanged(event.getPlayer(), event.getPlayer().getGameMode());
-            sendLocationChanged(event.getPlayer(), event.getPlayer().getLocation());
+            Player player = event.getPlayer();
+            sendGameModeChanged(player, player.getGameMode());
+            sendLocationChanged(player, player.getLocation());
+            joinProcessed.add(player.getUniqueId());
         }, 5L); // Delay to ensure player is fully initialized on proxy platform
     }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onQuit(@NotNull PlayerQuitEvent event) {
+        joinProcessed.remove(event.getPlayer().getUniqueId());
+    }
+
 }
