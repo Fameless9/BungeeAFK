@@ -2,12 +2,8 @@ package net.fameless.limbo;
 
 import com.loohp.limbo.Limbo;
 import com.loohp.limbo.events.EventHandler;
-import com.loohp.limbo.events.EventPriority;
 import com.loohp.limbo.events.Listener;
-import com.loohp.limbo.events.player.PlayerChatEvent;
-import com.loohp.limbo.events.player.PlayerInteractEvent;
-import com.loohp.limbo.events.player.PlayerJoinEvent;
-import com.loohp.limbo.events.player.PlayerMoveEvent;
+import com.loohp.limbo.events.player.*;
 import com.loohp.limbo.location.Location;
 import com.loohp.limbo.player.Player;
 import com.loohp.limbo.plugins.LimboPlugin;
@@ -26,8 +22,12 @@ import net.fameless.network.NetworkUtil;
 import net.fameless.network.ServerSoftware;
 import net.fameless.network.packet.inbound.*;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class LimboTracking extends LimboPlugin implements Listener {
 
@@ -44,6 +44,7 @@ public class LimboTracking extends LimboPlugin implements Listener {
     private final Object connectionAttemptLock = new Object();
     private volatile boolean connecting = false;
     private boolean debugLogging = false;
+    private final Set<UUID> joinProcessed = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -160,6 +161,7 @@ public class LimboTracking extends LimboPlugin implements Listener {
 
     @EventHandler
     public void onMove(@NotNull PlayerMoveEvent event) {
+        if (!joinProcessed.contains(event.getPlayer().getUniqueId())) return;
         if (event.getTo() == null) return;
         if (!event.getFrom().equals(event.getTo())) {
             if (debugLogging) Logger.info("Caught a move action from player {}", event.getPlayer().getName());
@@ -182,12 +184,22 @@ public class LimboTracking extends LimboPlugin implements Listener {
         sendClickDetected(event.getPlayer());
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
         if (config.getBoolean("spectator-by-default", true)) {
-            if (debugLogging) Logger.info("Setting the game mode of {} to spectator as 'specator-by-default is true", event.getPlayer().getName());
+            if (debugLogging) Logger.info("Setting the game mode of {} to spectator as 'specator-by-default' is true", event.getPlayer().getName());
             event.getPlayer().setGamemode(GameMode.SPECTATOR);
+            event.getPlayer().teleport(event.getPlayer().getLocation());
         }
-        Limbo.getInstance().getScheduler().runTaskLater(this, () -> sendLocationChanged(event.getPlayer(), event.getPlayer().getLocation()), 5L);
+        Limbo.getInstance().getScheduler().runTaskLater(this, () -> {
+            sendLocationChanged(event.getPlayer(), event.getPlayer().getLocation());
+            joinProcessed.add(event.getPlayer().getUniqueId());
+            if (debugLogging) Logger.info("Join processed for player {}", event.getPlayer().getName());
+        }, 5L);
+    }
+
+    @EventHandler
+    public void onQuit(@NonNull PlayerQuitEvent event) {
+        joinProcessed.remove(event.getPlayer().getUniqueId());
     }
 }
