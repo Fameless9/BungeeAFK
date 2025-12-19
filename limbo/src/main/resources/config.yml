@@ -4,6 +4,10 @@
 netty-host: "localhost"
 netty-port: 9000
 
+# Enable debug logging for the tracking plugin. This will log additional information to help diagnose issues.
+# Note: This should only be enabled when troubleshooting, as it may generate a large amount of log data.
+debug-logging: false
+
 # Whether to set the default game mode to spectator for players joining the limbo server
 # This is useful to prevent players from interacting with the limbo server environment
 # and ensures they are not sent back to the main server due to falling or other causes.

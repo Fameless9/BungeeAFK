@@ -18,6 +18,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
@@ -39,6 +40,7 @@ public class SpigotTracking extends JavaPlugin implements Listener {
     private Bootstrap bootstrap;
     private final Object connectionAttemptLock = new Object();
     private volatile boolean connecting = false;
+    private boolean debugLogging = false;
 
     @Override
     public void onEnable() {
@@ -46,6 +48,9 @@ public class SpigotTracking extends JavaPlugin implements Listener {
 
         saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
+
+        this.debugLogging = getConfig().getBoolean("debug-logging", false);
+        getLogger().info("Starting with debug-logging " + (debugLogging ? "enabled" : "disabled") + ".");
 
         bootstrap = new Bootstrap()
                 .group(group)
@@ -106,16 +111,22 @@ public class SpigotTracking extends JavaPlugin implements Listener {
     }
 
     private void sendHello() {
+        if (channel == null) return;
+        if (debugLogging) getLogger().info("Sending a handshake packet to the proxy plugin");
         HandshakePacket packet = new HandshakePacket(ServerSoftware.SPIGOT, getServer().getPort());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.HANDSHAKE, packet));
     }
 
     private void sendActionCaught(@NotNull Player player) {
+        if (channel == null) return;
+        if (debugLogging) getLogger().info("Sending an 'action caught' packet for " + player.getName());
         ActionCaughtPacket packet = new ActionCaughtPacket(player.getUniqueId());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.ACTION_CAUGHT, packet));
     }
 
     private void sendLocationChanged(@NotNull Player player, @NotNull Location to) {
+        if (channel == null) return;
+        if (debugLogging) getLogger().info("Sending a 'location changed' packet for " + player.getName() + "Location=" + to);
         LocationChangedPacket packet = new LocationChangedPacket(
                 player.getUniqueId(),
                 to.getWorld().getName(),
@@ -129,23 +140,24 @@ public class SpigotTracking extends JavaPlugin implements Listener {
     }
 
     private void sendGameModeChanged(@NotNull Player player, @NotNull GameMode gameMode) {
+        if (channel == null) return;
+        if (debugLogging) getLogger().info("Sending a 'game mode changed' packet for player " + player.getName() + " GameMode=" + gameMode.name());
         GameModeChangedPacket packet = new GameModeChangedPacket(player.getUniqueId(), gameMode.name());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.GAMEMODE_CHANGED, packet));
     }
 
     private void sendClickDetected(@NotNull Player player) {
+        if (channel == null) return;
+        if (debugLogging) getLogger().info("Sending a 'click detected' packet for " + player.getName());
         ClickDetectedPacket packet = new ClickDetectedPacket(player.getUniqueId());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.CLICK_DETECTED, packet));
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
     }
 
     @EventHandler
     public void onMove(@NotNull PlayerMoveEvent event) {
         if (event.getTo() == null) return;
         if (!event.getFrom().equals(event.getTo())) {
+            if (debugLogging) getLogger().info("Caught a move action from player " + event.getPlayer().getName());
             sendActionCaught(event.getPlayer());
             sendLocationChanged(event.getPlayer(), event.getTo());
         }
@@ -153,26 +165,25 @@ public class SpigotTracking extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onChat(@NotNull AsyncPlayerChatEvent event) {
+        if (debugLogging) getLogger().info("Caught a chat action from player " + event.getPlayer().getName());
         sendActionCaught(event.getPlayer());
     }
 
     @EventHandler
     public void onInteract(@NotNull PlayerInteractEvent event) {
+        if (debugLogging) getLogger().info("Caught an interaction from player " + event.getPlayer().getName());
         sendActionCaught(event.getPlayer());
-    }
-
-    @EventHandler
-    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
-        sendGameModeChanged(event.getPlayer(), event.getNewGameMode());
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction().equals(Action.PHYSICAL)) return;
         sendClickDetected(event.getPlayer());
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler
+    public void onGameModeChange(@NotNull PlayerGameModeChangeEvent event) {
+        if (debugLogging) getLogger().info("Caught a game mode change from player " + event.getPlayer().getName());
+        sendGameModeChanged(event.getPlayer(), event.getNewGameMode());
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskLater(this, () -> {
             sendGameModeChanged(event.getPlayer(), event.getPlayer().getGameMode());
