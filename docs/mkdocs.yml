@@ -16,7 +16,10 @@ nav:
     - Installation Guide: installation.md
     - Compatibility: compatibility.md
     - Updating: updating.md
+  - Common Issues:
+      - Address Already in Use: address_already_in_use.md
   - Configuration:
+    - Netty Channel Configuration: netty_channel_configuration.md
     - Configuration Guide: configuration.md
     - Custom Messages: custom_messages.md
   - Commands: commands.md

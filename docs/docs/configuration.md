@@ -32,6 +32,10 @@ The plugin will use the language file: `lang_xx.json` where `xx` is the language
 
 Default is `en`.
 
+#### Netty Port (`netty-port`)
+Do not change this value unless you know what you are doing. This is the port used for communication between the proxy and sub-servers.
+More information can be found on: [Netty Channel Configuration](netty_channel_configuration.md).
+
 #### Action Bar Messages (`actionbar`)
 Controls whether players receive action bar notifications while AFK handling runs.
 Affected language keys are `actionbar.afk` and `actionbar.afk_moved`. Actionbar messages might
