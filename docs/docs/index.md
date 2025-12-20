@@ -9,8 +9,11 @@ Here are the topics covered in this documentation:
     - [Compatibility](compatibility.md)
     - [Updating](updating.md)
 - #### Configuration
+    - [Netty Configuration](netty_channel_configuration.md)
     - [Configuration Guide](configuration.md)
     - [Custom Messages](custom_messages.md)
+- #### Common Issues
+    - [Address Already in Use](address_already_in_use.md)
 - #### [Commands](commands.md)
 - #### Features
     - [Auto Clicker Detection](auto_clicker_detection.md)
