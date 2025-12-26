@@ -15,7 +15,7 @@ repositories {
 dependencies {
     implementation(project(":bungeeafk-network"))
     implementation(libs.snakeYaml)
-    compileOnly("com.loohp:Limbo:0.7.17-ALPHA")
+    compileOnly("com.loohp:Limbo:0.7.18-ALPHA")
 }
 
 tasks.shadowJar {

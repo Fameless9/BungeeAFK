@@ -22,6 +22,7 @@ nav:
     - Netty Channel Configuration: netty_channel_configuration.md
     - Configuration Guide: configuration.md
     - Custom Messages: custom_messages.md
+    - Custom Language Files: custom_languages.md
   - Commands: commands.md
   - Features:
     - Auto Clicker Detection: auto_clicker_detection.md

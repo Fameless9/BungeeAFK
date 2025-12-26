@@ -10,7 +10,6 @@ but the key itself must not be changed.
 {  
   "notification.afk_warning": "Your desired message here"
 }  
-```  
-Creating a new language file is **currently not supported**. However, you can modify the existing language files to add your own translations or change the messages as needed.
+```
 
-If a key is missing in the language file, the plugin will use the default message.
+If you want to create your own custom language file, see the [Custom Language Files](custom_languages.md) documentation.
