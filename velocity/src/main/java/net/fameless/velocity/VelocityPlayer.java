@@ -77,14 +77,14 @@ public class VelocityPlayer extends BAFKPlayer<Player> {
     public CompletableFuture<Boolean> connect(String serverName) {
         RegisteredServer server = VelocityPlatform.getProxy().getServer(serverName).orElse(null);
         if (server == null) {
-            LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is not registered", this.getName(), serverName);
+            logger.warn("Error connecting player '{}' to Server '{}' | Server is not registered", this.getName(), serverName);
             return CompletableFuture.completedFuture(false);
         }
 
         return ServerPinger.isOnline(server.getServerInfo().getAddress())
                 .thenCompose(isOnline -> {
                     if (!isOnline) {
-                        LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is offline", this.getName(), serverName);
+                        logger.warn("Error connecting player '{}' to Server '{}' | Server is offline", this.getName(), serverName);
                         return CompletableFuture.completedFuture(false);
                     }
 
@@ -104,7 +104,7 @@ public class VelocityPlayer extends BAFKPlayer<Player> {
         EventDispatcher.post(event);
 
         if (event.isCancelled()) {
-            LOGGER.info("PlayerKickEvent was cancelled for player: {}", getName());
+            logger.info("PlayerKickEvent was cancelled for player: {}", getName());
             return;
         }
         player.disconnect(event.getReason());

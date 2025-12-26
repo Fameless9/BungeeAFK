@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public abstract class Command {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + Command.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + Command.class.getSimpleName());
     private static final List<Command> COMMANDS = new ArrayList<>();
     public final String id;
     public final List<String> aliases;
@@ -51,19 +51,19 @@ public abstract class Command {
         @NotNull Optional<Command> commandOptional = getCommandById(commandId);
         commandOptional.ifPresentOrElse(
                 command -> command.execute(caller, args),
-                () -> LOGGER.error("Error while trying to execute command: {}. Command not registered.", commandId)
+                () -> logger.error("Error while trying to execute command: {}. Command not registered.", commandId)
         );
     }
 
     public static @NotNull @Unmodifiable List<String> tabComplete(String commandId, CommandCaller caller, String[] args) {
         @NotNull Optional<Command> commandOptional = getCommandById(commandId);
         if (commandOptional.isPresent()) return commandOptional.get().getTabCompletions(caller, args);
-        LOGGER.error("Error while trying to get tab-completions for command: {}. Command not registered.", commandId);
+        logger.error("Error while trying to get tab-completions for command: {}. Command not registered.", commandId);
         return List.of();
     }
 
     public static void init() {
-        LOGGER.info("Initializing commands...");
+        logger.info("Initializing commands...");
         new MainCommand();
         new AFK();
     }

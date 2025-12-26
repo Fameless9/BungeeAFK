@@ -1,6 +1,7 @@
 package net.fameless.velocity;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
@@ -25,7 +26,7 @@ import java.util.List;
 )
 public class VelocityPlatform implements BungeeAFKPlatform {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + VelocityPlatform.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + VelocityPlatform.class.getSimpleName());
     private static VelocityPlatform instance;
 
     private final ProxyServer proxyServer;
@@ -48,14 +49,21 @@ public class VelocityPlatform implements BungeeAFKPlatform {
         instance = this;
 
         VelocityCommandHandler commandHandler = new VelocityCommandHandler();
-        proxyServer.getCommandManager().register("bungeeafk", commandHandler, "bafk");
-        proxyServer.getCommandManager().register("afk", commandHandler);
+        CommandManager commandManager = proxyServer.getCommandManager();
+
+        commandManager.register(
+                commandManager.metaBuilder("bungeeafk")
+                        .aliases("bafk", "afk")
+                        .plugin(this)
+                        .build(),
+                commandHandler
+        );
 
         BungeeAFK.initCore(new VelocityModule());
 
         metricsFactory.make(this, 25577);
         long duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Successfully enabled. (took {}ms)", duration);
+        logger.info("Successfully enabled. (took {}ms)", duration);
     }
 
     public static ProxyServer getProxy() {

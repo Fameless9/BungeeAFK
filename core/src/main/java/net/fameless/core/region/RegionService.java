@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class RegionService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/RegionService");
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/RegionService");
 
     private static final class Holder {
         public static final RegionService INSTANCE = new RegionService();
@@ -28,7 +28,7 @@ public class RegionService {
     private volatile List<Region> regions = List.of();
 
     private RegionService() {
-        LOGGER.info("Initializing RegionService...");
+        logger.info("Initializing RegionService...");
         loadFromConfig();
     }
 
@@ -36,7 +36,7 @@ public class RegionService {
         synchronized (writeLock) {
             List<Region> loaded = readRegionsFromConfig();
             regions = List.copyOf(loaded);
-            LOGGER.info("Loaded {} region(s)", regions.size());
+            logger.info("Loaded {} region(s)", regions.size());
         }
     }
 
@@ -96,7 +96,7 @@ public class RegionService {
 
         regionSection.values().forEach(regionEntry -> {
             if (!(regionEntry instanceof Map<?,?>)) {
-                LOGGER.warn("Invalid Region entry found in config: {}", regionEntry.toString());
+                logger.warn("Invalid Region entry found in config: {}", regionEntry.toString());
             } else {
                 list.add(Region.fromMap((Map<String, Object>) regionEntry));
             }

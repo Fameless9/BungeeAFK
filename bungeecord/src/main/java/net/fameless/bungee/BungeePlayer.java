@@ -90,14 +90,14 @@ public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
     public CompletableFuture<Boolean> connect(String serverName) {
         ServerInfo server = BungeePlatform.proxyServer().getServerInfo(serverName);
         if (server == null) {
-            LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is not registered", this.getName(), serverName);
+            logger.warn("Error connecting player '{}' to Server '{}' | Server is not registered", this.getName(), serverName);
             return CompletableFuture.completedFuture(false);
         }
 
         return ServerPinger.isOnline(server.getSocketAddress())
                 .thenCompose(isOnline -> {
                     if (!isOnline) {
-                        LOGGER.warn("Error connecting player '{}' to Server '{}' | Server is offline", this.getName(), serverName);
+                        logger.warn("Error connecting player '{}' to Server '{}' | Server is offline", this.getName(), serverName);
                         return CompletableFuture.completedFuture(false);
                     }
 
@@ -119,7 +119,7 @@ public class BungeePlayer extends BAFKPlayer<ProxiedPlayer> {
         EventDispatcher.post(event);
 
         if (event.isCancelled()) {
-            LOGGER.info("PlayerKickEvent was cancelled for player: {}", getName());
+            logger.info("PlayerKickEvent was cancelled for player: {}", getName());
             return;
         }
         player.disconnect(BungeeComponentSerializer.get().serialize(event.getReason()));

@@ -20,7 +20,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,8 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AFKHandler {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + AFKHandler.class.getSimpleName());
-    private static final Gson GSON = new GsonBuilder()
+    protected static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + AFKHandler.class.getSimpleName());
+    private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
             .create();
@@ -67,7 +69,7 @@ public abstract class AFKHandler {
                         SchedulerService.VIRTUAL_EXECUTOR.submit(() -> processPlayer(player));
                     });
         } catch (Exception e) {
-            LOGGER.error("Error during AFK check task", e);
+            logger.error("Error during AFK check task", e);
             scheduledTask.cancel(false);
         }
     }
@@ -82,7 +84,7 @@ public abstract class AFKHandler {
             revertPreviousState(player);
             sendActionBar(player);
         } catch (Exception e) {
-            LOGGER.error("Error processing AFK checks for player {}", player.getName());
+            logger.error("Error processing AFK checks for player {}", player.getName());
         }
     }
 
@@ -126,7 +128,7 @@ public abstract class AFKHandler {
                 broadcastStrategy.broadcastFilter(player)
         );
 
-        LOGGER.info("{} is now AFK.", player.getName());
+        logger.info("{} is now AFK.", player.getName());
     }
 
     private void determineAndPerformAction(@NotNull BAFKPlayer<?> player) {
@@ -149,7 +151,7 @@ public abstract class AFKHandler {
 
     public void performConnectAction(@NotNull BAFKPlayer<?> player, Component kickReason, Component kickBroadcastMessage, Component connectMessage, Component connectBroadcastMessage) {
         if (!Action.isAfkServerConfigured()) {
-            LOGGER.warn("AFK server not configured. Defaulting to KICK.");
+            logger.warn("AFK server not configured. Defaulting to KICK.");
             this.action = Action.KICK;
             performKickAction(player, kickReason, kickBroadcastMessage);
             return;
@@ -169,9 +171,9 @@ public abstract class AFKHandler {
                                 broadcastStrategy.broadcastFilter(player)
                         );
 
-                        LOGGER.info("Moved {} to AFK server.", player.getName());
+                        logger.info("Moved {} to AFK server.", player.getName());
                     } else {
-                        LOGGER.warn("Error while trying to connect {} to the AFK-Server. Defaulting to KICK", player.getName());
+                        logger.warn("Error while trying to connect {} to the AFK-Server. Defaulting to KICK", player.getName());
                         performKickAction(player, kickReason, kickBroadcastMessage);
                     }
                 });
@@ -185,7 +187,7 @@ public abstract class AFKHandler {
                 broadcastStrategy.broadcastFilter(player)
         );
 
-        LOGGER.info("Kicked {} for being AFK.", player.getName());
+        logger.info("Kicked {} for being AFK.", player.getName());
     }
 
     public void performTeleportAction(@NotNull BAFKPlayer<?> player, Component message) {
@@ -206,11 +208,11 @@ public abstract class AFKHandler {
     }
 
     public void fetchPreviousPlayerStates() {
-        File playerStatesFile = ResourceUtil.extractResourceIfMissing("persisted_player_states.json", PluginPaths.getPersistedStatesFile());
+        Path playerStatesFile = ResourceUtil.extractResourceIfMissing("persisted_player_states.json", PluginPaths.getPersistedStatesFile());
 
         JsonObject root;
-        try (FileReader reader = new FileReader(playerStatesFile)) {
-            root = GSON.fromJson(reader, JsonObject.class);
+        try (var reader = Files.newBufferedReader(playerStatesFile)) {
+            root = gson.fromJson(reader, JsonObject.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -239,7 +241,7 @@ public abstract class AFKHandler {
                 GameMode gameMode = GameMode.valueOf(gameModeStr.toUpperCase());
                 playerPreviousGameModeMap.put(playerUUID, gameMode);
             } catch (IllegalArgumentException e) {
-                LOGGER.warn("Invalid game mode for player {}: {}", playerUUID, gameModeStr);
+                logger.warn("Invalid game mode for player {}: {}", playerUUID, gameModeStr);
             }
         }
 
@@ -260,21 +262,21 @@ public abstract class AFKHandler {
         try {
             this.broadcastStrategy = BroadcastStrategy.valueOf(config.getString("broadcast-strategy", "PER_SERVER"));
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Invalid Broadcast Strategy in config. Defaulting to 'PER_SERVER'.");
+            logger.warn("Invalid Broadcast Strategy in config. Defaulting to 'PER_SERVER'.");
             this.broadcastStrategy = BroadcastStrategy.PER_SERVER;
         }
 
         try {
             this.action = Action.fromIdentifier(config.getString("action", ""));
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Invalid action identifier in config. Defaulting to 'KICK'.");
+            logger.warn("Invalid action identifier in config. Defaulting to 'KICK'.");
             this.action = Action.KICK;
         }
 
         if (action == Action.CONNECT) {
             String serverName = config.getString("afk-server-name", "");
             if (!BungeeAFK.getPlatform().doesServerExist(serverName)) {
-                LOGGER.warn("AFK server not found. Defaulting to KICK.");
+                logger.warn("AFK server not found. Defaulting to KICK.");
                 this.action = Action.KICK;
             }
         }
@@ -305,9 +307,9 @@ public abstract class AFKHandler {
         root.add("server", serverObject);
 
         SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
-            File playerStatesFile = ResourceUtil.extractResourceIfMissing("persisted_player_states.json", PluginPaths.getPersistedStatesFile());
-            try (var writer = new BufferedWriter(new FileWriter(playerStatesFile))) {
-                GSON.toJson(root, writer);
+            Path playerStatesFile = ResourceUtil.extractResourceIfMissing("persisted_player_states.json", PluginPaths.getPersistedStatesFile());
+            try (var writer = Files.newBufferedWriter(playerStatesFile)) {
+                gson.toJson(root, writer);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

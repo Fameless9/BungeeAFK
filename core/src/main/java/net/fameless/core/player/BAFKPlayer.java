@@ -29,7 +29,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/Player");
+    protected static final Logger logger = LoggerFactory.getLogger("BungeeAFK/Player");
     public static final List<BAFKPlayer<?>> PLAYERS = new CopyOnWriteArrayList<>();
 
     protected String name;

@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PluginUpdater {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + PluginUpdater.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + PluginUpdater.class.getSimpleName());
     public static final String CURRENT_VERSION = "2.6.0";
     private static final String GITHUB_API_URL = "https://api.github.com/repos/fameless9/BungeeAFK/releases/latest";
     private static final String JSON_TAG_NAME = "tag_name";
@@ -32,9 +32,9 @@ public class PluginUpdater {
             String latestVersion = releaseData.get(JSON_TAG_NAME).getAsString();
             if (latestVersion.equals(CURRENT_VERSION)) return;
 
-            LOGGER.info("New version found. Version {} can now be downloaded from {}.", latestVersion, "https://github.com/Fameless9/BungeeAFK/releases/latest");
+            logger.info("New version found. Version {} can now be downloaded from {}.", latestVersion, "https://github.com/Fameless9/BungeeAFK/releases/latest");
         } catch (IOException e) {
-            LOGGER.error("Failed to fetch or update the plugin: {}", e.getMessage());
+            logger.error("Failed to fetch or update the plugin: {}", e.getMessage());
         }
     }
 

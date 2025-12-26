@@ -3,18 +3,17 @@ package net.fameless.core.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Objects;
 
 public class ResourceUtil {
 
-    private static final Gson GSON = new GsonBuilder()
+    private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
             .create();
@@ -28,34 +27,39 @@ public class ResourceUtil {
         }
     }
 
-    @Contract("_ -> new")
-    public static @NotNull File getFile(String path) {
-        return new File(Objects.requireNonNull(ResourceUtil.class.getClassLoader().getResource(path)).getFile());
-    }
-
     public static JsonObject readJsonResource(String path) {
         try (InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(path)) {
             if (in == null) throw new FileNotFoundException("Resource not found: " + path);
             try (Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
-                return GSON.fromJson(reader, JsonObject.class);
+                return gson.fromJson(reader, JsonObject.class);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static @NotNull File extractResourceIfMissing(String resourcePath, @NotNull File targetFile) {
-        if (targetFile.exists()) return targetFile;
-
+    public static @NotNull Path extractResource(@NotNull String resourcePath, @NotNull Path targetFile) {
         try {
-            Files.createDirectories(targetFile.getParentFile().toPath());
-            try (InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(resourcePath)) {
-                if (in == null) throw new FileNotFoundException("Resource not found in JAR: " + resourcePath);
-                Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Path parent = targetFile.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
             }
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to extract resource: " + resourcePath, e);
+            throw new RuntimeException("Could not create directory for " + targetFile, e);
         }
+
+        try (InputStream in = ResourceUtil.class.getClassLoader().getResourceAsStream(resourcePath)) {
+            if (in == null) throw new FileNotFoundException("Resource not found in JAR: " + resourcePath);
+            Files.copy(in, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not extract resource to " + targetFile, e);
+        }
+
         return targetFile;
+    }
+
+    public static @NotNull Path extractResourceIfMissing(@NotNull String resourcePath, @NotNull Path targetFile) {
+        if (Files.exists(targetFile)) return targetFile;
+        return extractResource(resourcePath, targetFile);
     }
 }

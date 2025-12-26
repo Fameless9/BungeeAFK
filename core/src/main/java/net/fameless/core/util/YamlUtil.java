@@ -177,7 +177,7 @@ public class YamlUtil {
               sample-size: %d          # Number of movement samples on the same location to analyze in a rolling window
             """,
                 Config.getInstance().getBoolean("overwrite-file-changes", true),
-                Caption.getCurrentLanguage().getIdentifier(),
+                Caption.getCurrentLanguage().toLowerCase(Locale.US),
                 Config.getInstance().getInt("netty-port", 9000),
                 Config.getInstance().getInt("warning-delay", 60),
                 Config.getInstance().getInt("afk-delay", 600),

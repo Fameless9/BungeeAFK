@@ -33,7 +33,7 @@ public class BungeeAFKHandler extends AFKHandler implements Listener {
             } else if (attempt < maxAttempts) {
                 awaitConnectionAndHandleJoin(bungeePlayer, attempt + 1);
             } else {
-                LOGGER.error("Timeout while waiting for player {} to have a valid server connection. Previous states cannot be reverted.", bungeePlayer.getUniqueId());
+                logger.error("Timeout while waiting for player {} to have a valid server connection. Previous states cannot be reverted.", bungeePlayer.getUniqueId());
             }
         }, 100, TimeUnit.MILLISECONDS);
     }

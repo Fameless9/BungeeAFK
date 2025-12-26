@@ -16,7 +16,7 @@ import java.util.List;
 
 public final class SpigotPlatform extends JavaPlugin implements BungeeAFKPlatform {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + SpigotPlatform.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + SpigotPlatform.class.getSimpleName());
     private static SpigotPlatform instance;
 
     public static SpigotPlatform get() {
@@ -40,7 +40,7 @@ public final class SpigotPlatform extends JavaPlugin implements BungeeAFKPlatfor
 
         new Metrics(this, 25575);
         long duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Successfully enabled. (took {}ms)", duration);
+        logger.info("Successfully enabled. (took {}ms)", duration);
     }
 
     @Override

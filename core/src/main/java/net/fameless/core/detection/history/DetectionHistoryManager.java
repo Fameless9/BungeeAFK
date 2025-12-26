@@ -5,21 +5,23 @@ import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
 
-import java.io.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class DetectionHistoryManager {
 
-    private static final Gson GSON = new GsonBuilder()
+    private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .disableHtmlEscaping()
             .create();
 
     public static void loadDetections() {
-        File detectionsFile = ResourceUtil.extractResourceIfMissing("detection_history.json", PluginPaths.getAutoClickerDetectionHistoryFile());
+        Path detectionsFile = ResourceUtil.extractResourceIfMissing("detection_history.json", PluginPaths.getAutoClickerDetectionHistoryFile());
 
         JsonArray detectionHistoryArray;
-        try (Reader reader = new FileReader(detectionsFile)) {
-            detectionHistoryArray = GSON.fromJson(reader, JsonArray.class);
+        try (var reader = Files.newBufferedReader(detectionsFile)) {
+            detectionHistoryArray = gson.fromJson(reader, JsonArray.class);
         } catch (IOException | JsonIOException | JsonSyntaxException e) {
             throw new RuntimeException("Failed to read detection history file: " + detectionsFile, e);
         }
@@ -36,15 +38,15 @@ public class DetectionHistoryManager {
 
     public static void saveDetections() {
         SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
-            File detectionsFile = PluginPaths.getAutoClickerDetectionHistoryFile();
+            Path detectionsFile = PluginPaths.getAutoClickerDetectionHistoryFile();
             JsonArray detectionHistoryArray = new JsonArray();
 
             for (Detection detection : Detection.getDetections()) {
                 detectionHistoryArray.add(detection.toJson());
             }
 
-            try (var writer = new BufferedWriter(new FileWriter(detectionsFile))) {
-                GSON.toJson(detectionHistoryArray, writer);
+            try (var writer = Files.newBufferedWriter(detectionsFile)) {
+                gson.toJson(detectionHistoryArray, writer);
             } catch (IOException e) {
                 throw new RuntimeException("Failed to write detection history file: " + detectionsFile, e);
             }

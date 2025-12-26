@@ -109,7 +109,7 @@ public class SpigotPlayer extends BAFKPlayer<Player> {
             EventDispatcher.post(event);
 
             if (event.isCancelled()) {
-                LOGGER.info("PlayerKickEvent was cancelled for player: {}", getName());
+                logger.info("PlayerKickEvent was cancelled for player: {}", getName());
                 return;
             }
             player.kickPlayer(LegacyComponentSerializer.legacySection().serialize(event.getReason()));

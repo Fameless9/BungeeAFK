@@ -5,7 +5,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import net.fameless.core.caption.Caption;
-import net.fameless.core.caption.Language;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.config.Config;
 import net.fameless.core.detection.autoclicker.AutoClickerDetector;
@@ -26,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class BungeeAFK {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + BungeeAFK.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + BungeeAFK.class.getSimpleName());
     private static boolean initialized = false;
     private static BungeeAFKPlatform platform;
     private static AFKHandler afkHandler;
@@ -51,9 +50,9 @@ public class BungeeAFK {
                 ██████╔╝╚██████╔╝██║ ╚████║╚██████╔╝███████╗███████╗██║  ██║██║     ██║  ██╗
                 ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝
                 """ + ColorUtil.ANSI_GREEN + "Running BungeeAFK Version: %s".formatted(PluginUpdater.CURRENT_VERSION + ColorUtil.ANSI_RESET);
-        LOGGER.info(startupMessage);
+        logger.info(startupMessage);
 
-        LOGGER.info("Initializing Core...");
+        logger.info("Initializing Core...");
 
         Injector injector = Guice.createInjector(
                 Stage.PRODUCTION,
@@ -71,15 +70,23 @@ public class BungeeAFK {
         checkForMisconfiguration();
 
         if (!Action.isAfkServerConfigured()) {
-            LOGGER.warn("AFK server is not configured. This may cause players to be kicked instead of being moved to the AFK server. Ignore if 'connect' action is not used.");
+            logger.warn("AFK server is not configured. This may cause players to be kicked instead of being moved to the AFK server. Ignore if 'connect' action is not used.");
         }
 
         Command.init();
 
-        Caption.loadDefaultLanguages();
-        Caption.setCurrentLanguage(Language.ofIdentifier(Config.getInstance().getString("lang", "en")));
+        Caption.loadLanguageFiles();
 
-        LOGGER.info("initializing BungeeAFK API...");
+        String configuredLanguage = Config.getInstance().getString("lang", "en");
+        if (!Caption.existsLanguage(configuredLanguage)) {
+            String fallBack = Caption.getAvailableLanguages().stream().findFirst().orElseThrow();
+            logger.warn("Configured language does not exists: {}. Falling back to: {}", configuredLanguage, fallBack);
+            Caption.setCurrentLanguage(fallBack);
+        } else {
+            Caption.setCurrentLanguage(configuredLanguage);
+        }
+
+        logger.info("initializing BungeeAFK API...");
         new BungeeAFKAPIImpl();
 
         try {
@@ -97,9 +104,9 @@ public class BungeeAFK {
         DetectionHistoryManager.saveDetections();
         if (Config.getInstance().getConfigRegistry().hasConfigFileChanged()) {
             if (!Config.getInstance().getBoolean("overwrite-file-changes", true)) {
-                LOGGER.info("Configuration file changed on disk during runtime - skipping save to avoid overwriting external edits");
+                logger.info("Configuration file changed on disk during runtime - skipping save to avoid overwriting external edits");
             } else {
-                LOGGER.info("Configuration file changed on disk during runtime - overwriting file with cached config values");
+                logger.info("Configuration file changed on disk during runtime - overwriting file with cached config values");
                 Config.getInstance().saveConfigAsync();
             }
         } else Config.getInstance().saveConfigAsync();
@@ -122,7 +129,7 @@ public class BungeeAFK {
             misconfiguredMessage += "'AFK delay is greater than action delay'";
         }
         if (!misconfiguredMessage.isEmpty()) {
-            LOGGER.warn("Misconfiguration detected: {} - This may cause unexpected behavior. Falling back to default configuration.", misconfiguredMessage);
+            logger.warn("Misconfiguration detected: {} - This may cause unexpected behavior. Falling back to default configuration.", misconfiguredMessage);
             Config.getInstance().set("warning-delay", 90);
             Config.getInstance().set("afk-delay", 180);
             Config.getInstance().set("action-delay", 420);

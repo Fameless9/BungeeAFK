@@ -1,12 +1,12 @@
- package net.fameless.velocity;
+package net.fameless.velocity;
 
- import com.velocitypowered.api.event.Subscribe;
- import com.velocitypowered.api.event.command.CommandExecuteEvent;
-  import com.velocitypowered.api.event.player.PlayerChatEvent;
- import com.velocitypowered.api.event.player.ServerPostConnectEvent;
- import com.velocitypowered.api.proxy.Player;
-   import net.fameless.core.handling.AFKHandler;
-    import org.jetbrains.annotations.NotNull;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.command.CommandExecuteEvent;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
+import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+import com.velocitypowered.api.proxy.Player;
+import net.fameless.core.handling.AFKHandler;
+import org.jetbrains.annotations.NotNull;
 
 
 public class VelocityAFKHandler extends AFKHandler {

@@ -13,7 +13,7 @@ import java.util.List;
 
 public final class BungeePlatform extends Plugin implements BungeeAFKPlatform {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + BungeePlatform.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + BungeePlatform.class.getSimpleName());
     private static BungeePlatform instance;
     private static ProxyServer proxyServer;
 
@@ -38,7 +38,7 @@ public final class BungeePlatform extends Plugin implements BungeeAFKPlatform {
 
         new Metrics(this, 25576);
         long duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Successfully enabled. (took {}ms)", duration);
+        logger.info("Successfully enabled. (took {}ms)", duration);
     }
 
     @Override

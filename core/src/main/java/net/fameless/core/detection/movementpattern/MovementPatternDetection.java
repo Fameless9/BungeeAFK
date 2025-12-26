@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 
 public class MovementPatternDetection {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + MovementPatternDetection.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + MovementPatternDetection.class.getSimpleName());
 
     private final Map<BAFKPlayer<?>, Map<Location, Deque<Long>>> playerMovementHistory = new ConcurrentHashMap<>();
 
@@ -43,7 +43,7 @@ public class MovementPatternDetection {
         if (BungeeAFK.getMovementPatternDetection() != null) {
             throw new IllegalStateException("You may not create another instance of MovementPatternDetection!");
         }
-        LOGGER.info("Initializing MovementPatternDetection...");
+        logger.info("Initializing MovementPatternDetection...");
 
         reloadConfigValues();
         defaultActionOnDetection = player -> {
@@ -51,7 +51,7 @@ public class MovementPatternDetection {
             try {
                 action = ActionOnDetection.fromIdentifier(Config.getInstance().getString("movement-pattern.action", "kick"));
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Invalid action on movement pattern detection, defaulting to kick", e);
+                logger.error("Invalid action on movement pattern detection, defaulting to kick", e);
                 action = ActionOnDetection.KICK;
             }
 
@@ -130,7 +130,7 @@ public class MovementPatternDetection {
     }
 
     private void patternDetected(@NotNull BAFKPlayer<?> player, Location location, double stdDev, double certainty) {
-        LOGGER.info("Suspicious Movement Pattern Detected: Player {} @ {} | stdDev={} | certainty={}",
+        logger.info("Suspicious Movement Pattern Detected: Player {} @ {} | stdDev={} | certainty={}",
                 player.getName(), location, stdDev, String.format("%.2f", certainty * 100) + "%");
 
         playerMovementHistory.get(player).clear();

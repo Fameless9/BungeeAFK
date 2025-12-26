@@ -2,9 +2,9 @@ package net.fameless.limbo;
 
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
 
@@ -14,9 +14,11 @@ public class Config {
 
     public Config() {
         Yaml yaml = new Yaml();
-        File configFile = ResourceUtil.extractResourceIfMissing("config.yml", new File(LimboTracking.getInstance().getDataFolder(), "config.yml"));
+        Path configFile = ResourceUtil.extractResourceIfMissing("config.yml",
+                LimboTracking.getInstance().getDataFolder().toPath().resolve("config.yml")
+        );
         try {
-            configData = yaml.load(Files.readString(configFile.toPath()));
+            configData = yaml.load(Files.readString(configFile));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

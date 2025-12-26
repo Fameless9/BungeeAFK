@@ -1,30 +1,31 @@
 package net.fameless.core.util;
 
-import net.fameless.core.caption.Language;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class PluginPaths {
 
-    public static final File BASE_FOLDER = new File("plugins" + File.separator + "BungeeAFK");
+    public static final Path BASE_FOLDER = Paths.get("plugins", "BungeeAFK");
 
-    @Contract("_ -> new")
-    public static @NotNull File getLangFile(@NotNull Language language) {
-        return new File(BASE_FOLDER, "lang/lang_" + language.getIdentifier() + ".json");
+    public static @NotNull Path getLangFile(@NotNull String language) {
+        return BASE_FOLDER.resolve("lang").resolve("lang_" + language + ".json");
     }
 
-    public static @NotNull File getConfigFile() {
-        return new File(BASE_FOLDER, "config.yml");
+    public static @NotNull Path getLangDir() {
+        return BASE_FOLDER.resolve("lang");
     }
 
-    public static @NotNull File getPersistedStatesFile() {
-        return new File(BASE_FOLDER + File.separator + "storage", "persisted_states.json");
+    public static @NotNull Path getConfigFile() {
+        return BASE_FOLDER.resolve("config.yml");
     }
 
-    public static @NotNull File getAutoClickerDetectionHistoryFile() {
-        return new File(BASE_FOLDER + File.separator + "storage", "detection_history.json");
+    public static @NotNull Path getPersistedStatesFile() {
+        return BASE_FOLDER.resolve("storage").resolve("persisted_states.json");
     }
 
+    public static @NotNull Path getAutoClickerDetectionHistoryFile() {
+        return BASE_FOLDER.resolve("storage").resolve("detection_history.json");
+    }
 }

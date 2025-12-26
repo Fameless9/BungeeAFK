@@ -3,7 +3,6 @@ package net.fameless.core.command;
 import com.google.gson.JsonObject;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.caption.Caption;
-import net.fameless.core.caption.Language;
 import net.fameless.core.command.framework.CallerType;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.command.framework.CommandCaller;
@@ -206,15 +205,20 @@ public class MainCommand extends Command {
                     ));
                 }
                 case "caption" -> {
-                    Language language = Language.ofIdentifier(args[2]);
-                    if (language == null) {
+                    if (args.length < 4) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    String language = args[2].toLowerCase(Locale.US);
+                    if (!Caption.existsLanguage(language)) {
                         caller.sendMessage(Caption.of("command.invalid_language"));
                         return;
                     }
 
                     JsonObject languageJsonObject = Caption.getLanguageJsonObject(language);
                     if (languageJsonObject == null) {
-                        caller.sendMessage(Caption.of("command.language_not_loaded", TagResolver.resolver("language", Tag.inserting(Component.text(language.getIdentifier())))));
+                        caller.sendMessage(Caption.of("command.language_not_loaded", TagResolver.resolver("language", Tag.inserting(Component.text(language)))));
                         return;
                     }
 
@@ -225,11 +229,11 @@ public class MainCommand extends Command {
                     }
 
                     languageJsonObject.addProperty(captionKey, String.join(" ", Arrays.copyOfRange(args, 4, args.length)));
-                    Caption.loadLanguage(language, languageJsonObject);
+                    Caption.setJsonObject(language, languageJsonObject);
                     Caption.saveToFile();
 
                     caller.sendMessage(Caption.of("command.caption_set",
-                            TagResolver.resolver("language", Tag.inserting(Component.text(language.getIdentifier()))),
+                            TagResolver.resolver("language", Tag.inserting(Component.text(language))),
                             TagResolver.resolver("key", Tag.inserting(Component.text(captionKey))),
                             TagResolver.resolver("caption", Tag.inserting(Component.text(Caption.getString(language, captionKey))))
                     ));
@@ -347,12 +351,13 @@ public class MainCommand extends Command {
             }
         } else if (args[0].equalsIgnoreCase("lang")) {
             if (args[1].equalsIgnoreCase("reload")) {
-                Caption.loadDefaultLanguages();
+                Caption.loadLanguageFiles();
                 caller.sendMessage(Caption.of("command.languages_reloaded"));
                 return;
             }
-            Language newLanguage = Language.ofIdentifier(args[1]);
-            if (newLanguage == null) {
+
+            String newLanguage = args[1].toLowerCase(Locale.US);
+            if (!Caption.existsLanguage(newLanguage)) {
                 caller.sendMessage(Caption.of("command.invalid_language"));
                 return;
             }
@@ -360,7 +365,7 @@ public class MainCommand extends Command {
             Caption.setCurrentLanguage(newLanguage);
             caller.sendMessage(Caption.of(
                     "command.language_changed",
-                    TagResolver.resolver("language", Tag.inserting(Component.text(newLanguage.getFriendlyName())))
+                    TagResolver.resolver("language", Tag.inserting(Component.text(newLanguage)))
             ));
         } else if (args[0].equalsIgnoreCase("region")) {
             switch (args[1]) {
@@ -706,9 +711,7 @@ public class MainCommand extends Command {
                     }
                     case "lang" -> {
                         completions.add("reload");
-                        for (Language language : Language.values()) {
-                            completions.add(language.getIdentifier());
-                        }
+                        completions.addAll(Caption.getAvailableLanguages());
                     }
                     case "region" -> completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
                     case "movement-pattern", "auto-clicker" -> {
@@ -728,7 +731,7 @@ public class MainCommand extends Command {
                         switch (args[1].toLowerCase()) {
                             case "action" -> Action.getAvailableActions().forEach(action -> completions.add(action.getIdentifier()));
                             case "warning-delay", "afk-delay", "action-delay" -> completions.add("<seconds>");
-                            case "caption" -> completions.addAll(Arrays.stream(Language.values()).map(Language::getIdentifier).toList());
+                            case "caption" -> completions.addAll(Caption.getAvailableLanguages());
                             case "allow-bypass", "actionbar" -> completions.addAll(Arrays.asList("true", "false"));
                             case "disable-server" -> {
                                 if (BungeeAFK.isProxy()) {
@@ -805,8 +808,8 @@ public class MainCommand extends Command {
             }
             case 4 -> {
                 if (args[0].equalsIgnoreCase("configure") && args[1].equalsIgnoreCase("caption")) {
-                    Language language = Language.ofIdentifier(args[2]);
-                    if (language != null) {
+                    String language = args[2];
+                    if (language != null && Caption.existsLanguage(language)) {
                         JsonObject languageObj = Caption.getLanguageJsonObject(language);
                         if (languageObj != null) {
                             completions.addAll(languageObj.keySet());

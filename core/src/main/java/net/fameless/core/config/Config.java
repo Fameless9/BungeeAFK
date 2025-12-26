@@ -16,14 +16,9 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Config {
 
@@ -35,8 +30,9 @@ public class Config {
         return Holder.INSTANCE;
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/Config");
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/Config");
 
+    private final Map<String, Object> defaultData;
     private volatile Map<String, Object> data = Collections.emptyMap();
     private volatile ConfigRegistry configRegistry;
 
@@ -44,7 +40,8 @@ public class Config {
     private final Object writeLock = new Object();
 
     public Config() {
-        LOGGER.info("Initializing Config...");
+        logger.info("Initializing Config...");
+        this.defaultData = YamlUtil.YAML.load(ResourceUtil.readResource("config.yml"));
         ResourceUtil.extractResourceIfMissing("config.yml", PluginPaths.getConfigFile());
         typeAdapterRegistry.register(Region.class, new RegionTypeAdapter());
         load();
@@ -52,15 +49,29 @@ public class Config {
 
     public void load() {
         synchronized (writeLock) {
-            this.data = deepUnmodifiable(readConfigFile());
+            Map<String, Object> loadedData = readConfigFile();
+            if (loadedData == null) loadedData = new HashMap<>();
+
+            this.data = deepUnmodifiable(loadedData);
             this.configRegistry = new ConfigRegistry(data);
+
+            checkMissingKeys();
         }
     }
 
+    public void checkMissingKeys() {
+        Set<String> missingKeys = new HashSet<>(defaultData.keySet());
+        missingKeys.removeAll(data.keySet());
+        if (missingKeys.isEmpty()) return;
+        logger.warn("Config is missing the following key(s): {}. Default values will be used", missingKeys);
+    }
+
     public Map<String, Object> readConfigFile() {
-        File configFile = PluginPaths.getConfigFile();
         try {
-            String yamlContent = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
+            String yamlContent = Files.readString(PluginPaths.getConfigFile());
+            if (yamlContent.isBlank()) {
+                throw new RuntimeException("Error reading config file: config file is blank");
+            }
             return YamlUtil.YAML.load(yamlContent);
         } catch (Exception e) {
             throw new RuntimeException("Error reading config file", e);
@@ -81,11 +92,12 @@ public class Config {
         return current;
     }
 
+    @SuppressWarnings("unchecked")
     public void set(@NotNull String key, Object value) {
         synchronized (writeLock) {
             String[] parts = key.split("\\.");
 
-            Map<String, Object> newData = new ConcurrentHashMap<>(data);
+            Map<String, Object> newData = new HashMap<>(data);
 
             Map<String, Object> current = newData;
             Object original = data;
@@ -96,12 +108,12 @@ public class Config {
                 Object child = (original instanceof Map<?, ?> map) ? map.get(part) : null;
 
                 if (child instanceof Map<?, ?> childMap) {
-                    Map<String, Object> copiedChild = new ConcurrentHashMap<>((Map<String, Object>) childMap);
+                    Map<String, Object> copiedChild = new HashMap<>((Map<String, Object>) childMap);
                     current.put(part, copiedChild);
                     current = copiedChild;
                     original = childMap;
                 } else {
-                    Map<String, Object> newChild = new ConcurrentHashMap<>();
+                    Map<String, Object> newChild = new HashMap<>();
                     current.put(part, newChild);
                     current = newChild;
                     original = null;
@@ -112,7 +124,7 @@ public class Config {
             if (value == null) current.remove(last);
             else current.put(last, value);
 
-            this.data = Collections.unmodifiableMap(newData);
+            this.data = deepUnmodifiable(newData);
         }
     }
 
@@ -144,10 +156,10 @@ public class Config {
     }
 
     public void saveConfig() {
-        try (var writer = new BufferedWriter(new FileWriter(PluginPaths.getConfigFile()))) {
+        try (var writer = Files.newBufferedWriter(PluginPaths.getConfigFile())) {
             writer.write(YamlUtil.generateConfig());
         } catch (IOException e) {
-            LOGGER.error("Failed to write configuration", e);
+            logger.error("Failed to write configuration", e);
         }
     }
 
@@ -156,12 +168,12 @@ public class Config {
     }
 
     public void reloadAll() {
-        LOGGER.info("Reloading all configurations...");
+        logger.info("Reloading all configurations...");
         load();
         BungeeAFK.getAFKHandler().reloadConfigValues();
         BungeeAFK.getAutoClickerDetector().reloadConfigValues();
         BungeeAFK.getMovementPatternDetection().reloadConfigValues();
-        LOGGER.info("Reload complete");
+        logger.info("Reload complete");
     }
 
     private <T> @Unmodifiable @NotNull T defaultConvert(Object raw, Class<T> type) {
@@ -190,8 +202,10 @@ public class Config {
         Map<String, Object> newMap = new HashMap<>();
         for (var entry : map.entrySet()) {
             Object value = entry.getValue();
-            if (value instanceof Map) {
-                value = deepUnmodifiable((Map<String, Object>) value);
+            if (value instanceof Map<?, ?> subMap) {
+                value = deepUnmodifiable((Map<String, Object>) subMap);
+            } else if (value instanceof List<?> list) {
+                value = List.copyOf(list);
             }
             newMap.put(entry.getKey(), value);
         }

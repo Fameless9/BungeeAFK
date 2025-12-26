@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 
 public class AutoClickerDetector {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("BungeeAFK/" + AutoClickerDetector.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger("BungeeAFK/" + AutoClickerDetector.class.getSimpleName());
 
     private final Map<BAFKPlayer<?>, Deque<Long>> playerClickTimes = new ConcurrentHashMap<>();
     private final Map<BAFKPlayer<?>, Integer> detectionStreaks = new ConcurrentHashMap<>();
@@ -42,14 +42,14 @@ public class AutoClickerDetector {
         if (BungeeAFK.getAutoClickerDetector() != null) {
             throw new IllegalStateException("You may not create another instance of AutoClickerDetector!");
         }
-        LOGGER.info("Initializing AutoClickerDetector...");
+        logger.info("Initializing AutoClickerDetector...");
 
         reloadConfigValues();
 
         this.defaultActionOnDetection = player -> {
             String notifyPermission = Config.getInstance().getString("auto-clicker.notify-permission", "bungeeafk.autoclicker.notify");
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Auto-clicker detected for player: {}", player.getName());
+            if (logger.isWarnEnabled()) {
+                logger.warn("Auto-clicker detected for player: {}", player.getName());
             }
 
             BAFKPlayer.PLAYERS.stream()
@@ -113,7 +113,7 @@ public class AutoClickerDetector {
 
             boolean impossibleSpeed = intervals.stream().anyMatch(i -> i < minClickIntervalMillis);
             if (impossibleSpeed) {
-                LOGGER.info("Auto-clicker detected for player {}: impossible click speed detected (intervals: {})",
+                logger.info("Auto-clicker detected for player {}: impossible click speed detected (intervals: {})",
                         player.getName(), intervals);
                 autoClickerDetected(player);
                 return;
@@ -123,7 +123,7 @@ public class AutoClickerDetector {
                 int streak = detectionStreaks.merge(player, 1, Integer::sum);
 
                 if (streak >= consecutiveDetectionsRequired) {
-                    LOGGER.info("Auto-clicker detected for player {}: consistent click speed detected (streak: {}, intervals: {})",
+                    logger.info("Auto-clicker detected for player {}: consistent click speed detected (streak: {}, intervals: {})",
                             player.getName(), streak, intervals);
                     autoClickerDetected(player);
                 }
