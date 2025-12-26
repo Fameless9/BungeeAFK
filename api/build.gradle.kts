@@ -1,5 +1,4 @@
 plugins {
-    `java-library`
     `maven-publish`
 }
 
@@ -24,8 +23,8 @@ publishing {
             from(components["java"])
 
             pom {
-                properties.put("maven.compiler.source", "17")
-                properties.put("maven.compiler.target", "17")
+                properties.put("maven.compiler.source", "21")
+                properties.put("maven.compiler.target", "21")
             }
         }
     }
@@ -35,6 +34,6 @@ publishing {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }

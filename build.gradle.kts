@@ -1,7 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
-    id("com.diffplug.spotless") version "7.0.0.BETA1"
+    id("com.diffplug.spotless") version "8.1.0"
 }
 
 group = "net.fameless"
@@ -34,7 +34,7 @@ subprojects {
             trimTrailingWhitespace()
             endWithNewline()
             formatAnnotations()
-            indentWithSpaces(4)
+            leadingTabsToSpaces(4)
         }
     }
 

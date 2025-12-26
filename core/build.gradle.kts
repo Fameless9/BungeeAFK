@@ -1,7 +1,3 @@
-plugins {
-    id("java-library")
-}
-
 group = "net.fameless"
 version = "2.6.0"
 description = "Core features implementing the basic logic of BungeeAFK"
