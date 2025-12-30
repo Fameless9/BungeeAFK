@@ -1,7 +1,7 @@
 package net.fameless.core.region;
 
 import net.fameless.core.config.Config;
-import net.fameless.core.location.Location;
+import net.fameless.core.util.Location;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,7 +95,7 @@ public class RegionService {
         Map<String, Object> regionSection = Config.getInstance().getSection("bypass-regions");
 
         regionSection.values().forEach(regionEntry -> {
-            if (!(regionEntry instanceof Map<?,?>)) {
+            if (!(regionEntry instanceof Map<?, ?>)) {
                 logger.warn("Invalid Region entry found in config: {}", regionEntry.toString());
             } else {
                 list.add(Region.fromMap((Map<String, Object>) regionEntry));

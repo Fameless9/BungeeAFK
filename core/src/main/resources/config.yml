@@ -1,4 +1,3 @@
-
 #  ██████╗ ██╗   ██╗███╗   ██╗ ██████╗ ███████╗███████╗ █████╗ ███████╗██╗  ██╗
 #  ██╔══██╗██║   ██║████╗  ██║██╔════╝ ██╔════╝██╔════╝██╔══██╗██╔════╝██║ ██╔╝
 #  ██████╔╝██║   ██║██╔██╗ ██║██║  ███╗█████╗  █████╗  ███████║█████╗  █████╔╝
@@ -64,8 +63,7 @@ allow-bypass: true
 # List of servers where AFK detection is disabled
 # Players on these servers will not be marked as AFK, and no actions will be performed
 # Example: [lobby, hub]
-disabled-servers:
-  []
+disabled-servers: [ ]
 
 # Strategy used to broadcast AFK notifications to other players
 # Affected message keys: 'notification.afk_broadcast', 'notification.return_broadcast', 'notification.afk_kick_broadcast', 'notification.afk_disconnect_broadcast'
@@ -108,7 +106,7 @@ auto-clicker:
   action: "kick"
 
   # List of servers where auto clicker detection is disabled
-  disabled-servers: []
+  disabled-servers: [ ]
 
   # These values are fine-tuned to balance false positives and detection accuracy
   # sample-size: 200 - Number of clicks analyzed in a rolling window
@@ -146,7 +144,7 @@ movement-pattern:
   action: "kick"
 
   # List of servers where movement pattern detection is disabled
-  disabled-servers: []
+  disabled-servers: [ ]
 
   # Time after which an individual movement is cleared and therefore cannot be used for analyzing patterns
   # This is to prevent high memory usage and to ensure that only recent movements are considered

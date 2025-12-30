@@ -4,9 +4,9 @@ import net.fameless.api.event.EventDispatcher;
 import net.fameless.api.event.PlayerKickEvent;
 import net.fameless.core.adapter.APIAdapter;
 import net.fameless.core.command.framework.CallerType;
-import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
+import net.fameless.core.util.Location;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -141,7 +141,7 @@ public class SpigotPlayer extends BAFKPlayer<Player> {
     }
 
     @Override
-    public void teleport(net.fameless.core.location.Location location) {
+    public void teleport(Location location) {
         Bukkit.getScheduler().runTask(SpigotPlatform.get(), () -> getPlatformPlayer().ifPresent(player -> player.teleport(SpigotLocationAdapter.adapt(location))));
 
     }

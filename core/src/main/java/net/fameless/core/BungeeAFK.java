@@ -13,14 +13,13 @@ import net.fameless.core.detection.movementpattern.MovementPatternDetection;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
 import net.fameless.core.network.NettyServerBootstrap;
-import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.ColorUtil;
 import net.fameless.core.util.PluginUpdater;
+import net.fameless.core.util.SchedulerService;
 import net.fameless.core.util.cache.ExpirableMap;
 import net.fameless.core.util.cache.ExpirableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 
 public class BungeeAFK {

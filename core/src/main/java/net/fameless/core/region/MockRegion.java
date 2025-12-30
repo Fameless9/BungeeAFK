@@ -1,6 +1,6 @@
 package net.fameless.core.region;
 
-import net.fameless.core.location.Location;
+import net.fameless.core.util.Location;
 import org.jetbrains.annotations.NotNull;
 
 // Test region to check whether AFK-Location is within the region.

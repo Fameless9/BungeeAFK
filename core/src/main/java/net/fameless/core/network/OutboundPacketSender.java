@@ -1,14 +1,14 @@
 package net.fameless.core.network;
 
-import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
+import net.fameless.core.util.Location;
 import net.fameless.network.MessageType;
 import net.fameless.network.NetworkUtil;
 import net.fameless.network.packet.outbound.OpenEmptyInventoryPacket;
 import net.fameless.network.packet.outbound.SetGameModePacket;
 import net.fameless.network.packet.outbound.TeleportPlayerPacket;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public class OutboundPacketSender {
 
@@ -22,12 +22,12 @@ public class OutboundPacketSender {
 
     private final ChannelRegistry registry = new ChannelRegistry();
 
-    public void sendOpenEmptyInventoryPacket(@NonNull BAFKPlayer<?> player) {
+    public void sendOpenEmptyInventoryPacket(@NotNull BAFKPlayer<?> player) {
         OpenEmptyInventoryPacket packet = new OpenEmptyInventoryPacket(player.getUniqueId());
         registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.OPEN_EMPTY_INVENTORY, packet)));
     }
 
-    public void sendTeleportPlayerPacket(@NonNull BAFKPlayer<?> player, @NonNull Location to) {
+    public void sendTeleportPlayerPacket(@NotNull BAFKPlayer<?> player, @NotNull Location to) {
         TeleportPlayerPacket packet = new TeleportPlayerPacket(
                 player.getUniqueId(),
                 to.worldName(),
@@ -40,7 +40,7 @@ public class OutboundPacketSender {
         registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.TELEPORT_PLAYER, packet)));
     }
 
-    public void sendSetGameModePacket(@NonNull BAFKPlayer<?> player, @NonNull GameMode gameMode) {
+    public void sendSetGameModePacket(@NotNull BAFKPlayer<?> player, @NotNull GameMode gameMode) {
         SetGameModePacket packet = new SetGameModePacket(player.getUniqueId(), gameMode.name());
         registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.SET_GAMEMODE, packet)));
     }

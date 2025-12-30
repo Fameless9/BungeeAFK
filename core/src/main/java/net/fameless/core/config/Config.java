@@ -5,9 +5,9 @@ import net.fameless.core.config.adapter.RegionTypeAdapter;
 import net.fameless.core.config.adapter.TypeAdapter;
 import net.fameless.core.config.adapter.TypeAdapterRegistry;
 import net.fameless.core.region.Region;
-import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
+import net.fameless.core.util.SchedulerService;
 import net.fameless.core.util.YamlUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -93,7 +93,7 @@ public class Config {
     }
 
     @SuppressWarnings("unchecked")
-    public void set(@NotNull String key, Object value) {
+    public void set(@NotNull String key, @Nullable Object value) {
         synchronized (writeLock) {
             String[] parts = key.split("\\.");
 
@@ -128,7 +128,7 @@ public class Config {
         }
     }
 
-    public <T> T get(String key, Class<T> type) {
+    public @Nullable <T> T get(String key, Class<T> type) {
         Object value = getValue(key);
         if (value == null) return null;
         if (type.isInstance(value)) {
@@ -142,7 +142,7 @@ public class Config {
         return defaultConvert(value, type);
     }
 
-    public <T> T getOrDefault(String key, Class<T> type, T def) {
+    public @NotNull <T> T getOrDefault(String key, Class<T> type, @NotNull T def) {
         try {
             T val = get(key, type);
             return val != null ? val : def;
@@ -213,48 +213,48 @@ public class Config {
     }
 
 
-    public String getString(String key) {
-        return getOrDefault(key, String.class, null);
+    public @Nullable String getString(String key) {
+        return get(key, String.class);
     }
 
-    public String getString(String key, String fallback) {
+    public @NotNull String getString(String key, @NotNull String fallback) {
         return getOrDefault(key, String.class, fallback);
     }
 
-    public Integer getInt(String key) {
-        return getOrDefault(key, Integer.class, null);
+    public @Nullable Integer getInt(String key) {
+        return get(key, Integer.class);
     }
 
     public int getInt(String key, int fallback) {
         return getOrDefault(key, Integer.class, fallback);
     }
 
-    public Long getLong(String key) {
-        return getOrDefault(key, Long.class, null);
+    public @Nullable Long getLong(String key) {
+        return get(key, Long.class);
     }
 
     public long getLong(String key, long fallback) {
         return getOrDefault(key, Long.class, fallback);
     }
 
-    public Double getDouble(String key) {
-        return getOrDefault(key, Double.class, null);
+    public @Nullable Double getDouble(String key) {
+        return get(key, Double.class);
     }
 
     public double getDouble(String key, double fallback) {
         return getOrDefault(key, Double.class, fallback);
     }
 
-    public Float getFloat(String key) {
-        return getOrDefault(key, Float.class, null);
+    public @Nullable Float getFloat(String key) {
+        return get(key, Float.class);
     }
 
     public float getFloat(String key, float fallback) {
         return getOrDefault(key, Float.class, fallback);
     }
 
-    public Boolean getBoolean(String key) {
-        return getOrDefault(key, Boolean.class, null);
+    public @Nullable Boolean getBoolean(String key) {
+        return get(key, Boolean.class);
     }
 
     public boolean getBoolean(String key, boolean fallback) {

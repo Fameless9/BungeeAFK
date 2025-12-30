@@ -14,7 +14,7 @@ import net.fameless.network.packet.outbound.OpenEmptyInventoryPacket;
 import net.fameless.network.packet.outbound.SetGameModePacket;
 import net.fameless.network.packet.outbound.TeleportPlayerPacket;
 import net.kyori.adventure.text.Component;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
@@ -26,7 +26,7 @@ public class InboundChannelHandler extends SimpleChannelInboundHandler<String> {
             .create();
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, @NonNull Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext ctx, @NotNull Throwable cause) {
         if (cause.getMessage() != null && cause.getMessage().contains("Connection reset")) {
             return;
         }

@@ -41,11 +41,12 @@ public class BungeeAFKAPI {
     /**
      * Performs a connect action for a player.
      *
-     * @param player The player to perform the connect action for
-     * @param kickFallbackReason The reason message if player is kicked as fallback
+     * @param player                       The player to perform the connect action for
+     * @param kickFallbackReason           The reason message if player is kicked as fallback
      * @param kickFallbackBroadcastMessage The broadcast message if player is kicked as fallback
-     * @param connectMessage The message to send to the player on connect
-     * @param connectBroadcastMessage The message to broadcast when player connects
+     * @param connectMessage               The message to send to the player on connect
+     * @param connectBroadcastMessage      The message to broadcast when player connects
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static void performConnectAction(Player player, Component kickFallbackReason, Component kickFallbackBroadcastMessage, Component connectMessage, Component connectBroadcastMessage) throws PlayerNotFoundException {
@@ -55,9 +56,10 @@ public class BungeeAFKAPI {
     /**
      * Kicks a player with a specified reason and broadcast message.
      *
-     * @param player The player to kick
-     * @param reason The reason message shown to the kicked player
+     * @param player           The player to kick
+     * @param reason           The reason message shown to the kicked player
      * @param broadcastMessage The message to broadcast to other players
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static void performKickAction(Player player, Component reason, Component broadcastMessage) throws PlayerNotFoundException {
@@ -67,8 +69,9 @@ public class BungeeAFKAPI {
     /**
      * Teleports a player and sends them a message.
      *
-     * @param player The player to teleport
+     * @param player          The player to teleport
      * @param teleportMessage The message to send to the player after teleporting
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static void performTeleportAction(Player player, Component teleportMessage) throws PlayerNotFoundException {
@@ -79,7 +82,9 @@ public class BungeeAFKAPI {
      * Checks if a player is currently AFK.
      *
      * @param player The player to check
+     *
      * @return true if the player is AFK, false otherwise
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static boolean isPlayerAFK(Player player) throws PlayerNotFoundException {
@@ -90,7 +95,9 @@ public class BungeeAFKAPI {
      * Gets the AFK state of a player.
      *
      * @param player The player to check
+     *
      * @return The AFKState of the player
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static AFKState getPlayerAFKState(Player player) throws PlayerNotFoundException {
@@ -101,7 +108,8 @@ public class BungeeAFKAPI {
      * Sets the AFK status of a player.
      *
      * @param player The player to set the AFK state for
-     * @param afk true to set the player as AFK, false to set as not AFK
+     * @param afk    true to set the player as AFK, false to set as not AFK
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static void setPlayerAFK(Player player, boolean afk) throws PlayerNotFoundException {
@@ -111,8 +119,9 @@ public class BungeeAFKAPI {
     /**
      * Sets the AFK state of a player.
      *
-     * @param player The player to set the AFK state for
+     * @param player   The player to set the AFK state for
      * @param afkState The AFKState to set for the player
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static void setPlayerAFKState(Player player, AFKState afkState) throws PlayerNotFoundException {
@@ -123,7 +132,9 @@ public class BungeeAFKAPI {
      * Gets the time in milliseconds since a player's last action.
      *
      * @param player The player to check
+     *
      * @return The time in milliseconds since the player's last action
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static long getTimeSinceLastAction(Player player) throws PlayerNotFoundException {
@@ -133,8 +144,9 @@ public class BungeeAFKAPI {
     /**
      * Sets the time since a player's last action.
      *
-     * @param player The player to set the time for
+     * @param player              The player to set the time for
      * @param timeSinceLastAction The time in milliseconds since the player's last action
+     *
      * @throws PlayerNotFoundException if the player is not found
      */
     public static void setTimeSinceLastAction(Player player, int timeSinceLastAction) throws PlayerNotFoundException {
@@ -181,21 +193,21 @@ public class BungeeAFKAPI {
      * Gets the list of regions where AFK detection is bypassed.
      * Format:
      * [
-     *  {
-     *   "regionName": "RegionName",
-     *   "afkDetection": false,
-     *   "worldName": "WorldName",
-     *   "corner1": {
-     *     "x": 100,
-     *     "y": 64,
-     *     "z": 100
-     *   },
-     *   "corner2": {
-     *     "x": 200,
-     *     "y": 64,
-     *     "z": 200
-     *   }
-     *  }
+     * {
+     * "regionName": "RegionName",
+     * "afkDetection": false,
+     * "worldName": "WorldName",
+     * "corner1": {
+     * "x": 100,
+     * "y": 64,
+     * "z": 100
+     * },
+     * "corner2": {
+     * "x": 200,
+     * "y": 64,
+     * "z": 200
+     * }
+     * }
      * ]
      *
      * @return A JsonArray containing the bypass regions
@@ -211,21 +223,21 @@ public class BungeeAFKAPI {
      * <p>
      * Format:
      * [
-     *  {
-     *   "regionName": "RegionName",
-     *   "afkDetection": false,
-     *   "worldName": "WorldName",
-     *   "corner1": {
-     *   "x": 100,
-     *   "y": 64,
-     *   "z": 100
-     *   },
-     *   "corner2": {
-     *   "x": 200,
-     *   "y": 64,
-     *   "z": 200
-     *   }
-     *  }
+     * {
+     * "regionName": "RegionName",
+     * "afkDetection": false,
+     * "worldName": "WorldName",
+     * "corner1": {
+     * "x": 100,
+     * "y": 64,
+     * "z": 100
+     * },
+     * "corner2": {
+     * "x": 200,
+     * "y": 64,
+     * "z": 200
+     * }
+     * }
      * ]
      * <p>
      * Will throw an exception if the provided JsonArray is malformed or does not match the expected structure.
@@ -239,7 +251,7 @@ public class BungeeAFKAPI {
     /**
      * Sets a configuration value.
      *
-     * @param key The configuration key
+     * @param key   The configuration key
      * @param value The value to set for the key
      */
     public static void setConfigValue(String key, Object value) {
@@ -250,6 +262,7 @@ public class BungeeAFKAPI {
      * Gets a configuration value.
      *
      * @param key The configuration key
+     *
      * @return The value associated with the key, or null if not found
      */
     public static Object getConfigValue(String key) {

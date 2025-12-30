@@ -7,10 +7,8 @@ import com.google.gson.JsonObject;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.config.Config;
-import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
-import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.*;
 import net.fameless.core.util.cache.ExpirableSet;
 import net.kyori.adventure.text.Component;
@@ -314,7 +312,7 @@ public abstract class AFKHandler {
                 throw new RuntimeException(e);
             }
         });
- }
+    }
 
     public BroadcastStrategy getBroadcastStrategy() {
         return broadcastStrategy;

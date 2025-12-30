@@ -1,7 +1,6 @@
 package net.fameless.core.util;
 
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 
@@ -29,7 +28,7 @@ public final class StringUtil {
         return collection;
     }
 
-    public static boolean containsChar(@NonNull String s, char c) {
+    public static boolean containsChar(@NotNull String s, char c) {
         for (char ch : s.toCharArray()) {
             if (ch == c) return true;
         }

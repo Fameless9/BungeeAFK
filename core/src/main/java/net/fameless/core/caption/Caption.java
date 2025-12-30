@@ -2,16 +2,15 @@ package net.fameless.core.caption;
 
 import com.google.gson.*;
 import net.fameless.core.config.Config;
-import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
+import net.fameless.core.util.SchedulerService;
 import net.fameless.core.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +81,7 @@ public final class Caption {
                             }
 
                             JsonObject langObject;
-                            try(var reader = Files.newBufferedReader(path)) {
+                            try (var reader = Files.newBufferedReader(path)) {
                                 langObject = gson.fromJson(reader, JsonObject.class);
                                 if (langObject == null) {
                                     logger.error("Failed to load language '{}' located at '{}' - File is empty", identifier, fileName);
@@ -146,11 +145,11 @@ public final class Caption {
         return languageJsonObjectHashMap.get(language);
     }
 
-    public static @NonNull String getCurrentLanguage() {
+    public static @NotNull String getCurrentLanguage() {
         return currentLanguage.toLowerCase(Locale.US);
     }
 
-    public static void setCurrentLanguage(@NonNull String newLanguage) {
+    public static void setCurrentLanguage(@NotNull String newLanguage) {
         if (newLanguage.equals(currentLanguage)) return;
         if (!existsLanguage(newLanguage)) return;
         currentLanguage = newLanguage.toLowerCase(Locale.US);
@@ -162,7 +161,7 @@ public final class Caption {
         return languageJsonObjectHashMap.containsKey(lang);
     }
 
-    public static @NonNull Set<String> getAvailableLanguages() {
+    public static @NotNull Set<String> getAvailableLanguages() {
         return new HashSet<>(languageJsonObjectHashMap.keySet());
     }
 
@@ -170,7 +169,7 @@ public final class Caption {
         for (var entry : languageJsonObjectHashMap.entrySet()) {
             SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
                 Path file = PluginPaths.getLangFile(entry.getKey());
-                try(var writer = Files.newBufferedWriter(file)) {
+                try (var writer = Files.newBufferedWriter(file)) {
                     gson.toJson(entry.getValue(), writer);
                 } catch (IOException e) {
                     logger.error("Failed to save language file: {}", entry.getKey(), e);

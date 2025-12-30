@@ -36,7 +36,7 @@ public enum Action {
             return false;
         }
 
-        String serverName = Config.getInstance().getString("afk-server-name", null);
+        String serverName = Config.getInstance().getString("afk-server-name");
         if (serverName == null) return false;
         return BungeeAFK.getPlatform().doesServerExist(serverName);
     }

@@ -3,6 +3,6 @@ version: '2.6.0'
 main: net.fameless.tracking.SpigotTracking
 api-version: '1.21'
 prefix: BungeeAFK
-authors: [Fameless9]
+authors: [ Fameless9 ]
 description: Tracking plugin needed for BungeeAFK
 website: https://github.com/Fameless9

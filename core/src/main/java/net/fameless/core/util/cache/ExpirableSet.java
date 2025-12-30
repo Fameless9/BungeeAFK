@@ -19,8 +19,10 @@ import java.util.concurrent.*;
  *   <li>Null elements are not supported by the underlying concurrent collections.</li>
  * </ul>
  * </p>
- * @author Nicolai Greeven
+ *
  * @param <E> the element type
+ *
+ * @author Nicolai Greeven
  */
 public class ExpirableSet<E> {
 
@@ -50,12 +52,14 @@ public class ExpirableSet<E> {
      * Adds the element and schedules its removal after the given delay.
      * If the element already exists, no new schedule is created.
      *
-     * @param element the element to add
+     * @param element      the element to add
      * @param removalDelay the TTL duration; must be non-negative
-     * @param timeUnit the time unit of {@code removalDelay}; must not be {@code null}
+     * @param timeUnit     the time unit of {@code removalDelay}; must not be {@code null}
+     *
      * @return {@code true} if the set changed, {@code false} otherwise
+     *
      * @throws IllegalArgumentException if {@code removalDelay} is negative
-     * @throws NullPointerException if {@code element} or {@code timeUnit} is {@code null}
+     * @throws NullPointerException     if {@code element} or {@code timeUnit} is {@code null}
      */
     public boolean add(E element, long removalDelay, TimeUnit timeUnit) {
         boolean added = set.add(element);
@@ -69,7 +73,9 @@ public class ExpirableSet<E> {
      * Adds the element without scheduling expiration.
      *
      * @param element the element to add
+     *
      * @return {@code true} if the set changed, {@code false} otherwise
+     *
      * @throws NullPointerException if {@code element} is {@code null}
      */
     public boolean add(E element) {
@@ -80,12 +86,14 @@ public class ExpirableSet<E> {
      * Adds the element if absent and schedules (or reschedules) its removal after the given delay.
      * If the element was already present, its previous scheduled task is canceled and replaced.
      *
-     * @param element the element to add or refresh
+     * @param element      the element to add or refresh
      * @param removalDelay the TTL duration; must be non-negative
-     * @param timeUnit the time unit of {@code removalDelay}; must not be {@code null}
+     * @param timeUnit     the time unit of {@code removalDelay}; must not be {@code null}
+     *
      * @return {@code true} if the element was newly added, {@code false} if it already existed
+     *
      * @throws IllegalArgumentException if {@code removalDelay} is negative
-     * @throws NullPointerException if {@code element} or {@code timeUnit} is {@code null}
+     * @throws NullPointerException     if {@code element} or {@code timeUnit} is {@code null}
      */
     public boolean addOrRefresh(E element, long removalDelay, TimeUnit timeUnit) {
         boolean alreadyPresent = set.contains(element);
@@ -98,12 +106,14 @@ public class ExpirableSet<E> {
      * Schedules removal for an element that is currently in the set.
      * If a prior removal task exists, it is canceled and replaced.
      *
-     * @param element the element for which to schedule removal
+     * @param element      the element for which to schedule removal
      * @param removalDelay the TTL duration; must be non-negative
-     * @param timeUnit the time unit of {@code removalDelay}; must not be {@code null}
+     * @param timeUnit     the time unit of {@code removalDelay}; must not be {@code null}
+     *
      * @return {@code true} if the element is contained and was (re)scheduled, {@code false} otherwise
+     *
      * @throws IllegalArgumentException if {@code removalDelay} is negative
-     * @throws NullPointerException if {@code element} or {@code timeUnit} is {@code null}
+     * @throws NullPointerException     if {@code element} or {@code timeUnit} is {@code null}
      */
     public boolean scheduleRemoval(E element, long removalDelay, TimeUnit timeUnit) {
         if (expiryTasks.containsKey(element)) {
@@ -130,7 +140,9 @@ public class ExpirableSet<E> {
      * Any previously scheduled task will still execute later and attempt cleanup, which is harmless.
      *
      * @param element the element to remove
+     *
      * @return {@code true} if the element was present and removed, {@code false} otherwise
+     *
      * @throws NullPointerException if {@code element} is {@code null}
      */
     public boolean removeNow(E element) {
@@ -141,7 +153,9 @@ public class ExpirableSet<E> {
      * Checks whether the element is currently present.
      *
      * @param element the element to check
+     *
      * @return {@code true} if present, {@code false} otherwise
+     *
      * @throws NullPointerException if {@code element} is {@code null}
      */
     public boolean contains(E element) {

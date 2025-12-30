@@ -1,7 +1,7 @@
 package net.fameless.limbo;
 
 import com.loohp.limbo.Limbo;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public final class Logger {
 
@@ -13,7 +13,7 @@ public final class Logger {
         send(formatted(msg, args));
     }
 
-    private static @NonNull String formatted(String msg, Object... args) {
+    private static @NotNull String formatted(String msg, Object... args) {
         if (msg == null) return "null";
         if (args == null || args.length == 0) return msg;
 

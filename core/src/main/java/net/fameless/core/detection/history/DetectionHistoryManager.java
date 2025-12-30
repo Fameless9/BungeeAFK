@@ -1,9 +1,9 @@
 package net.fameless.core.detection.history;
 
 import com.google.gson.*;
-import net.fameless.core.scheduler.SchedulerService;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
+import net.fameless.core.util.SchedulerService;
 
 import java.io.IOException;
 import java.nio.file.Files;

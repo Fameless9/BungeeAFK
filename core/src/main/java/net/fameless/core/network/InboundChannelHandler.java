@@ -5,14 +5,14 @@ import com.google.gson.GsonBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import net.fameless.core.BungeeAFK;
-import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
+import net.fameless.core.util.Location;
 import net.fameless.network.MessageType;
 import net.fameless.network.NetworkMessage;
 import net.fameless.network.ServerSoftware;
 import net.fameless.network.packet.inbound.*;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class InboundChannelHandler extends SimpleChannelInboundHandler<String> {
             .create();
 
     @Override
-    public void channelInactive(@NonNull ChannelHandlerContext ctx) {
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) {
         int port = OutboundPacketSender.getInstance().getRegistry().unregister(ctx.channel());
         logger.info("Netty channel inactive (Port={})", port);
     }
@@ -44,39 +44,43 @@ public class InboundChannelHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-        NetworkMessage message = gson.fromJson(msg, NetworkMessage.class);
-        MessageType type = MessageType.valueOf(message.type);
+        try {
+            NetworkMessage message = gson.fromJson(msg, NetworkMessage.class);
+            MessageType type = MessageType.valueOf(message.type);
 
-        switch (type) {
-            case HANDSHAKE -> {
-                HandshakePacket packet = gson.fromJson(message.payload, HandshakePacket.class);
-                int port = packet.minecraftServerPort;
-                ServerSoftware serverSoftware = packet.serverSoftware;
-                OutboundPacketSender.getInstance().getRegistry().register(ctx.channel(), port);
-                logger.info("Netty channel: proxy ↔ {} tracking plugin established (Port={})",  serverSoftware.friendlyName, port);
+            switch (type) {
+                case HANDSHAKE -> {
+                    HandshakePacket packet = gson.fromJson(message.payload, HandshakePacket.class);
+                    int port = packet.minecraftServerPort;
+                    ServerSoftware serverSoftware = packet.serverSoftware;
+                    OutboundPacketSender.getInstance().getRegistry().register(ctx.channel(), port);
+                    logger.info("Netty channel: proxy ↔ {} tracking plugin established (Port={})", serverSoftware.friendlyName, port);
+                }
+                case ACTION_CAUGHT -> {
+                    ActionCaughtPacket packet = gson.fromJson(message.payload, ActionCaughtPacket.class);
+                    BAFKPlayer.of(packet.uuid).ifPresentOrElse(BAFKPlayer::setActive,
+                            () -> logger.warn("Received action caught packet but player does not exist"));
+                }
+                case LOCATION_CHANGED -> {
+                    LocationChangedPacket packet = gson.fromJson(message.payload, LocationChangedPacket.class);
+                    Location location = new Location(packet.world, packet.x, packet.y, packet.z, packet.pitch, packet.yaw);
+                    BAFKPlayer.of(packet.uuid).ifPresentOrElse(player -> player.setLocation(location),
+                            () -> logger.warn("Received location change packet but player does not exist"));
+                }
+                case CLICK_DETECTED -> {
+                    ClickDetectedPacket packet = gson.fromJson(message.payload, ClickDetectedPacket.class);
+                    BAFKPlayer.of(packet.uuid).ifPresentOrElse(player -> {
+                        player.setActive();
+                        BungeeAFK.getAutoClickerDetector().registerClick(player);
+                    }, () -> logger.warn("Received click packet but player does not exist"));
+                }
+                case GAMEMODE_CHANGED -> {
+                    GameModeChangedPacket packet = gson.fromJson(message.payload, GameModeChangedPacket.class);
+                    BAFKPlayer.of(packet.uuid).ifPresentOrElse(player -> player.setGameMode(GameMode.valueOf(packet.gameMode.toUpperCase(Locale.US))), () -> logger.warn("Received game mode change packet but player does not exist"));
+                }
             }
-            case ACTION_CAUGHT -> {
-                ActionCaughtPacket packet = gson.fromJson(message.payload, ActionCaughtPacket.class);
-                BAFKPlayer.of(packet.uuid).ifPresentOrElse(BAFKPlayer::setActive,
-                        () -> logger.warn("Received action caught packet but player does not exist"));
-            }
-            case LOCATION_CHANGED -> {
-                LocationChangedPacket packet = gson.fromJson(message.payload, LocationChangedPacket.class);
-                Location location = new Location(packet.world, packet.x, packet.y, packet.z, packet.pitch, packet.yaw);
-                BAFKPlayer.of(packet.uuid).ifPresentOrElse(player -> player.setLocation(location),
-                        () -> logger.warn("Received location change packet but player does not exist"));
-            }
-            case CLICK_DETECTED -> {
-                ClickDetectedPacket packet = gson.fromJson(message.payload, ClickDetectedPacket.class);
-                BAFKPlayer.of(packet.uuid).ifPresentOrElse(player -> {
-                    player.setActive();
-                    BungeeAFK.getAutoClickerDetector().registerClick(player);
-                }, () -> logger.warn("Received click packet but player does not exist"));
-            }
-            case GAMEMODE_CHANGED -> {
-                GameModeChangedPacket packet = gson.fromJson(message.payload, GameModeChangedPacket.class);
-                BAFKPlayer.of(packet.uuid).ifPresentOrElse(player -> player.setGameMode(GameMode.valueOf(packet.gameMode.toUpperCase(Locale.US))), () -> logger.warn("Received game mode change packet but player does not exist"));
-            }
+        } catch (Throwable t) {
+            logger.error("Error processing inbound message", t);
         }
     }
 }

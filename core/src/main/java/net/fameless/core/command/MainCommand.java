@@ -13,11 +13,11 @@ import net.fameless.core.detection.history.DetectionType;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
 import net.fameless.core.handling.BroadcastStrategy;
-import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.region.MockRegion;
 import net.fameless.core.region.Region;
 import net.fameless.core.region.RegionService;
+import net.fameless.core.util.Location;
 import net.fameless.core.util.PluginUpdater;
 import net.fameless.core.util.StringUtil;
 import net.kyori.adventure.text.Component;
@@ -470,7 +470,7 @@ public class MainCommand extends Command {
                     try {
                         region = new Region(regionName, new Location(worldName, x1, y1, z1),
                                 new Location(worldName, x2, y2, z2), false);
-                    }  catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException e) {
                         caller.sendMessage(Caption.of("command.invalid_region_format"));
                         return;
                     }
@@ -573,7 +573,7 @@ public class MainCommand extends Command {
                         caller.sendMessage(Caption.of("command.auto_clicker_no_detections_found", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))));
                     } else {
                         List<String> detectionStrings = detections.stream()
-                                .map(detection ->  "- " + detection.getFriendlyString())
+                                .map(detection -> "- " + detection.getFriendlyString())
                                 .toList();
 
                         caller.sendMessage(Caption.of("command.auto_clicker_detection_history",
@@ -674,7 +674,7 @@ public class MainCommand extends Command {
                         caller.sendMessage(Caption.of("command.movement_pattern_no_detections_found", TagResolver.resolver("player", Tag.inserting(Component.text(player.getName())))));
                     } else {
                         List<String> detectionStrings = detections.stream()
-                                .map(detection ->  "- " + detection.getFriendlyString())
+                                .map(detection -> "- " + detection.getFriendlyString())
                                 .toList();
 
                         caller.sendMessage(Caption.of("command.movement_pattern_detection_history",
@@ -696,7 +696,8 @@ public class MainCommand extends Command {
     protected List<String> tabComplete(CommandCaller caller, String @NotNull [] args) {
         List<String> completions = new ArrayList<>();
         switch (args.length) {
-            case 1 -> completions.addAll(Arrays.asList("configure", "lang", "region", "auto-clicker", "movement-pattern"));
+            case 1 ->
+                    completions.addAll(Arrays.asList("configure", "lang", "region", "auto-clicker", "movement-pattern"));
             case 2 -> {
                 switch (args[0].toLowerCase()) {
                     case "configure" -> {
@@ -713,7 +714,8 @@ public class MainCommand extends Command {
                         completions.add("reload");
                         completions.addAll(Caption.getAvailableLanguages());
                     }
-                    case "region" -> completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
+                    case "region" ->
+                            completions.addAll(Arrays.asList("reload", "list", "remove", "add", "details", "toggle-detection"));
                     case "movement-pattern", "auto-clicker" -> {
                         completions.addAll(Arrays.asList(
                                 "enable", "disable", "toggle-notify-player",
@@ -729,7 +731,8 @@ public class MainCommand extends Command {
                 switch (args[0].toLowerCase()) {
                     case "configure" -> {
                         switch (args[1].toLowerCase()) {
-                            case "action" -> Action.getAvailableActions().forEach(action -> completions.add(action.getIdentifier()));
+                            case "action" ->
+                                    Action.getAvailableActions().forEach(action -> completions.add(action.getIdentifier()));
                             case "warning-delay", "afk-delay", "action-delay" -> completions.add("<seconds>");
                             case "caption" -> completions.addAll(Caption.getAvailableLanguages());
                             case "allow-bypass", "actionbar" -> completions.addAll(Arrays.asList("true", "false"));
@@ -745,12 +748,14 @@ public class MainCommand extends Command {
                                     completions.addAll(Config.getInstance().getStringList("disabled-servers"));
                                 }
                             }
-                            case "broadcast-strategy" -> completions.addAll(Arrays.stream(BroadcastStrategy.values()).map(BroadcastStrategy::name).toList());
+                            case "broadcast-strategy" ->
+                                    completions.addAll(Arrays.stream(BroadcastStrategy.values()).map(BroadcastStrategy::name).toList());
                         }
                     }
                     case "region" -> {
                         switch (args[1].toLowerCase()) {
-                            case "remove", "details", "toggle-detection" -> completions.addAll(RegionService.getInstance().getRegions().stream().map(Region::getRegionName).toList());
+                            case "remove", "details", "toggle-detection" ->
+                                    completions.addAll(RegionService.getInstance().getRegions().stream().map(Region::getRegionName).toList());
                             case "add" -> completions.add("<regionName>");
                         }
                     }

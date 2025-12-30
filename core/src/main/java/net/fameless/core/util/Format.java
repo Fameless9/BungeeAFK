@@ -19,6 +19,7 @@ public final class Format {
      * Converts a given time in seconds to a human-readable string.
      *
      * @param time The time in seconds to convert.
+     *
      * @return A string in the format "xd yh zm ws" representing the given time.
      */
     public static @NotNull String formatTime(int time) {
@@ -51,6 +52,7 @@ public final class Format {
      * Formats a given string by replacing underscores with spaces, splitting the string into words, capitalizing the first letter of each word, and joining the words back together with spaces.
      *
      * @param input The string to format.
+     *
      * @return A formatted string.
      */
     public static @NotNull String formatName(String input) {
@@ -73,6 +75,7 @@ public final class Format {
      * Splits the input string by the delimiter "{br}" and returns an unmodifiable list of the resulting substrings.
      *
      * @param input The string to be split.
+     *
      * @return An unmodifiable list of substrings obtained by splitting the input string by "{br}".
      */
     public static @Unmodifiable @NotNull List<String> formatLineBreaks(@NotNull String input) {

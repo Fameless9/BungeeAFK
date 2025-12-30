@@ -2,7 +2,7 @@ package net.fameless.core.region;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.fameless.core.location.Location;
+import net.fameless.core.util.Location;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

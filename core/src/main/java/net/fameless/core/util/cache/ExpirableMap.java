@@ -23,9 +23,10 @@ import java.util.concurrent.*;
  * </ul>
  * </p>
  *
- * @author Nicolai Greeven
  * @param <K> the key type
  * @param <V> the value type
+ *
+ * @author Nicolai Greeven
  */
 public class ExpirableMap<K, V> {
 
@@ -55,13 +56,15 @@ public class ExpirableMap<K, V> {
      * Adds the entry if absent and schedules its removal after the given delay.
      * If the key already exists, no new schedule is created and the map is not modified.
      *
-     * @param key the key to add
-     * @param val the value to associate with {@code key}
+     * @param key          the key to add
+     * @param val          the value to associate with {@code key}
      * @param removalDelay the TTL duration; must be non-negative
-     * @param timeUnit the time unit of {@code removalDelay}; must not be {@code null}
+     * @param timeUnit     the time unit of {@code removalDelay}; must not be {@code null}
+     *
      * @return {@code true} if the entry was added, {@code false} if the key already existed
+     *
      * @throws IllegalArgumentException if {@code removalDelay} is negative
-     * @throws NullPointerException if {@code key}, {@code val}, or {@code timeUnit} is {@code null}
+     * @throws NullPointerException     if {@code key}, {@code val}, or {@code timeUnit} is {@code null}
      */
     public boolean add(K key, V val, long removalDelay, TimeUnit timeUnit) {
         if (map.putIfAbsent(key, val) == null) {
@@ -75,13 +78,15 @@ public class ExpirableMap<K, V> {
      * Adds the entry or refreshes the TTL if the key already exists.
      * The value is replaced and the prior scheduled task (if any) is canceled and rescheduled.
      *
-     * @param key the key to add or refresh
-     * @param val the value to associate with {@code key}
+     * @param key          the key to add or refresh
+     * @param val          the value to associate with {@code key}
      * @param removalDelay the TTL duration; must be non-negative
-     * @param timeUnit the time unit of {@code removalDelay}; must not be {@code null}
+     * @param timeUnit     the time unit of {@code removalDelay}; must not be {@code null}
+     *
      * @return {@code true} if the key was newly added, {@code false} if it already existed
+     *
      * @throws IllegalArgumentException if {@code removalDelay} is negative
-     * @throws NullPointerException if {@code key}, {@code val}, or {@code timeUnit} is {@code null}
+     * @throws NullPointerException     if {@code key}, {@code val}, or {@code timeUnit} is {@code null}
      */
     public boolean addOrRefresh(K key, V val, long removalDelay, TimeUnit timeUnit) {
         boolean contains = containsKey(key);
@@ -94,13 +99,15 @@ public class ExpirableMap<K, V> {
      * Adds the entry only if absent and schedules its removal after the given delay.
      * If the key already exists, nothing is changed.
      *
-     * @param key the key to add if absent
-     * @param val the value to associate with {@code key}
+     * @param key          the key to add if absent
+     * @param val          the value to associate with {@code key}
      * @param removalDelay the TTL duration; must be non-negative
-     * @param timeUnit the time unit of {@code removalDelay}; must not be {@code null}
+     * @param timeUnit     the time unit of {@code removalDelay}; must not be {@code null}
+     *
      * @return {@code true} if the entry was added, {@code false} otherwise
+     *
      * @throws IllegalArgumentException if {@code removalDelay} is negative
-     * @throws NullPointerException if {@code key}, {@code val}, or {@code timeUnit} is {@code null}
+     * @throws NullPointerException     if {@code key}, {@code val}, or {@code timeUnit} is {@code null}
      */
     public boolean addIfAbsent(K key, V val, long removalDelay, TimeUnit timeUnit) {
         boolean contains = containsKey(key);
@@ -116,7 +123,9 @@ public class ExpirableMap<K, V> {
      *
      * @param key the key
      * @param val the value
+     *
      * @return the previous value associated with {@code key}, or {@code null} if none
+     *
      * @throws NullPointerException if {@code key} or {@code val} is {@code null}
      */
     public V add(K key, V val) {
@@ -128,6 +137,7 @@ public class ExpirableMap<K, V> {
      *
      * @param key the key
      * @param val the value
+     *
      * @throws NullPointerException if {@code key} or {@code val} is {@code null}
      */
     public void addIfAbsent(K key, V val) {
@@ -138,12 +148,14 @@ public class ExpirableMap<K, V> {
      * Schedules removal for a key currently present in the map.
      * If a prior removal task exists, it is canceled and replaced.
      *
-     * @param key the key for which to schedule removal
+     * @param key          the key for which to schedule removal
      * @param removalDelay the TTL duration; must be non-negative
-     * @param timeUnit the time unit of {@code removalDelay}; must not be {@code null}
+     * @param timeUnit     the time unit of {@code removalDelay}; must not be {@code null}
+     *
      * @return {@code true} if the key was contained and was (re)scheduled, {@code false} otherwise
+     *
      * @throws IllegalArgumentException if {@code removalDelay} is negative
-     * @throws NullPointerException if {@code key} or {@code timeUnit} is {@code null}
+     * @throws NullPointerException     if {@code key} or {@code timeUnit} is {@code null}
      */
     public boolean scheduleRemoval(K key, long removalDelay, TimeUnit timeUnit) {
         if (expiryTasks.containsKey(key)) {
@@ -166,7 +178,9 @@ public class ExpirableMap<K, V> {
      * Removes the entry immediately and cancels any scheduled removal task.
      *
      * @param key the key to remove
+     *
      * @return {@code true} if an entry was present and removed, {@code false} otherwise
+     *
      * @throws NullPointerException if {@code key} is {@code null}
      */
     public boolean removeNow(K key) {
@@ -179,7 +193,9 @@ public class ExpirableMap<K, V> {
      * Retrieves the value associated with the key, or {@code null} if absent.
      *
      * @param key the key
+     *
      * @return the value or {@code null} if not present
+     *
      * @throws NullPointerException if {@code key} is {@code null}
      */
     public V get(K key) {
@@ -189,9 +205,11 @@ public class ExpirableMap<K, V> {
     /**
      * Retrieves the value associated with the key, or the provided default if absent.
      *
-     * @param key the key
+     * @param key          the key
      * @param defaultValue the value to return if {@code key} is not present
+     *
      * @return the value or {@code defaultValue} if not present
+     *
      * @throws NullPointerException if {@code key} is {@code null}
      */
     public V getOrDefault(K key, V defaultValue) {
@@ -202,7 +220,9 @@ public class ExpirableMap<K, V> {
      * Checks whether the key is present.
      *
      * @param key the key
+     *
      * @return {@code true} if present, {@code false} otherwise
+     *
      * @throws NullPointerException if {@code key} is {@code null}
      */
     public boolean containsKey(K key) {
@@ -213,7 +233,9 @@ public class ExpirableMap<K, V> {
      * Checks whether the map contains the given value.
      *
      * @param val the value to check
+     *
      * @return {@code true} if present, {@code false} otherwise
+     *
      * @throws NullPointerException if {@code val} is {@code null}
      */
     public boolean containsValue(V val) {

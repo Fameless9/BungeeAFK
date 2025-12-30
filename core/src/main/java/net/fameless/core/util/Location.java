@@ -1,4 +1,4 @@
-package net.fameless.core.location;
+package net.fameless.core.util;
 
 import com.google.gson.JsonObject;
 import net.fameless.core.config.Config;
@@ -71,9 +71,9 @@ public record Location(String worldName, double x, double y, double z, float pit
 
     public boolean equalsIgnorePitchAndYaw(@NotNull Location other) {
         return this.worldName.equals(other.worldName) &&
-               this.x == other.x &&
-               this.y == other.y &&
-               this.z == other.z;
+                this.x == other.x &&
+                this.y == other.y &&
+                this.z == other.z;
     }
 
     public @NotNull Location getBlockLocation() {
@@ -107,12 +107,12 @@ public record Location(String worldName, double x, double y, double z, float pit
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Location(String name, double x1, double y1, double z1, float pitch1, float yaw1) &&
-               this.worldName.equals(name) &&
-               this.x == x1 &&
-               this.y == y1 &&
-               this.z == z1 &&
-               this.pitch == pitch1 &&
-               this.yaw == yaw1;
+                this.worldName.equals(name) &&
+                this.x == x1 &&
+                this.y == y1 &&
+                this.z == z1 &&
+                this.pitch == pitch1 &&
+                this.yaw == yaw1;
     }
 
     @Override

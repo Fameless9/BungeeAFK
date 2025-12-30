@@ -24,6 +24,7 @@ public interface PlayerFilter extends Predicate<BAFKPlayer<?>> {
      * This is the main method that should be implemented.
      *
      * @param player the {@link BAFKPlayer} to test, never null
+     *
      * @return {@code true} if the player matches the filter, {@code false} otherwise
      */
     boolean accepts(final @NotNull BAFKPlayer<?> player);
@@ -33,6 +34,7 @@ public interface PlayerFilter extends Predicate<BAFKPlayer<?>> {
      * Delegates to {@link #accepts(BAFKPlayer)}.
      *
      * @param player the {@link BAFKPlayer} to test
+     *
      * @return {@code true} if the player matches the filter
      */
     @Override
@@ -45,6 +47,7 @@ public interface PlayerFilter extends Predicate<BAFKPlayer<?>> {
      * The resulting filter returns {@code true} only if both filters return {@code true}.
      *
      * @param other another {@link PlayerFilter} to combine with
+     *
      * @return a composed filter representing logical AND
      */
     default PlayerFilter and(final @NotNull PlayerFilter other) {
@@ -56,6 +59,7 @@ public interface PlayerFilter extends Predicate<BAFKPlayer<?>> {
      * The resulting filter returns {@code true} if either filter returns {@code true}.
      *
      * @param other another {@link PlayerFilter} to combine with
+     *
      * @return a composed filter representing logical OR
      */
     default PlayerFilter or(final @NotNull PlayerFilter other) {
@@ -76,6 +80,7 @@ public interface PlayerFilter extends Predicate<BAFKPlayer<?>> {
      * Wraps a standard {@link Predicate} as a {@link PlayerFilter}.
      *
      * @param predicate the predicate to wrap
+     *
      * @return a {@link PlayerFilter} that delegates to the given predicate
      */
     @Contract(pure = true)

@@ -28,7 +28,7 @@ public class Config {
         String s = configData.getOrDefault(path, def).toString();
         return switch (s.toLowerCase(Locale.US)) {
             case "true" -> true;
-            case "false" ->  false;
+            case "false" -> false;
             default -> def;
         };
     }

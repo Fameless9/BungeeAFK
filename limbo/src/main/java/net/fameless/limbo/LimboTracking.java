@@ -22,7 +22,6 @@ import net.fameless.network.NetworkUtil;
 import net.fameless.network.ServerSoftware;
 import net.fameless.network.packet.inbound.*;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -147,7 +146,8 @@ public class LimboTracking extends LimboPlugin implements Listener {
 
     private void sendGameModeChanged(@NotNull Player player, @NotNull GameMode gameMode) {
         if (channel == null) return;
-        if (debugLogging) Logger.info("Sending a 'game mode changed' packet for {} | GameMode={}", player.getName(), gameMode.name());
+        if (debugLogging)
+            Logger.info("Sending a 'game mode changed' packet for {} | GameMode={}", player.getName(), gameMode.name());
         GameModeChangedPacket packet = new GameModeChangedPacket(player.getUniqueId(), gameMode.name());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.GAMEMODE_CHANGED, packet));
     }
@@ -187,7 +187,8 @@ public class LimboTracking extends LimboPlugin implements Listener {
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
         if (config.getBoolean("spectator-by-default", true)) {
-            if (debugLogging) Logger.info("Setting the game mode of {} to spectator as 'specator-by-default' is true", event.getPlayer().getName());
+            if (debugLogging)
+                Logger.info("Setting the game mode of {} to spectator as 'specator-by-default' is true", event.getPlayer().getName());
             event.getPlayer().setGamemode(GameMode.SPECTATOR);
             event.getPlayer().teleport(event.getPlayer().getLocation());
         }
@@ -199,7 +200,7 @@ public class LimboTracking extends LimboPlugin implements Listener {
     }
 
     @EventHandler
-    public void onQuit(@NonNull PlayerQuitEvent event) {
+    public void onQuit(@NotNull PlayerQuitEvent event) {
         joinProcessed.remove(event.getPlayer().getUniqueId());
     }
 }

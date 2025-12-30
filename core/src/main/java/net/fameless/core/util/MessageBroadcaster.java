@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 public class MessageBroadcaster {
 
     @SafeVarargs
-    public static void broadcastMessageToFiltered(Component message, Predicate<BAFKPlayer<?>> ...filters) {
+    public static void broadcastMessageToFiltered(Component message, Predicate<BAFKPlayer<?>>... filters) {
         Predicate<BAFKPlayer<?>> combinedFilter = Stream.of(filters)
                 .reduce(Predicate::and)
                 .orElse(player -> true);

@@ -9,9 +9,9 @@ import net.fameless.core.config.Config;
 import net.fameless.core.detection.history.Detection;
 import net.fameless.core.detection.history.DetectionType;
 import net.fameless.core.handling.AFKState;
-import net.fameless.core.location.Location;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.util.DetectionUtil;
+import net.fameless.core.util.Location;
 import net.fameless.core.util.MessageBroadcaster;
 import net.fameless.core.util.PlayerFilters;
 import net.kyori.adventure.text.Component;
@@ -56,11 +56,14 @@ public class MovementPatternDetection {
             }
 
             switch (action) {
-                case KICK -> BungeeAFK.getAFKHandler().performKickAction(player, Caption.of("notification.movement_pattern_kick_message"),
-                       Component.empty());
-                case CONNECT -> BungeeAFK.getAFKHandler().performConnectAction(player, Caption.of("notification.movement_pattern_kick_message"), Component.empty(),
-                        Caption.of("notification.movement_pattern_connect_message"), Component.empty());
-                case TELEPORT -> BungeeAFK.getAFKHandler().performTeleportAction(player, Caption.of("notification.movement_pattern_teleport_message"));
+                case KICK ->
+                        BungeeAFK.getAFKHandler().performKickAction(player, Caption.of("notification.movement_pattern_kick_message"),
+                                Component.empty());
+                case CONNECT ->
+                        BungeeAFK.getAFKHandler().performConnectAction(player, Caption.of("notification.movement_pattern_kick_message"), Component.empty(),
+                                Caption.of("notification.movement_pattern_connect_message"), Component.empty());
+                case TELEPORT ->
+                        BungeeAFK.getAFKHandler().performTeleportAction(player, Caption.of("notification.movement_pattern_teleport_message"));
             }
             player.setAfkState(AFKState.ACTION_TAKEN);
         };
