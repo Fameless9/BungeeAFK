@@ -23,11 +23,11 @@ nav:
     - Configuration Guide: configuration.md
     - Custom Messages: custom_messages.md
     - Custom Language Files: custom_languages.md
+  - PlaceholderAPI: placeholders.md
   - Commands: commands.md
-  - Features:
-    - Auto Clicker Detection: auto_clicker_detection.md
-    - Bypass Regions: bypass_regions.md
-    - Movement Pattern Detection: movement_pattern_detection.md
+  - Auto Clicker Detection: auto_clicker_detection.md
+  - Bypass Regions: bypass_regions.md
+  - Movement Pattern Detection: movement_pattern_detection.md
   - Contributing & Support:
       - Contributing Guide: contributing.md
       - Issue Reporting: issue_reporting.md
