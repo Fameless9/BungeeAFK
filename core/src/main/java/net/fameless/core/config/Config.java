@@ -4,6 +4,7 @@ import net.fameless.core.BungeeAFK;
 import net.fameless.core.config.adapter.RegionTypeAdapter;
 import net.fameless.core.config.adapter.TypeAdapter;
 import net.fameless.core.config.adapter.TypeAdapterRegistry;
+import net.fameless.core.network.OutboundPacketSender;
 import net.fameless.core.region.Region;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
@@ -36,6 +37,7 @@ public class Config {
     private volatile Map<String, Object> data = Collections.emptyMap();
     private volatile ConfigRegistry configRegistry;
 
+    private final boolean initialized;
     private final TypeAdapterRegistry typeAdapterRegistry = new TypeAdapterRegistry();
     private final Object writeLock = new Object();
 
@@ -45,6 +47,7 @@ public class Config {
         ResourceUtil.extractResourceIfMissing("config.yml", PluginPaths.getConfigFile());
         typeAdapterRegistry.register(Region.class, new RegionTypeAdapter());
         load();
+        initialized = true;
     }
 
     public void load() {
@@ -56,6 +59,10 @@ public class Config {
             this.configRegistry = new ConfigRegistry(data);
 
             checkMissingKeys();
+
+            if (initialized) {
+                OutboundPacketSender.getInstance().sendConfigurationPacket();
+            }
         }
     }
 
@@ -124,7 +131,10 @@ public class Config {
             if (value == null) current.remove(last);
             else current.put(last, value);
 
-            this.data = deepUnmodifiable(newData);
+            if (!this.data.equals(newData)) {
+                this.data = deepUnmodifiable(newData);
+                OutboundPacketSender.getInstance().sendConfigurationPacket();
+            }
         }
     }
 
@@ -198,6 +208,7 @@ public class Config {
         throw new IllegalArgumentException("Cannot convert type " + raw.getClass().getName() + " to " + type.getName() + "; No type adapter registered");
     }
 
+    @SuppressWarnings("unchecked")
     private @NotNull @UnmodifiableView Map<String, Object> deepUnmodifiable(@NotNull Map<String, Object> map) {
         Map<String, Object> newMap = new HashMap<>();
         for (var entry : map.entrySet()) {

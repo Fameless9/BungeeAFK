@@ -83,7 +83,7 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
     }
 
     public AFKState getAfkState() {
-        if ((Config.getInstance().getBoolean("allow-bypass") && hasPermission("bungeeafk.bypass")) ||
+        if ((Config.getInstance().getBoolean("allow-bypass", true) && hasPermission("bungeeafk.bypass")) ||
                 Config.getInstance().getStringList("disabled-servers").contains(getCurrentServerName()) ||
                 RegionService.getInstance().isLocationInAnyBypassRegion(location)
         ) {
@@ -109,6 +109,7 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
                             TagResolver.resolver("player", Tag.inserting(Component.text(getName())))),
                     BungeeAFK.getAFKHandler().getBroadcastStrategy().broadcastFilter(this)
             );
+            OutboundPacketSender.getInstance().sendPlayerReturnPacket(this);
         }
         this.afkState = newState;
     }

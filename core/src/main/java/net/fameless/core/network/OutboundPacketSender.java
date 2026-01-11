@@ -1,14 +1,15 @@
 package net.fameless.core.network;
 
+import io.netty.channel.Channel;
+import net.fameless.core.config.Config;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
 import net.fameless.core.util.Location;
 import net.fameless.network.MessageType;
 import net.fameless.network.NetworkUtil;
-import net.fameless.network.packet.outbound.OpenEmptyInventoryPacket;
-import net.fameless.network.packet.outbound.SetGameModePacket;
-import net.fameless.network.packet.outbound.TeleportPlayerPacket;
+import net.fameless.network.packet.outbound.*;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class OutboundPacketSender {
 
@@ -43,6 +44,26 @@ public class OutboundPacketSender {
     public void sendSetGameModePacket(@NotNull BAFKPlayer<?> player, @NotNull GameMode gameMode) {
         SetGameModePacket packet = new SetGameModePacket(player.getUniqueId(), gameMode.name());
         registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.SET_GAMEMODE, packet)));
+    }
+
+    public void sendPlayerAfkDetectedPacket(@NotNull BAFKPlayer<?> player) {
+        PlayerAfkPacket packet = new PlayerAfkPacket(player.getUniqueId());
+        registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.AFK_DETECTED, packet)));
+    }
+
+    public void sendPlayerReturnPacket(@NotNull BAFKPlayer<?> player) {
+        PlayerReturnPacket packet = new PlayerReturnPacket(player.getUniqueId());
+        registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.PLAYER_RETURN, packet)));
+    }
+
+    public void sendConfigurationPacket(@NonNull Channel channel) {
+        var packet = new ConfigurationUpdatePacket(Config.getInstance().getBoolean("reduce-simulation-distance", false));
+        channel.writeAndFlush(NetworkUtil.msg(MessageType.CONFIGURATION_UPDATE, packet));
+    }
+
+    public void sendConfigurationPacket() {
+        var packet = new ConfigurationUpdatePacket(Config.getInstance().getBoolean("reduce-simulation-distance", false));
+        registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.CONFIGURATION_UPDATE, packet)));
     }
 
     public ChannelRegistry getRegistry() {

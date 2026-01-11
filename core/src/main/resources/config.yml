@@ -44,6 +44,11 @@ action: "kick"
 # !!! Only available for BungeeCord and Velocity !!!
 afk-server-name: "afk"
 
+# Whether to reduce the simulation distance for AFK players
+# This feature can reduce server load by limiting the number of chunks and entities sent to AFK players
+# Note: This feature only works with tracking servers running on Paper
+reduce-simulation-distance: false
+
 # Whether to send action bar messages while handling AFK states
 # Note: Actionbar messages might overlap with other plugins using the action bar
 # Affected language keys: 'actionbar.afk', 'actionbar.afk_moved'

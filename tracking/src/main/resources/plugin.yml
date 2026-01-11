@@ -1,6 +1,6 @@
 name: BungeeAFKTracking
 version: '2.6.0'
-main: net.fameless.tracking.SpigotTracking
+main: net.fameless.tracking.TrackingPlugin
 api-version: '1.21'
 prefix: BungeeAFK
 authors: [ Fameless9 ]

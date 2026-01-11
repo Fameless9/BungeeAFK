@@ -26,25 +26,28 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-public class SpigotTracking extends JavaPlugin implements Listener {
+public class TrackingPlugin extends JavaPlugin implements Listener {
 
-    private static SpigotTracking instance;
+    private static TrackingPlugin instance;
 
-    public static SpigotTracking getInstance() {
+    public static TrackingPlugin getInstance() {
         return instance;
     }
 
     private final EventLoopGroup group = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
-    private volatile Channel channel;
-    private Bootstrap bootstrap;
     private final Object connectionAttemptLock = new Object();
-    private volatile boolean connecting = false;
-    private boolean debugLogging = false;
     private final Set<UUID> joinProcessed = new HashSet<>();
+
+    private volatile Channel channel;
+    private volatile boolean connecting = false;
+
+    private Bootstrap bootstrap;
+
+    private boolean debugLogging = false;
+    private boolean paperAvailable;
+    private boolean reduceSimulationDistance = false;
 
     @Override
     public void onEnable() {
@@ -76,6 +79,14 @@ public class SpigotTracking extends JavaPlugin implements Listener {
         int port = getConfig().getInt("netty-port", 9000);
         getLogger().info("Attempting to establish connection to proxy plugin instance on: " + host + ":" + port);
         establishConnection(host, port);
+
+        try {
+            Class.forName("io.papermc.paper.InternalAPIBridge");
+            this.paperAvailable = true;
+            getLogger().info("Paper instance detected");
+        } catch (ClassNotFoundException e) {
+            getLogger().info("No paper instance detected. Some features are unavailable");
+        }
     }
 
     @Override
@@ -130,7 +141,8 @@ public class SpigotTracking extends JavaPlugin implements Listener {
 
     private void sendLocationChanged(@NotNull Player player, @NotNull Location to) {
         if (channel == null) return;
-        if (debugLogging) getLogger().info("Sending a 'location changed' packet for " + player.getName() + "Location=" + to);
+        if (debugLogging)
+            getLogger().info("Sending a 'location changed' packet for " + player.getName() + "Location=" + to);
         LocationChangedPacket packet = new LocationChangedPacket(
                 player.getUniqueId(),
                 to.getWorld().getName(),
@@ -145,7 +157,8 @@ public class SpigotTracking extends JavaPlugin implements Listener {
 
     private void sendGameModeChanged(@NotNull Player player, @NotNull GameMode gameMode) {
         if (channel == null) return;
-        if (debugLogging) getLogger().info("Sending a 'game mode changed' packet for player " + player.getName() + " GameMode=" + gameMode.name());
+        if (debugLogging)
+            getLogger().info("Sending a 'game mode changed' packet for player " + player.getName() + " GameMode=" + gameMode.name());
         GameModeChangedPacket packet = new GameModeChangedPacket(player.getUniqueId(), gameMode.name());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.GAMEMODE_CHANGED, packet));
     }
@@ -157,14 +170,17 @@ public class SpigotTracking extends JavaPlugin implements Listener {
         channel.writeAndFlush(NetworkUtil.msg(MessageType.CLICK_DETECTED, packet));
     }
 
-    @EventHandler
-    public void onMove(@NotNull PlayerMoveEvent event) {
-        if (event.getTo() == null) return;
-        if (!joinProcessed.contains(event.getPlayer().getUniqueId())) return;
-        if (!event.getFrom().equals(event.getTo())) {
-            if (debugLogging) getLogger().info("Caught a move action from player " + event.getPlayer().getName());
-            sendActionCaught(event.getPlayer());
-            sendLocationChanged(event.getPlayer(), event.getTo());
+    public void onPlayerAfk(@NotNull Player player) {
+        if (paperAvailable && reduceSimulationDistance) {
+            player.setViewDistance(2);
+            player.setSimulationDistance(2);
+        }
+    }
+
+    public void onPlayerReturn(@NotNull Player player) {
+        if (paperAvailable) {
+            player.setViewDistance(getServer().getViewDistance());
+            player.setSimulationDistance(getServer().getSimulationDistance());
         }
     }
 
@@ -172,6 +188,16 @@ public class SpigotTracking extends JavaPlugin implements Listener {
     public void onChat(@NotNull AsyncPlayerChatEvent event) {
         if (debugLogging) getLogger().info("Caught a chat action from player " + event.getPlayer().getName());
         sendActionCaught(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onMove(@NotNull PlayerMoveEvent event) {
+        if (!joinProcessed.contains(event.getPlayer().getUniqueId())) return;
+        if (!event.getFrom().equals(event.getTo())) {
+            if (debugLogging) getLogger().info("Caught a move action from player " + event.getPlayer().getName());
+            sendActionCaught(event.getPlayer());
+            sendLocationChanged(event.getPlayer(), event.getTo());
+        }
     }
 
     @EventHandler
@@ -200,7 +226,14 @@ public class SpigotTracking extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onQuit(@NotNull PlayerQuitEvent event) {
-        joinProcessed.remove(event.getPlayer().getUniqueId());
+        UUID playerId = event.getPlayer().getUniqueId();
+        joinProcessed.remove(playerId);
     }
 
+    public void setReduceSimulationDistance(boolean reduceSimulationDistance) {
+        if (reduceSimulationDistance && !paperAvailable) {
+            getLogger().warning("reduceSimulationDistance=true, but no Paper instance has been detected. This feature is only available on Paper servers!");
+        }
+        this.reduceSimulationDistance = reduceSimulationDistance;
+    }
 }

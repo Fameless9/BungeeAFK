@@ -62,6 +62,11 @@ public class YamlUtil {
             # !!! Only available for BungeeCord and Velocity !!!
             afk-server-name: %s
 
+            # Whether to reduce the simulation distance for AFK players
+            # This feature can reduce server load by limiting the number of chunks and entities sent to AFK players
+            # Note: This feature only works with tracking servers running on Paper
+            reduce-simulation-distance: %b
+
             # Whether to send action bar messages while handling AFK states
             # Note: Actionbar messages might overlap with other plugins using the action bar
             # Affected language keys: 'actionbar.afk', 'actionbar.afk_moved'
@@ -184,6 +189,7 @@ public class YamlUtil {
                 Config.getInstance().getInt("action-delay", 630),
                 Config.getInstance().getString("action", "kick"),
                 Config.getInstance().getString("afk-server-name", ""),
+                Config.getInstance().getBoolean("reduce-simulation-distance", false),
                 Config.getInstance().getBoolean("actionbar", true),
                 Config.getInstance().getSection("afk-location").get("world"),
                 Config.getInstance().getSection("afk-location").get("x"),

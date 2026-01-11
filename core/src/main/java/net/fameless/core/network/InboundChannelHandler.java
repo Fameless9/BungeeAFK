@@ -54,6 +54,7 @@ public class InboundChannelHandler extends SimpleChannelInboundHandler<String> {
                     int port = packet.minecraftServerPort;
                     ServerSoftware serverSoftware = packet.serverSoftware;
                     OutboundPacketSender.getInstance().getRegistry().register(ctx.channel(), port);
+                    OutboundPacketSender.getInstance().sendConfigurationPacket(ctx.channel());
                     logger.info("Netty channel: proxy ↔ {} tracking plugin established (Port={})", serverSoftware.friendlyName, port);
                 }
                 case ACTION_CAUGHT -> {

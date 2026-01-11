@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import net.fameless.core.BungeeAFK;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.config.Config;
+import net.fameless.core.network.OutboundPacketSender;
 import net.fameless.core.player.BAFKPlayer;
 import net.fameless.core.player.GameMode;
 import net.fameless.core.util.*;
@@ -112,6 +113,7 @@ public abstract class AFKHandler {
 
     private void setAFKIfNeeded(@NotNull BAFKPlayer<?> player) {
         if (player.getTimeSinceLastAction() < afkDelay) return;
+        OutboundPacketSender.getInstance().sendPlayerAfkDetectedPacket(player);
         player.setAfkState(AFKState.AFK);
 
         long timeUntilAction = Math.max(0, actionDelay - afkDelay);
