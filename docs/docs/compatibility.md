@@ -12,6 +12,7 @@ BungeeAFK is designed to be compatible with the following server software:
 | Paper      | ✅         |
 | Purpur     | ✅         |
 | Waterfall  | ✅         |
+| Limbo      | ✅         |
 
 as well as other forks of BungeeCord, Velocity and Spigot.
 BungeeAFK is built on BungeeCord `v1.21-R0.1-SNAPSHOT`, Velocity `v3.4.0-SNAPSHOT` and Spigot `v1.21.4-R0.1-SNAPSHOT`.

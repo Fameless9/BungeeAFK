@@ -1,5 +1,5 @@
 name: BungeeAFKTracking
-version: '2.6.0'
+version: '2.6.5'
 main: net.fameless.limbo.LimboTracking
 api-version: '1.21'
 prefix: BungeeAFK

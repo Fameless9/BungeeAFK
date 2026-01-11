@@ -1,5 +1,5 @@
 group = "net.fameless"
-version = "2.6.0"
+version = "2.6.5"
 
 repositories {
     mavenCentral()

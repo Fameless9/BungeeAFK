@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "net.fameless"
-version = "2.6.0"
+version = "2.6.5"
 description = "BungeeAFK Tracking plugin for Limbo"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
@@ -21,7 +21,7 @@ dependencies {
 tasks.shadowJar {
     archiveBaseName.set("BungeeAFK-Limbo-Tracking")
     archiveClassifier.set("")
-    archiveVersion.set("2.6.0")
+    archiveVersion.set("2.6.5")
 
     relocate("io.netty", "net.fameless.libs.netty")
     exclude("META-INF/**")
