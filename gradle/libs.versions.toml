@@ -13,10 +13,12 @@ adventueBukkit = "4.4.1"
 slf4j = "2.0.17"
 logback = "1.5.22"
 snakeYaml = "2.5"
+placeholderApi = "2.11.7"
 
 [libraries]
 bungee = { module = "net.md-5:bungeecord-api", version.ref = "bungee" }
 spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+paper = { module = "io.papermc.paper:paper-api", version.ref = "spigot" }
 velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
@@ -31,3 +33,4 @@ adventureBukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref 
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
+placeholderApi = { module = "me.clip:placeholderapi", version.ref = "placeholderApi" }

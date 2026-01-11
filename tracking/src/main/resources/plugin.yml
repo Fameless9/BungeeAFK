@@ -6,3 +6,4 @@ prefix: BungeeAFK
 authors: [ Fameless9 ]
 description: Tracking plugin needed for BungeeAFK
 website: https://github.com/Fameless9
+softdepend: [PlaceholderAPI]

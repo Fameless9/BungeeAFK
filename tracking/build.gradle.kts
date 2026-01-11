@@ -4,6 +4,7 @@ plugins {
 
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.extendedclip.com/releases/")
 }
 
 dependencies {
@@ -11,7 +12,8 @@ dependencies {
     implementation(libs.adventureBukkit)
     implementation(libs.adventureTextMinimessage)
     implementation(libs.annotations)
-    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly(libs.placeholderApi)
+    compileOnly(libs.paper)
 }
 
 group = "net.fameless"

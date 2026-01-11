@@ -39,6 +39,7 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
     private final EventLoopGroup group = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
     private final Object connectionAttemptLock = new Object();
     private final Set<UUID> joinProcessed = new HashSet<>();
+    private final Set<UUID> afkPlayers = new HashSet<>();
 
     private volatile Channel channel;
     private volatile boolean connecting = false;
@@ -87,6 +88,11 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
         } catch (ClassNotFoundException e) {
             getLogger().info("No paper instance detected. Some features are unavailable");
         }
+
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            getLogger().info("PlaceholderAPI instance detected. Registering placeholder...");
+            new AFKPlaceholderExpansion().register();
+        }
     }
 
     @Override
@@ -123,6 +129,10 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
                         }
                     });
         }
+    }
+
+    public boolean isAfk(Player player) {
+        return afkPlayers.contains(player.getUniqueId());
     }
 
     private void sendHello() {
@@ -171,6 +181,7 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
     }
 
     public void onPlayerAfk(@NotNull Player player) {
+        afkPlayers.add(player.getUniqueId());
         if (paperAvailable && reduceSimulationDistance) {
             player.setViewDistance(2);
             player.setSimulationDistance(2);
@@ -178,6 +189,7 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
     }
 
     public void onPlayerReturn(@NotNull Player player) {
+        afkPlayers.remove(player.getUniqueId());
         if (paperAvailable) {
             player.setViewDistance(getServer().getViewDistance());
             player.setSimulationDistance(getServer().getSimulationDistance());
