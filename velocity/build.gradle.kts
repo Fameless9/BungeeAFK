@@ -2,6 +2,8 @@ plugins {
     id("com.gradleup.shadow") version "9.3.0"
 }
 
+description = "BungeeAFK for Velocity proxies"
+
 repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.maven.apache.org/maven2/")
@@ -17,10 +19,6 @@ dependencies {
     implementation(libs.bstatsVelocity)
 }
 
-group = "net.fameless"
-version = "2.6.5"
-description = "BungeeAFK for Velocity proxies"
-java.sourceCompatibility = JavaVersion.VERSION_21
 
 tasks {
     build {
@@ -30,7 +28,7 @@ tasks {
     shadowJar {
         archiveBaseName.set("BungeeAFK-Velocity")
         archiveClassifier.set("")
-        archiveVersion.set("2.6.5")
+        archiveVersion.set(version.toString())
 
         relocate("org.bstats", "net.fameless.bungeeafk.bstats")
     }

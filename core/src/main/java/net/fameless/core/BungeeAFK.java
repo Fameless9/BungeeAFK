@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import me.neznamy.tab.api.TabAPI;
 import net.fameless.core.caption.Caption;
 import net.fameless.core.command.framework.Command;
 import net.fameless.core.config.Config;
@@ -13,6 +14,7 @@ import net.fameless.core.detection.movementpattern.MovementPatternDetection;
 import net.fameless.core.handling.AFKHandler;
 import net.fameless.core.handling.Action;
 import net.fameless.core.network.NettyServerBootstrap;
+import net.fameless.core.tab.TabPlaceholder;
 import net.fameless.core.util.ColorUtil;
 import net.fameless.core.util.PluginUpdater;
 import net.fameless.core.util.SchedulerService;
@@ -92,6 +94,14 @@ public class BungeeAFK {
             NettyServerBootstrap.initializeServer();
         } catch (InterruptedException e) {
             throw new RuntimeException("Error while initializing netty Socket", e);
+        }
+
+        try {
+            TabAPI.getInstance();
+            logger.info("TAB instance detected, registering placeholders...");
+            TabPlaceholder.register();
+        } catch (Exception e) {
+            logger.info("No TAB instance detected. Placeholders are unavailable");
         }
 
         initialized = true;

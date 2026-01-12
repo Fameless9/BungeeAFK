@@ -4,10 +4,7 @@ plugins {
 
 group = "net.fameless"
 version = "1.0.0"
-
-repositories {
-    mavenCentral()
-}
+description = "BungeeAFK API Library"
 
 dependencies {
     compileOnly("org.jetbrains:annotations:24.0.1")

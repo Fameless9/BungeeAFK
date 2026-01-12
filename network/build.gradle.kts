@@ -1,9 +1,4 @@
-group = "net.fameless"
-version = "2.6.5"
-
-repositories {
-    mavenCentral()
-}
+description = "BungeeAFK network library for communication between proxy and server plugins"
 
 dependencies {
     api("io.netty:netty-buffer:4.2.8.Final")

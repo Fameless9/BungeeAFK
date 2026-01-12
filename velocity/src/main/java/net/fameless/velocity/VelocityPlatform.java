@@ -5,6 +5,7 @@ import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.fameless.core.BungeeAFK;
@@ -17,12 +18,15 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Plugin(
-    id = "bungeeafk",
-    name = "BungeeAFK-Velocity",
-    version = "2.6.5"
-    ,description = "BungeeAFK for Velocity proxy"
-    ,url = "https://github.com/Fameless9"
-    ,authors = {"Fameless9"}
+        id = "bungeeafk",
+        name = "BungeeAFK-Velocity",
+        version = "2.6.5",
+        description = "BungeeAFK for Velocity proxy",
+        url = "https://github.com/Fameless9",
+        authors = {"Fameless9"},
+        dependencies = {
+                @Dependency(id = "tab", optional = true)
+        }
 )
 public class VelocityPlatform implements BungeeAFKPlatform {
 

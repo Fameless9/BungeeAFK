@@ -19,10 +19,7 @@ dependencies {
     implementation(libs.bstats)
 }
 
-group = "net.fameless"
-version = "2.6.5"
 description = "BungeeAFK for Spigot servers"
-java.sourceCompatibility = JavaVersion.VERSION_21
 
 tasks {
     build {
@@ -36,7 +33,7 @@ tasks {
 
         archiveBaseName.set("BungeeAFK-Spigot")
         archiveClassifier.set("")
-        archiveVersion.set("2.6.5")
+        archiveVersion.set(version.toString())
 
         relocate("org.bstats", "net.fameless.bungeeafk.bstats")
     }

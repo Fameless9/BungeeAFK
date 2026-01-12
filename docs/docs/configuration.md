@@ -75,6 +75,12 @@ Default is `kick`.
 This is the name of the server to which players will be connected when the action is set to `connect`.  
 Make sure this server is enabled and present in your proxy's config.
 
+### Reduce Simulation Distance (`reduce-simulation-distance`)
+If true, the plugin will reduce the simulation distance of AFK players to minimize server load.
+This feature requires the tracking plugin to run on Paper servers.
+
+Default is `false`.
+
 #### Action Bar Messages (`actionbar`)
 Controls whether players receive action bar notifications while AFK handling runs.
 Affected language keys are `actionbar.afk` and `actionbar.afk_moved`.

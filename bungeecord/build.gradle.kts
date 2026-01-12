@@ -3,7 +3,6 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
     maven("https://mvnrepository.com/artifact/net.md-5/bungeecord-api")
     mavenLocal()
 }
@@ -19,10 +18,7 @@ dependencies {
     implementation(libs.bstatsBungee)
 }
 
-group = "net.fameless"
-version = "2.6.5"
 description = "BungeeAFK for BungeeCord proxies"
-java.sourceCompatibility = JavaVersion.VERSION_21
 
 tasks {
     build {
@@ -32,7 +28,7 @@ tasks {
     shadowJar {
         archiveBaseName.set("BungeeAFK-Bungee")
         archiveClassifier.set("")
-        archiveVersion.set("2.6.5")
+        archiveVersion.set(version.toString())
 
         relocate("io.netty", "net.fameless.bungeeafk.netty")
         relocate("org.bstats", "net.fameless.bungeeafk.bstats")
