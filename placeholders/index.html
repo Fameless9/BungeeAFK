@@ -24,7 +24,7 @@
     
     
       
-        <title>PlaceholderAPI - BungeeAFK Documentation</title>
+        <title>Placeholders - BungeeAFK Documentation</title>
       
     
     
@@ -65,6 +65,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#using-the-placeholders-in-placeholderapi" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -97,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              PlaceholderAPI
+              Placeholders
             
           </span>
         </div>
@@ -565,17 +570,65 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Placeholders
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    PlaceholderAPI
+    Placeholders
     
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-placeholders-in-placeholderapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using the Placeholders in PlaceholderAPI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-placeholders-in-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using the Placeholders in TAB
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -824,6 +877,32 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-placeholders-in-placeholderapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using the Placeholders in PlaceholderAPI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-placeholders-in-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using the Placeholders in TAB
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -841,9 +920,9 @@
   
 
 
-  <h1>PlaceholderAPI</h1>
+  <h1>Placeholders</h1>
 
-<p>The plugin comes with a PlaceholderAPI expansion. Below is a list of available placeholders:</p>
+<p>The plugin comes with a PlaceholderAPI expansion and TAB integration. Below is a list of available placeholders:</p>
 <table>
 <thead>
 <tr>
@@ -866,9 +945,20 @@
 </tr>
 </tbody>
 </table>
+<h3 id="using-the-placeholders-in-placeholderapi">Using the Placeholders in PlaceholderAPI</h3>
 <p>To use these placeholders, ensure that you have PlaceholderAPI installed on your server.
 You can then incorporate these placeholders into your chat formats, scoreboard displays, or any other compatible plugins that support PlaceholderAPI.</p>
 <p>To install PlaceholderAPI, have a look at the official <a href="https://wiki.placeholderapi.com/">PlaceholderAPI Wiki</a></p>
+<h3 id="using-the-placeholders-in-tab">Using the Placeholders in TAB</h3>
+<p>If you are using the TAB plugin, you can also utilize these placeholders in your TAB configurations:</p>
+<p>In your TAB config.yml, add:</p>
+<pre><code class="language-yaml">placeholder-output-replacements:
+  &quot;%bafk_user_afk%&quot;:
+    true: &quot;&amp;7[AFK] &amp;r&quot;
+    false: &quot;&quot;
+</code></pre>
+<p>In this example, if the placeholder returns <code>true</code>, it will be replaced with "[AFK]" in gray color, otherwise, it will be replaced with an empty string.
+You can now use the placeholder <code>%bafk_user_afk%</code> in your TAB configurations to show the AFK status of players in the nametags and the tablist.</p>
 
 
 
