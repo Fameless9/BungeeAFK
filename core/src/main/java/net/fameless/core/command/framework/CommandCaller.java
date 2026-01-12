@@ -1,6 +1,7 @@
 package net.fameless.core.command.framework;
 
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 
 public interface CommandCaller {
 
@@ -8,7 +9,7 @@ public interface CommandCaller {
 
     String getName();
 
-    void sendMessage(Component component);
+    void sendMessage(@Nullable Component component);
 
     boolean hasPermission(String permission);
 

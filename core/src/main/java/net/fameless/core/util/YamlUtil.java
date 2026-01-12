@@ -97,6 +97,12 @@ public class YamlUtil {
             # 'DISABLE' - No broadcast message is sent
             broadcast-strategy: %s
 
+            # List of messages to suppress
+            # Possible values are all message keys, as defined in the lang files
+            # The messages defined here will not be sent to any player
+            suppressed-messages:
+              %s
+
             # Cooldown time between AFK toggle commands to prevent spamming
             # Time unit is in seconds
             afk-command-cooldown: %d
@@ -198,6 +204,7 @@ public class YamlUtil {
                 Config.getInstance().getBoolean("allow-bypass", true),
                 Config.getInstance().getStringList("disabled-servers"),
                 Config.getInstance().getString("broadcast-strategy", BroadcastStrategy.PER_SERVER.name()),
+                Config.getInstance().getStringList("suppressed-messages"),
                 Config.getInstance().getInt("afk-command-cooldown", 10),
                 YAML.dumpAsMap(Map.of("bypass-regions", Config.getInstance().getSection("bypass-regions"))),
                 Config.getInstance().getBoolean("auto-clicker.enabled", true),

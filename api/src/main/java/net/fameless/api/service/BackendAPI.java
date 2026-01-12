@@ -5,7 +5,7 @@ import net.fameless.api.exception.PlayerNotFoundException;
 import net.fameless.api.model.AFKState;
 import net.fameless.api.model.Player;
 import net.kyori.adventure.text.Component;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class BackendAPI {
 

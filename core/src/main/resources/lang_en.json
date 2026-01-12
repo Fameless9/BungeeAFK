@@ -87,6 +87,9 @@
   "command.invalid_broadcast_strategy": "<prefix><red>Invalid broadcast strategy. Available strategies: 'PASS_ALL', 'GLOBAL', 'PER_SERVER', 'DISABLE'.",
   "command.broadcast_strategy_set": "<prefix><green>Broadcast strategy set to <strategy>.",
   "command.actionbar_set": "<prefix><green>Actionbar messages have been set to <status>.",
+  "command.suppress_message_added": "<prefix><green>The message with the key '<key>' will now be suppressed.",
+  "command.suppress_message_removed": "<prefix><green>The message with the key '<key>' will no longer be suppressed.",
+  "command.suppress_message_list": "<prefix><gray>Suppressed messages: <keys>",
   "error.no_caller_type": "<prefix><red>Invalid CallerType.",
   "actionbar.afk": "<blue>You are AFK",
   "actionbar.afk_moved": "<blue>You have been moved to the AFK server"

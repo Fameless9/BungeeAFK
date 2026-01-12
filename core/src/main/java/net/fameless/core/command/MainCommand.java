@@ -34,7 +34,7 @@ public class MainCommand extends Command {
                 "bungeeafk",
                 List.of("bafk"),
                 CallerType.NONE,
-                "/bungeeafk <lang|configure|region|auto-clicker> <reload|<land>|allow-bypass|warning-delay|afk-delay|action-delay|action|caption|afk-location|reloadconfig|disable-server|enable-server|disabled-servers|enable|disable|max-cps|tolerance|toggle-bypass|bypass-permission|action> <param>",
+                "/bungeeafk <lang|configure|region|auto-clicker> <suppressed-messages|reload|<land>|allow-bypass|warning-delay|afk-delay|action-delay|action|caption|afk-location|reloadconfig|disable-server|enable-server|disabled-servers|enable|disable|max-cps|tolerance|toggle-bypass|bypass-permission|action> <param>",
                 "bungeeafk.command"
         );
     }
@@ -60,6 +60,54 @@ public class MainCommand extends Command {
         if (args[0].equalsIgnoreCase("configure")) {
             AFKHandler afkHandler = BungeeAFK.getAFKHandler();
             switch (args[1]) {
+                case "suppressed-messages" -> {
+                    if (args.length < 3) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    List<String> suppressedMessages = new ArrayList<>(Config.getInstance().getStringList("suppressed-messages"));
+                    if (args[2].equalsIgnoreCase("list")) {
+                        caller.sendMessage(Caption.of(
+                                "command.suppress_message_list",
+                                TagResolver.resolver("keys", Tag.inserting(Component.text(String.join(", ", suppressedMessages))))
+                        ));
+                        return;
+                    }
+
+                    if (args.length < 4) {
+                        sendUsage(caller);
+                        return;
+                    }
+
+                    String messageKey = args[3];
+                    if (!Caption.hasKey(messageKey)) {
+                        caller.sendMessage(Caption.of(
+                                "command.no_such_key",
+                                TagResolver.resolver("key", Tag.inserting(Component.text(messageKey)))
+                        ));
+                        return;
+                    }
+
+                    switch (args[2]) {
+                        case "add" -> {
+                            suppressedMessages.add(messageKey);
+                            Config.getInstance().set("suppressed-messages", suppressedMessages);
+                            caller.sendMessage(Caption.of(
+                                    "command.suppress_message_added",
+                                    TagResolver.resolver("key", Tag.inserting(Component.text(messageKey)))
+                            ));
+                        }
+                        case "remove" -> {
+                            suppressedMessages.remove(messageKey);
+                            Config.getInstance().set("suppressed-messages", suppressedMessages);
+                            caller.sendMessage(Caption.of(
+                                    "command.suppress_message_removed",
+                                    TagResolver.resolver("key", Tag.inserting(Component.text(messageKey)))
+                            ));
+                        }
+                    }
+                }
                 case "actionbar" -> {
                     if (args.length < 3) {
                         sendUsage(caller);
@@ -704,7 +752,7 @@ public class MainCommand extends Command {
                         completions.addAll(Arrays.asList(
                                 "afk-delay", "action-delay", "action", "caption", "warning-delay",
                                 "allow-bypass", "reloadconfig", "afk-location", "saveconfig", "dump", "broadcast-strategy",
-                                "afk-command-cooldown", "actionbar"
+                                "afk-command-cooldown", "actionbar", "suppressed-messages"
                         ));
                         if (BungeeAFK.isProxy()) {
                             completions.addAll(Arrays.asList("disable-server", "enable-server", "disabled-servers"));
@@ -731,6 +779,7 @@ public class MainCommand extends Command {
                 switch (args[0].toLowerCase()) {
                     case "configure" -> {
                         switch (args[1].toLowerCase()) {
+                            case "suppressed-messages" -> completions.addAll(Arrays.asList("add", "remove", "list"));
                             case "action" ->
                                     Action.getAvailableActions().forEach(action -> completions.add(action.getIdentifier()));
                             case "warning-delay", "afk-delay", "action-delay" -> completions.add("<seconds>");
@@ -815,10 +864,17 @@ public class MainCommand extends Command {
                 if (args[0].equalsIgnoreCase("configure") && args[1].equalsIgnoreCase("caption")) {
                     String language = args[2];
                     if (language != null && Caption.existsLanguage(language)) {
-                        JsonObject languageObj = Caption.getLanguageJsonObject(language);
-                        if (languageObj != null) {
-                            completions.addAll(languageObj.keySet());
-                        }
+                        JsonObject langObject = Caption.getLanguageJsonObject(language);
+                        completions.addAll(langObject.keySet());
+                    }
+                } else if (args[0].equalsIgnoreCase("configure") && args[1].equalsIgnoreCase("suppressed-messages")) {
+                    String arg = args[2] == null ? "" : args[2].toLowerCase();
+                    if (arg.equalsIgnoreCase("add")) {
+                        Set<String> availableKeys = Caption.getCurrentJsonObject().keySet();
+                        Config.getInstance().getStringList("suppressed-messages").forEach(availableKeys::remove);
+                        completions.addAll(availableKeys);
+                    } else if (arg.equalsIgnoreCase("remove")) {
+                        completions.addAll(Config.getInstance().getStringList("suppressed-messages"));
                     }
                 } else if (args[0].equalsIgnoreCase("region") && args[1].equalsIgnoreCase("add")) {
                     completions.add("<worldName>");

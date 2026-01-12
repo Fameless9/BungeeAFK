@@ -18,6 +18,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,11 +115,13 @@ public abstract class BAFKPlayer<PlatformPlayer> implements CommandCaller {
         this.afkState = newState;
     }
 
-    public void sendMessage(Component message) {
+    public void sendMessage(@Nullable Component message) {
+        if (message == null) return;
         getAudience().sendMessage(message);
     }
 
-    public void sendActionbar(Component message) {
+    public void sendActionbar(@Nullable Component message) {
+        if (message == null) return;
         getAudience().sendActionBar(message);
     }
 

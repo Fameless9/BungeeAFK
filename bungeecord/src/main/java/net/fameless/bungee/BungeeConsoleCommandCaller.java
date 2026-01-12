@@ -2,6 +2,7 @@ package net.fameless.bungee;
 
 import net.fameless.core.command.framework.ConsoleCommandCaller;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 
 public class BungeeConsoleCommandCaller extends ConsoleCommandCaller {
 
@@ -14,8 +15,8 @@ public class BungeeConsoleCommandCaller extends ConsoleCommandCaller {
         return instance;
     }
 
-    @Override
-    public void sendMessage(Component component) {
+    public void sendMessage(@Nullable Component component) {
+        if (component == null) return;
         BungeeUtil.BUNGEE_AUDIENCES.console().sendMessage(component);
     }
 }

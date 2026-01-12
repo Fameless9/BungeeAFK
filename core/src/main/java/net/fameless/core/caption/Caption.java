@@ -4,13 +4,12 @@ import com.google.gson.*;
 import net.fameless.core.config.Config;
 import net.fameless.core.util.PluginPaths;
 import net.fameless.core.util.ResourceUtil;
-import net.fameless.core.util.SchedulerService;
 import net.fameless.core.util.StringUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +36,13 @@ public final class Caption {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
-    public static @NotNull Component of(String key, TagResolver... replacements) {
+    public static @Nullable Component of(String key, TagResolver... replacements) {
         String message = getString(key);
+        if (Config.getInstance().getStringList("suppressed-messages").contains(key) || message.isEmpty()) {
+            return null;
+        }
         message = message.replace("<prefix>", getString("prefix"));
         return MiniMessage.miniMessage().deserialize(message, replacements);
-    }
-
-    public static @NotNull String getAsLegacy(String key, TagResolver... replacements) {
-        Component component = of(key, replacements);
-        return LegacyComponentSerializer.legacySection().serialize(component);
     }
 
     public static void setJsonObject(String language, JsonObject jsonObject) {
@@ -64,7 +61,6 @@ public final class Caption {
             return;
         }
 
-        Set<String> requiredKeys = ResourceUtil.readJsonResource("lang_en.json").keySet();
         ResourceUtil.extractResourceIfMissing("lang_en.json", PluginPaths.getLangFile("en"));
         ResourceUtil.extractResourceIfMissing("lang_de.json", PluginPaths.getLangFile("de"));
 
@@ -72,39 +68,32 @@ public final class Caption {
             stream.filter(Files::isRegularFile)
                     .forEach(path -> {
                         String fileName = path.getFileName().toString();
+                        if (!fileName.startsWith("lang_") || !fileName.endsWith(".json")) {
+                            logger.warn("Invalid file name detected in language directory: '{}'. Format: 'lang_xx.json' - Skipping file...", path);
+                            return;
+                        }
 
-                        if (fileName.startsWith("lang_") && fileName.endsWith(".json")) {
-                            String identifier = fileName.substring(5, fileName.lastIndexOf(".json"));
-                            if (StringUtil.containsChar(identifier, ' ')) {
-                                logger.error("Failed to load language '{}' located at '{}' - No space allowed in identifier", identifier, fileName);
+                        String identifier = fileName.substring(5, fileName.lastIndexOf(".json"));
+                        if (StringUtil.containsChar(identifier, ' ')) {
+                            logger.error("Failed to load language '{}' located at '{}' - No space allowed in identifier", identifier, path);
+                            return;
+                        }
+
+                        try (var reader = Files.newBufferedReader(path)) {
+                            JsonObject loadedLang = gson.fromJson(reader, JsonObject.class);
+                            if (loadedLang == null) {
+                                logger.error("Failed to load language '{}' located at '{}' - File is empty", identifier, path);
                                 return;
                             }
 
-                            JsonObject langObject;
-                            try (var reader = Files.newBufferedReader(path)) {
-                                langObject = gson.fromJson(reader, JsonObject.class);
-                                if (langObject == null) {
-                                    logger.error("Failed to load language '{}' located at '{}' - File is empty", identifier, fileName);
-                                    return;
-                                }
+                            validateKeys(identifier, loadedLang);
 
-                                Set<String> missingKeys = new HashSet<>(requiredKeys);
-                                missingKeys.removeAll(langObject.keySet());
-
-                                if (!missingKeys.isEmpty()) {
-                                    logger.error("Failed to load language '{}' located at '{}' - Missing the following key(s): {}", identifier, fileName, missingKeys);
-                                    return;
-                                }
-
-                                languageJsonObjectHashMap.put(identifier, langObject);
-                                logger.info("Successfully loaded language '{}'", identifier);
-                            } catch (IOException | JsonIOException e) {
-                                logger.error("Failed to load language '{}' located at '{}'", identifier, fileName, e);
-                            } catch (JsonSyntaxException e) {
-                                logger.error("Failed to load language '{}' located at '{}' - File does not contain a valid JSON syntax", identifier, fileName);
-                            }
-                        } else {
-                            logger.warn("Invalid file name detected in language directory: '{}'. Format: 'lang_xx.json' - Skipping file...", fileName);
+                            languageJsonObjectHashMap.put(identifier, loadedLang);
+                            logger.info("Successfully loaded language '{}'", identifier);
+                        } catch (IOException | JsonIOException e) {
+                            logger.error("Failed to load language '{}' located at '{}'", identifier, path, e);
+                        } catch (JsonSyntaxException e) {
+                            logger.error("Failed to load language '{}' located at '{}' - File does not contain a valid JSON syntax", identifier, path);
                         }
                     });
         } catch (IOException e) {
@@ -121,28 +110,38 @@ public final class Caption {
     }
 
     public static String getString(String key) {
-        JsonObject languageObject = languageJsonObjectHashMap.get(currentLanguage);
-        if (!languageObject.has(key)) {
+        JsonObject langObject = getCurrentJsonObject();
+        if (!langObject.has(key)) {
             return "<prefix><red>Error - No such key: " + key;
         }
-        return languageObject.get(key).getAsString();
+        return langObject.get(key).getAsString();
     }
 
     public static String getString(String language, String key) {
-        JsonObject languageObject = languageJsonObjectHashMap.get(language);
-        if (languageObject == null || !languageObject.has(key)) {
+        JsonObject langObject = languageJsonObjectHashMap.get(language);
+        if (!hasKey(language, key)) {
             return "<prefix><red>Error - No such key: " + key;
         }
-        return languageObject.get(key).getAsString();
+        return langObject.get(key).getAsString();
+    }
+
+    public static boolean hasKey(String key) {
+        return hasKey(currentLanguage, key);
     }
 
     public static boolean hasKey(String language, String key) {
-        JsonObject languageObject = languageJsonObjectHashMap.get(language);
-        return languageObject != null && languageObject.has(key);
+        JsonObject langObject = languageJsonObjectHashMap.get(language);
+        return langObject != null && langObject.keySet().contains(key);
     }
 
-    public static JsonObject getLanguageJsonObject(String language) {
-        return languageJsonObjectHashMap.get(language);
+    public static @NotNull JsonObject getLanguageJsonObject(String language) {
+        JsonObject object = languageJsonObjectHashMap.get(language);
+        if (object == null) return new JsonObject();
+        return object.deepCopy();
+    }
+
+    public static @NotNull JsonObject getCurrentJsonObject() {
+        return getLanguageJsonObject(currentLanguage);
     }
 
     public static @NotNull String getCurrentLanguage() {
@@ -156,7 +155,6 @@ public final class Caption {
         Config.getInstance().set("lang", newLanguage);
     }
 
-
     public static boolean existsLanguage(String lang) {
         return languageJsonObjectHashMap.containsKey(lang);
     }
@@ -167,14 +165,41 @@ public final class Caption {
 
     public static void saveToFile() {
         for (var entry : languageJsonObjectHashMap.entrySet()) {
-            SchedulerService.VIRTUAL_EXECUTOR.submit(() -> {
-                Path file = PluginPaths.getLangFile(entry.getKey());
-                try (var writer = Files.newBufferedWriter(file)) {
-                    gson.toJson(entry.getValue(), writer);
-                } catch (IOException e) {
-                    logger.error("Failed to save language file: {}", entry.getKey(), e);
-                }
-            });
+            Path file = PluginPaths.getLangFile(entry.getKey());
+
+            validateKeys(entry.getKey(), entry.getValue());
+
+            try (var writer = Files.newBufferedWriter(file)) {
+                gson.toJson(entry.getValue(), writer);
+            } catch (IOException e) {
+                logger.error("Failed to save language file: {}", entry.getKey(), e);
+            }
+        }
+    }
+
+    private static void validateKeys(String identifier, JsonObject langObject) {
+        String defaultSource = identifier;
+        JsonObject defaultLang;
+
+        try {
+            defaultLang = ResourceUtil.readJsonResource("lang_" + identifier + ".json");
+        } catch (Throwable t) {
+            defaultLang = ResourceUtil.readJsonResource("lang_en.json");
+            defaultSource = "en";
+        }
+
+        Set<String> missingKeys = new HashSet<>();
+        for (var entry : defaultLang.entrySet()) {
+            if (!langObject.has(entry.getKey())) {
+                missingKeys.add(entry.getKey());
+                langObject.add(entry.getKey(), entry.getValue());
+            }
+        }
+
+        if (!missingKeys.isEmpty()) {
+            logger.warn("Language '{}' located at '{}' is missing the following key(s): '{}' - Using default values from '{}'",
+                    identifier, PluginPaths.getLangFile(identifier), String.join(", ", missingKeys), defaultSource
+            );
         }
     }
 }

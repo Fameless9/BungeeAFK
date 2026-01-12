@@ -78,6 +78,11 @@ disabled-servers: [ ]
 # 'DISABLE' - No broadcast message is sent
 broadcast-strategy: PER_SERVER
 
+# List of messages to suppress
+# Possible values are all message keys, as defined in the lang files
+# The messages defined here will not be sent to any player
+suppressed-messages: [ ]
+
 # Cooldown time between AFK toggle commands to prevent spamming
 # Time unit is in seconds
 afk-command-cooldown: 10

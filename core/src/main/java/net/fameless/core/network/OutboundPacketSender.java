@@ -9,7 +9,6 @@ import net.fameless.network.MessageType;
 import net.fameless.network.NetworkUtil;
 import net.fameless.network.packet.outbound.*;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 public class OutboundPacketSender {
 
@@ -56,7 +55,7 @@ public class OutboundPacketSender {
         registry.channels().forEach(channel -> channel.writeAndFlush(NetworkUtil.msg(MessageType.PLAYER_RETURN, packet)));
     }
 
-    public void sendConfigurationPacket(@NonNull Channel channel) {
+    public void sendConfigurationPacket(@NotNull Channel channel) {
         var packet = new ConfigurationUpdatePacket(Config.getInstance().getBoolean("reduce-simulation-distance", false));
         channel.writeAndFlush(NetworkUtil.msg(MessageType.CONFIGURATION_UPDATE, packet));
     }

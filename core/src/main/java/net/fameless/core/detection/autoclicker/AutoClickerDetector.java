@@ -70,7 +70,10 @@ public class AutoClickerDetector {
                     ? ActionOnDetection.fromIdentifier(actionIdentifier)
                     : ActionOnDetection.KICK;
             switch (action) {
-                case KICK -> player.kick(Caption.of("notification.auto_clicker_kick_message"));
+                case KICK -> {
+                    Component kickMessage = Caption.of("notification.auto_clicker_kick_message");
+                    player.kick(kickMessage != null ? kickMessage : Component.empty());
+                }
                 case OPEN_INVENTORY -> player.openEmptyInventory();
             }
         };

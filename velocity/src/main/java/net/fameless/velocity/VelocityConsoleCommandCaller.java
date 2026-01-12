@@ -2,6 +2,7 @@ package net.fameless.velocity;
 
 import net.fameless.core.command.framework.ConsoleCommandCaller;
 import net.kyori.adventure.text.Component;
+import org.jetbrains.annotations.Nullable;
 
 public class VelocityConsoleCommandCaller extends ConsoleCommandCaller {
 
@@ -14,8 +15,8 @@ public class VelocityConsoleCommandCaller extends ConsoleCommandCaller {
         return instance;
     }
 
-    @Override
-    public void sendMessage(Component component) {
+    public void sendMessage(@Nullable Component component) {
+        if (component == null) return;
         VelocityPlatform.getProxy().getConsoleCommandSource().sendMessage(component);
     }
 }
