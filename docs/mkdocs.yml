@@ -13,16 +13,16 @@ remote_branch: gh-pages
 nav:
   - Home: index.md
   - Installation:
-    - Installation Guide: installation.md
-    - Compatibility: compatibility.md
-    - Updating: updating.md
+      - Installation Guide: installation.md
+      - Compatibility: compatibility.md
+      - Updating: updating.md
   - Common Issues:
       - Address Already in Use: address_already_in_use.md
   - Configuration:
-    - Netty Channel Configuration: netty_channel_configuration.md
-    - Configuration Guide: configuration.md
-    - Custom Messages: custom_messages.md
-    - Custom Language Files: custom_languages.md
+      - Netty Channel Configuration: netty_channel_configuration.md
+      - Configuration Guide: configuration.md
+      - Custom Messages: custom_messages.md
+      - Custom Language Files: custom_languages.md
   - Placeholders: placeholders.md
   - Commands: commands.md
   - Auto Clicker Detection: auto_clicker_detection.md

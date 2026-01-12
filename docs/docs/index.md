@@ -1,4 +1,5 @@
 # BungeeAFK Documentation
+
 Welcome to the BungeeAFK documentation! This guide will help you understand how to configure
 and use the BungeeAFK plugin effectively.
 

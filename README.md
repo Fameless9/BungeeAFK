@@ -8,7 +8,9 @@
 
 # BungeeAFK
 
-BungeeAFK is a cross-platform plugin for **BungeeCord**, **Velocity**, and **Spigot/Paper** servers that detects inactive (AFK) players. If a player is idle for a configurable amount of time, the plugin can either **kick them**, **teleport them** or **move them to a separate AFK server** within your Bungee network.
+BungeeAFK is a cross-platform plugin for **BungeeCord**, **Velocity**, and **Spigot/Paper** servers that detects
+inactive (AFK) players. If a player is idle for a configurable amount of time, the plugin can either **kick them**, *
+*teleport them** or **move them to a separate AFK server** within your Bungee network.
 
 ### [Official Wiki](https://fameless9.github.io/BungeeAFK/)
 
@@ -30,9 +32,11 @@ BungeeAFK is a cross-platform plugin for **BungeeCord**, **Velocity**, and **Spi
 ### 1. Main Plugin
 
 Install `BungeeAFK`:
+
 - put the BungeeAFK-Bungee, Velocity or Spigot version in the plugins folder of the network/main server
 
 ### 2. Tracking Plugin (Required on subservers)
+
 - to detect player activity accurately, **every subserver in the network must also have**:
 
 ```
@@ -49,36 +53,39 @@ Find detailed instructions on the [Installation Guide](https://fameless9.github.
 
 ## 🛠️ Configuration
 
-BungeeAFK comes with **a lot** of customization options. For a detailed overview, visit the [Configuration Guide](https://fameless9.github.io/BungeeAFK/configuration/).  
-It also supports **customizable messages**. For that, visit [Custom Messages](https://fameless9.github.io/BungeeAFK/custom_messages/)
+BungeeAFK comes with **a lot** of customization options. For a detailed overview, visit
+the [Configuration Guide](https://fameless9.github.io/BungeeAFK/configuration/).  
+It also supports **customizable messages**. For that,
+visit [Custom Messages](https://fameless9.github.io/BungeeAFK/custom_messages/)
 
 ---
 
 ## 🚫 Limitations
 
 - The **connect** feature only works on **networks (BungeeCord, etc.)** not on standalone spigot servers.
-- You **must install** `BungeeAFK-Tracking` on **all subservers** managed by the BungeeCord/Velovity network for AFK detection to work properly.
+- You **must install** `BungeeAFK-Tracking` on **all subservers** managed by the BungeeCord/Velovity network for AFK
+  detection to work properly.
 
 ---
 
 ## 🔗 Compatibility
 
-| Platform     | Supported |
-|--------------|-----------|
-| BungeeCord   | ✅        |
-| Velocity     | ✅        |
-| Spigot       | ✅        |
-| Paper        | ✅        |
-| Purpur       | ✅        |
-| Waterfall    | ✅        |
+| Platform   | Supported |
+|------------|-----------|
+| BungeeCord | ✅         |
+| Velocity   | ✅         |
+| Spigot     | ✅         |
+| Paper      | ✅         |
+| Purpur     | ✅         |
+| Waterfall  | ✅         |
 
 ---
 
 ## 📣 Commands
+
 You can configure the plugin using the `/bungeeafk` or `/bafk` command.
 
-- `/bafk configure <action | action-delay | afk-delay | allow-bypass | warn-delay | afk-location | caption | reloadconfig> <value>`
-- `/bafk lang <en | de | reload>`
+For subcommands and descriptions, see the [Commands Documentation](https://fameless9.github.io/BungeeAFK/commands/).
 
 ---
 

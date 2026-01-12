@@ -3,7 +3,9 @@
   "name": "BungeeAFK-Velocity",
   "version": "2.6.5",
   "main": "net.fameless.velocity.VelocityPlatform",
-  "authors": ["Fameless9"],
+  "authors": [
+    "Fameless9"
+  ],
   "description": "BungeeAFK for Velocity proxy",
   "dependencies": [
     {

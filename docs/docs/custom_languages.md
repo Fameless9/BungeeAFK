@@ -1,6 +1,6 @@
 For any version higher than _2.6.0_, your can create your own language files by copying one of the default
 language files located in the `plugins/BungeeAFK/lang/` directory and renaming it to `lang_xx.json`, where
-`xx` is your desired language identifier. You can then edit the messages inside the language file and the 
+`xx` is your desired language identifier. You can then edit the messages inside the language file and the
 plugin will automatically load the custom language file on startup or after running `/bafk lang reload`.
 To set the plugin language to your custom language, use the `/bafk lang <language_identifier>` command.
 

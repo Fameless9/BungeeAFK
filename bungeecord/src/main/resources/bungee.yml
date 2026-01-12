@@ -2,4 +2,4 @@ name: BungeeAFK
 version: '2.6.5'
 main: net.fameless.bungee.BungeePlatform
 author: Fameless9
-softDepends: ["tab"]
+softDepends: [ "tab" ]

@@ -1,6 +1,7 @@
 # Commands
 
-BungeeAFK provides several commands to configure and manage the plugin's features. This document outlines all available commands and their associated permissions.
+BungeeAFK provides several commands to configure and manage the plugin's features. This document outlines all available
+commands and their associated permissions.
 
 ## Main Command
 

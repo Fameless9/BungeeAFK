@@ -3,12 +3,12 @@ version: '2.6.5'
 main: net.fameless.spigot.SpigotPlatform
 api-version: '1.21'
 prefix: BungeeAFK
-authors: [Fameless9]
+authors: [ Fameless9 ]
 description: Tracking plugin - needed for BungeeAFK
 website: https://github.com/Fameless9
-softdepend: ["tab"]
+softdepend: [ tab ]
 
 commands:
-    bungeeafk:
-        aliases: [bafk]
-    afk:
+  bungeeafk:
+    aliases: [ bafk ]
+  afk:
