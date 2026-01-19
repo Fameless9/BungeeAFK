@@ -133,26 +133,42 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
         }
     }
 
-    public boolean isAfk(Player player) {
+    public boolean isAfk(@NotNull Player player) {
         return afkPlayers.contains(player.getUniqueId());
     }
 
     private void sendHello() {
-        if (channel == null) return;
+        if (channel == null) {
+            getLogger().warning("Cannot send 'handshake' packet as channel is null");
+            return;
+        }
+
         if (debugLogging) getLogger().info("Sending a handshake packet to the proxy plugin");
         HandshakePacket packet = new HandshakePacket(ServerSoftware.SPIGOT, getServer().getPort());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.HANDSHAKE, packet));
     }
 
     private void sendActionCaught(@NotNull Player player) {
-        if (channel == null) return;
+        if (channel == null) {
+            getLogger().warning("Cannot send 'action caught' packet for " + player.getName() + " as channel is null");
+            return;
+        }
+        if (!joinProcessed.contains(player.getUniqueId())) {
+            if (debugLogging) getLogger().info("Cancelling 'action caught' packet for {} as player is not initialized");
+            return;
+        }
+
         if (debugLogging) getLogger().info("Sending an 'action caught' packet for " + player.getName());
         ActionCaughtPacket packet = new ActionCaughtPacket(player.getUniqueId());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.ACTION_CAUGHT, packet));
     }
 
     private void sendLocationChanged(@NotNull Player player, @NotNull Location to) {
-        if (channel == null) return;
+        if (channel == null) {
+            getLogger().warning("Cannot send 'location changed' packet for " + player.getName() + " as channel is null");
+            return;
+        }
+
         if (debugLogging)
             getLogger().info("Sending a 'location changed' packet for " + player.getName() + "Location=" + to);
         LocationChangedPacket packet = new LocationChangedPacket(
@@ -168,18 +184,24 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
     }
 
     private void sendGameModeChanged(@NotNull Player player, @NotNull GameMode gameMode) {
-        if (channel == null) return;
+        if (channel == null) {
+            getLogger().warning("Cannot send 'game mode changed' packet for " + player.getName() + " as channel is null");
+            return;
+        }
+
         if (debugLogging)
             getLogger().info("Sending a 'game mode changed' packet for player " + player.getName() + " GameMode=" + gameMode.name());
-        GameModeChangedPacket packet = new GameModeChangedPacket(player.getUniqueId(), gameMode.name());
-        channel.writeAndFlush(NetworkUtil.msg(MessageType.GAMEMODE_CHANGED, packet));
+        new GameModeChangedPacket(player.getUniqueId(), gameMode.name()).send(channel);
     }
 
     private void sendClickDetected(@NotNull Player player) {
-        if (channel == null) return;
+        if (channel == null) {
+            getLogger().warning("Cannot send 'click detected' packet for " + player.getName() + " as channel is null");
+            return;
+        }
+
         if (debugLogging) getLogger().info("Sending a 'click detected' packet for " + player.getName());
-        ClickDetectedPacket packet = new ClickDetectedPacket(player.getUniqueId());
-        channel.writeAndFlush(NetworkUtil.msg(MessageType.CLICK_DETECTED, packet));
+        new ClickDetectedPacket(player.getUniqueId()).send(channel);
     }
 
     public void onPlayerAfk(@NotNull Player player) {
@@ -206,7 +228,6 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onMove(@NotNull PlayerMoveEvent event) {
-        if (!joinProcessed.contains(event.getPlayer().getUniqueId())) return;
         if (!event.getFrom().equals(event.getTo())) {
             if (debugLogging) getLogger().info("Caught a move action from player " + event.getPlayer().getName());
             sendActionCaught(event.getPlayer());
@@ -230,18 +251,20 @@ public class TrackingPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        sendGameModeChanged(player, player.getGameMode());
+        sendLocationChanged(player, player.getLocation());
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            Player player = event.getPlayer();
-            sendGameModeChanged(player, player.getGameMode());
-            sendLocationChanged(player, player.getLocation());
-            joinProcessed.add(player.getUniqueId());
-        }, 5L); // Delay to ensure player is fully initialized on proxy platform
+            try {
+                joinProcessed.add(player.getUniqueId());
+            } catch (Throwable ignore) {
+            }
+        }, 4L);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onQuit(@NotNull PlayerQuitEvent event) {
-        UUID playerId = event.getPlayer().getUniqueId();
-        joinProcessed.remove(playerId);
+        joinProcessed.remove(event.getPlayer().getUniqueId());
     }
 
     public void setReduceSimulationDistance(boolean reduceSimulationDistance) {

@@ -1,8 +1,11 @@
 package net.fameless.network.packet.outbound;
 
+import net.fameless.network.MessageType;
+import net.fameless.network.packet.AbstractPacket;
+
 import java.util.UUID;
 
-public class TeleportPlayerPacket {
+public class TeleportPlayerPacket extends AbstractPacket {
 
     public UUID uuid;
     public String world;
@@ -13,6 +16,7 @@ public class TeleportPlayerPacket {
     public float yaw;
 
     public TeleportPlayerPacket(UUID uuid, String world, double x, double y, double z, float pitch, float yaw) {
+        super(MessageType.TELEPORT_PLAYER);
         this.uuid = uuid;
         this.world = world;
         this.x = x;

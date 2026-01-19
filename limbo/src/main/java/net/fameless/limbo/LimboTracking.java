@@ -37,13 +37,15 @@ public class LimboTracking extends LimboPlugin implements Listener {
     }
 
     private final EventLoopGroup group = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
+    private final Object connectionAttemptLock = new Object();
+    private final Set<UUID> initializedPlayers = new HashSet<>();
+
     private volatile Channel channel;
+    private volatile boolean connecting = false;
+
     private Bootstrap bootstrap;
     private Config config;
-    private final Object connectionAttemptLock = new Object();
-    private volatile boolean connecting = false;
     private boolean debugLogging = false;
-    private final Set<UUID> joinProcessed = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -94,7 +96,7 @@ public class LimboTracking extends LimboPlugin implements Listener {
                             try {
                                 if (future.isSuccess()) {
                                     this.channel = future.channel();
-                                    sendHello();
+                                    sendHandshake();
 
                                     this.channel.closeFuture().addListener(cf -> {
                                         synchronized (connectionAttemptLock) {
@@ -115,23 +117,39 @@ public class LimboTracking extends LimboPlugin implements Listener {
         }
     }
 
-    private void sendHello() {
-        if (channel == null) return;
+    private void sendHandshake() {
+        if (channel == null) {
+            Logger.info("Cannot send 'handshake' packet as channel is null");
+            return;
+        }
+
         if (debugLogging) Logger.info("Sending a handshake packet to the proxy plugin");
         HandshakePacket packet = new HandshakePacket(ServerSoftware.LIMBO, getServer().getServerConnection().getServerSocket().getLocalPort());
         channel.writeAndFlush(NetworkUtil.msg(MessageType.HANDSHAKE, packet));
     }
 
     private void sendActionCaught(@NotNull Player player) {
-        if (channel == null) return;
-        if (debugLogging) Logger.info("Sending an 'action caught' packet for {}", player.getName());
+        if (channel == null) {
+            Logger.info("Cannot send 'action caught' packet for {} as channel is null", player.getName());
+            return;
+        }
+        if (!initializedPlayers.contains(player.getUniqueId())) {
+            if (debugLogging)
+                Logger.info("Cancelling 'action caught' packet for {} as player is not initialized", player.getName());
+            return;
+        }
+
         ActionCaughtPacket packet = new ActionCaughtPacket(player.getUniqueId());
-        channel.writeAndFlush(NetworkUtil.msg(MessageType.ACTION_CAUGHT, packet));
+        if (debugLogging) Logger.info("Sending an 'action caught' packet for {}", player.getName());
+        packet.send(channel);
     }
 
     private void sendLocationChanged(@NotNull Player player, @NotNull Location to) {
-        if (channel == null) return;
-        if (debugLogging) Logger.info("Sending a 'location changed' packet for {} | Location={}", player.getName(), to);
+        if (channel == null) {
+            Logger.info("Cannot send 'location changed' packet for {} as channel is null", player.getName());
+            return;
+        }
+
         LocationChangedPacket packet = new LocationChangedPacket(
                 player.getUniqueId(),
                 to.getWorld().getName(),
@@ -141,28 +159,35 @@ public class LimboTracking extends LimboPlugin implements Listener {
                 to.getPitch(),
                 to.getYaw()
         );
-        channel.writeAndFlush(NetworkUtil.msg(MessageType.LOCATION_CHANGED, packet));
+        if (debugLogging) Logger.info("Sending a 'location changed' packet for {} | Location={}", player.getName(), to);
+        packet.send(channel);
     }
 
     private void sendGameModeChanged(@NotNull Player player, @NotNull GameMode gameMode) {
-        if (channel == null) return;
+        if (channel == null) {
+            Logger.info("Cannot send 'game mode changed' packet for {} as channel is null", player.getName());
+            return;
+        }
+
+        GameModeChangedPacket packet = new GameModeChangedPacket(player.getUniqueId(), gameMode.name());
         if (debugLogging)
             Logger.info("Sending a 'game mode changed' packet for {} | GameMode={}", player.getName(), gameMode.name());
-        GameModeChangedPacket packet = new GameModeChangedPacket(player.getUniqueId(), gameMode.name());
-        channel.writeAndFlush(NetworkUtil.msg(MessageType.GAMEMODE_CHANGED, packet));
+        packet.send(channel);
     }
 
     private void sendClickDetected(@NotNull Player player) {
-        if (channel == null) return;
-        if (debugLogging) Logger.info("Sending a 'click detected' packet for {}", player.getName());
+        if (channel == null) {
+            Logger.info("Cannot send 'click detected' packet for {} as channel is null", player.getName());
+            return;
+        }
+
         ClickDetectedPacket packet = new ClickDetectedPacket(player.getUniqueId());
-        channel.writeAndFlush(NetworkUtil.msg(MessageType.CLICK_DETECTED, packet));
+        if (debugLogging) Logger.info("Sending a 'click detected' packet for {}", player.getName());
+        packet.send(channel);
     }
 
     @EventHandler
     public void onMove(@NotNull PlayerMoveEvent event) {
-        if (!joinProcessed.contains(event.getPlayer().getUniqueId())) return;
-        if (event.getTo() == null) return;
         if (!event.getFrom().equals(event.getTo())) {
             if (debugLogging) Logger.info("Caught a move action from player {}", event.getPlayer().getName());
             sendActionCaught(event.getPlayer());
@@ -186,21 +211,28 @@ public class LimboTracking extends LimboPlugin implements Listener {
 
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
+        Player player = event.getPlayer();
         if (config.getBoolean("spectator-by-default", true)) {
             if (debugLogging)
                 Logger.info("Setting the game mode of {} to spectator as 'specator-by-default' is true", event.getPlayer().getName());
-            event.getPlayer().setGamemode(GameMode.SPECTATOR);
-            event.getPlayer().teleport(event.getPlayer().getLocation());
+            player.setGamemode(GameMode.SPECTATOR);
+            player.teleport(player.getLocation());
         }
+        sendGameModeChanged(player, player.getGamemode());
+        sendLocationChanged(player, player.getLocation());
+
+        // A short delay is required before sending action caught packets, as a PlayerMoveEvent is sometimes thrown if a player joins
+        // the server for the first time even though they didn't move
         Limbo.getInstance().getScheduler().runTaskLater(this, () -> {
-            sendLocationChanged(event.getPlayer(), event.getPlayer().getLocation());
-            joinProcessed.add(event.getPlayer().getUniqueId());
-            if (debugLogging) Logger.info("Join processed for player {}", event.getPlayer().getName());
-        }, 5L);
+            try {
+                initializedPlayers.add(player.getUniqueId());
+            } catch (Throwable ignore) {
+            }
+        }, 4L);
     }
 
     @EventHandler
     public void onQuit(@NotNull PlayerQuitEvent event) {
-        joinProcessed.remove(event.getPlayer().getUniqueId());
+        initializedPlayers.remove(event.getPlayer().getUniqueId());
     }
 }
